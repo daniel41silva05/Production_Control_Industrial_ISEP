@@ -1,0 +1,20 @@
+@startuml
+skinparam packageStyle rectangle
+
+skinparam rectangle{
+    BorderColor yellow
+}
+
+title Use Case Diagram
+
+left to right direction
+
+rectangle "System Actors" as actors {
+
+}
+
+rectangle "Use Cases" as usecases{
+
+}
+
+@enduml
