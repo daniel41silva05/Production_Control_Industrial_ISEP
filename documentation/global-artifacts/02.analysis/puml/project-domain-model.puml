@@ -9,6 +9,167 @@ hide methods
 
 title Domain Model
 
+class Client {
+    id
+    name
+    vatin
+    phoneNumber
+    email
+}
+
+class Address {
+    id
+    street
+    zipCode
+    town
+    country
+}
+
+enum CompanyType {
+    individual
+    company
+}
+
+class State {
+    active
+    inactive
+}
+
+class Order {
+    id
+    orderDate
+    deliveryDate
+    price
+}
+
+class ProductOrder {
+    quantity
+}
+
+class Product {
+    id
+    name
+    description
+    capacity
+    size
+    color
+    price
+}
+
+class ProductCategory {
+    id
+    name
+}
+
+class Unit {
+    id
+    name
+    symbol
+}
+
+class Part {
+    id
+    name
+    description
+}
+
+class Component {
+    id
+    name
+    description
+}
+
+class RawMaterial {
+    id
+    name
+    description
+    currentStock
+    minimumStock
+}
+
+class RawMaterialSupplier {
+    expectedUnitCost
+}
+
+class Supplier {
+    id
+    name
+    phoneNumber
+    email
+}
+
+class SupplyOffer {
+    id
+    startDate
+    endDate
+}
+
+class RawMaterialSupply {
+    quantity
+    unitCost
+}
+
+class BOO {
+    operationNumber
+}
+
+class BOOInput {
+    quantity
+}
+
+class Operation {
+    id
+    name
+    executionTime
+}
+
+class OperationType {
+    id
+    name
+}
+
+class CanBeDoneAt {
+    setupTime
+}
+
+class WorkstationType {
+    id
+    name
+}
+
+class Workstation {
+    id
+    name
+}
+
+Client "*" -- "1" Address : has >
+Client "*" -- "1" CompanyType : has >
+Client "*" -- "1" State : has >
+Client "1" -- "*" Order : places >
+Order "*" -- "1" Address : delivered to >
+Order "1" -- "1..*" ProductOrder : contains >
+ProductOrder "1..*" -- "1" Product : produces >
+Part "1" -- "0..1" Product : can be >
+Part "1" -- "0..1" Component : can be >
+Part "1" -- "0..1" RawMaterial : can be >
+Part "*" -- "1" Unit : has >
+Product "*" -- "1" ProductCategory : belongs to >
+RawMaterial "1" -- "*" RawMaterialSupplier : supplied >
+RawMaterialSupplier "*" -- "1" Supplier : associates >
+Supplier "*" -- "1" State : has >
+Supplier "1" -- "*" SupplyOffer : places >
+SupplyOffer "*" -- "1" Address : has >
+SupplyOffer "*" -- "1" Unit : has >
+SupplyOffer "1" -- "1..*" RawMaterialSupply : contains >
+RawMaterialSupply "1..*" -- "1" RawMaterial : associates >
+Product "1" -- "1" BOO : has >
+BOO "1" -- "1..*" BOOInput : composed of >
+BOOInput "*" -- "1" Operation : requires >
+BOOInput "*" -- "1" RawMaterial : requires >
+Operation "*" -- "1" OperationType : belongs to >
+OperationType "1" -- "*" CanBeDoneAt : attributed to >
+CanBeDoneAt "*" -- "1" WorkstationType : requires >
+WorkstationType "1" -- "*" Workstation : categorizes >
 
 @enduml
 
