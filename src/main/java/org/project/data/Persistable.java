@@ -1,13 +1,12 @@
 package org.project.data;
 
-import java.sql.Connection;
+import java.util.List;
 
 public interface Persistable {
 
-    boolean save(Connection databaseConnection, Object object);
+    boolean save(DatabaseConnection databaseConnection, Object object);
 
-    boolean delete(Connection databaseConnection, Object object);
+    boolean delete(DatabaseConnection databaseConnection, Object object);
 
-    //TODO: não faltará aqui uma operação para obter um objeto da base de dados?
+    List<Object> getAll(DatabaseConnection databaseConnection);
 }
-

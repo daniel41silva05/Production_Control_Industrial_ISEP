@@ -1,22 +1,27 @@
 package org.project.data;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class ConnectionFactory {
 
+    private static final Logger LOGGER = Logger.getLogger("MainLog");
+
     private static ConnectionFactory instance = null;
-    private final Integer connectionPoolCount = 1; // Tamanho do pool de conexões
-    private final List<DatabaseConnection> databaseConnectionList = new ArrayList<>();
+
+    private final Integer connectionPoolCount = 1;
+
+    private final List<DatabaseConnection> databaseConnectionList =
+            new ArrayList<>();
+
     private Integer connectionPoolRequest = 0;
 
+    private static final String URL = "jdbc:postgresql://ravenously-equal-anglerfish.data-1.use1.tembo.io:5432/postgres";
+    private static final String USER = "postgres";
+    private static final String PASSWORD = "Nn2E8HKxGMXDj5fT";
+
     private ConnectionFactory() {
-        // Inicializa o pool de conexões
-        for (int i = 0; i < connectionPoolCount; i++) {
-            databaseConnectionList.add(new DatabaseConnection());
-        }
     }
 
     public static synchronized ConnectionFactory getInstance() {
@@ -26,9 +31,19 @@ public class ConnectionFactory {
         return instance;
     }
 
-    public Connection getDatabaseConnection() throws SQLException {
-        DatabaseConnection databaseConnection = databaseConnectionList.get(connectionPoolRequest);
-        connectionPoolRequest = (connectionPoolRequest + 1) % connectionPoolCount; // Round-robin
-        return databaseConnection.getConnection();
+    public DatabaseConnection getDatabaseConnection() {
+        DatabaseConnection databaseConnection;
+        if (++connectionPoolRequest > connectionPoolCount) {
+            connectionPoolRequest = 1;
+        }
+        if (connectionPoolRequest > databaseConnectionList.size()) {
+            databaseConnection =
+                    new DatabaseConnection(URL, USER, PASSWORD);
+            databaseConnectionList.add(databaseConnection);
+        } else {
+            databaseConnection =
+                    databaseConnectionList.get(connectionPoolRequest - 1);
+        }
+        return databaseConnection;
     }
 }

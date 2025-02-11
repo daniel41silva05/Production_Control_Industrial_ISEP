@@ -1,16 +1,48 @@
 package org.project.data;
 
+import org.postgresql.ds.PGSimpleDataSource;
+
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class DatabaseConnection {
+    private PGSimpleDataSource dataSource;
+    private Connection connection;
+    private SQLException error;
 
-    private static final String URL = "jdbc:postgresql://ravenously-equal-anglerfish.data-1.use1.tembo.io:5432/postgres";
-    private static final String USER = "postgres";
-    private static final String PASSWORD = "Nn2E8HKxGMXDj5fT";
+    public DatabaseConnection(String url, String username, String password) {
+        try {
+            dataSource = new PGSimpleDataSource();
+            dataSource.setUrl(url);
+            dataSource.setUser(username);
+            dataSource.setPassword(password);
 
-    public Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USER, PASSWORD);
+            connection = dataSource.getConnection();
+
+        } catch (SQLException e) {
+            Logger.getLogger(DatabaseConnection.class.getName())
+                    .log(Level.SEVERE, null, e);
+            System.err.format("SQL State: %s\n%s", e.getSQLState(),
+                    e.getMessage());
+        }
+    }
+
+    public Connection getConnection() {
+        if (connection == null) {
+            throw new RuntimeException("Connection does not exist");
+        }
+        return connection;
+    }
+
+    public void registerError(SQLException error) {
+        this.error = error;
+    }
+
+    public SQLException getLastError() {
+        SQLException lastError = this.error;
+        registerError(null);
+        return lastError;
     }
 }
