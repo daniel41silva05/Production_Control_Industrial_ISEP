@@ -1,6 +1,7 @@
 package org.project.controller;
 
 import org.project.domain.Client;
+import org.project.domain.ClientException;
 import org.project.domain.CompanyType;
 import org.project.service.ClientService;
 
@@ -18,7 +19,7 @@ public class ClientController {
         return clientService.getClients();
     }
 
-    public Client registerClient (int clientID, String street, String zipCode, String town, String country,String name, String vatin, int phoneNumber, String email, CompanyType type) {
+    public Client registerClient (int clientID, String street, String zipCode, String town, String country,String name, String vatin, int phoneNumber, String email, CompanyType type) throws ClientException {
         return clientService.registerClient(clientID, street, zipCode, town, country, name, vatin, phoneNumber, email, type);
     }
 

@@ -4,6 +4,7 @@ import org.project.data.ConnectionFactory;
 import org.project.data.DatabaseConnection;
 import org.project.domain.Address;
 import org.project.domain.Client;
+import org.project.domain.ClientException;
 import org.project.domain.CompanyType;
 import org.project.repository.AddressRepository;
 import org.project.repository.ClientRepository;
@@ -27,11 +28,11 @@ public class ClientService {
         return clientRepository.getAll(connection);
     }
 
-    public Client registerClient(int clientID, String street, String zipCode, String town, String country,String name, String vatin, int phoneNumber, String email, CompanyType type) {
+    public Client registerClient(int clientID, String street, String zipCode, String town, String country,String name, String vatin, int phoneNumber, String email, CompanyType type) throws ClientException {
         DatabaseConnection connection = ConnectionFactory.getInstance().getDatabaseConnection();
 
         if (clientRepository.getClientExists(connection, clientID)) {
-            return null;
+            throw new ClientException("Client with ID " + clientID + " already exists.");
         }
 
         Address address = addressRepository.findAddress(connection, street, zipCode, town, country);
