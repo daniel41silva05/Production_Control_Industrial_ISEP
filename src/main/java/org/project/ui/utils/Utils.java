@@ -14,67 +14,50 @@ public class Utils {
     static public String readLineFromConsole(String prompt) {
         try {
             System.out.print("\n" + prompt);
-
-            InputStreamReader converter = new InputStreamReader(System.in);
-            BufferedReader in = new BufferedReader(converter);
-
+            BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
             return in.readLine();
         } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+            System.out.println("Error reading input. Please try again.");
+            return readLineFromConsole(prompt);
         }
     }
 
     static public int readIntegerFromConsole(String prompt) {
-        do {
+        while (true) {
             try {
-                String input = readLineFromConsole(prompt);
-
-                int value = Integer.parseInt(input);
-
-                return value;
+                return Integer.parseInt(readLineFromConsole(prompt));
             } catch (NumberFormatException ex) {
-                Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.println("Invalid input. Please enter a valid number.");
             }
-        } while (true);
+        }
     }
 
     static public double readDoubleFromConsole(String prompt) {
-        do {
+        while (true) {
             try {
-                String input = readLineFromConsole(prompt);
-
-                double value = Double.parseDouble(input);
-
-                return value;
+                return Double.parseDouble(readLineFromConsole(prompt));
             } catch (NumberFormatException ex) {
-                Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.println("Invalid input. Please enter a valid number.");
             }
-        } while (true);
+        }
     }
 
     static public Date readDateFromConsole(String prompt) {
-        do {
+        SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy");
+        while (true) {
             try {
-                String strDate = readLineFromConsole(prompt);
-
-                SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy");
-
-                Date date = df.parse(strDate);
-
-                return date;
+                return df.parse(readLineFromConsole(prompt));
             } catch (ParseException ex) {
-                Logger.getLogger(Utils.class.getName()).log(Level.SEVERE, null, ex);
+                System.out.println("Invalid date format. Please enter in format dd-MM-yyyy.");
             }
-        } while (true);
+        }
     }
 
     static public boolean confirm(String message) {
         String input;
         do {
-            input = Utils.readLineFromConsole("\n" + message + "\n");
+            input = readLineFromConsole("\n" + message + " (s/n): ");
         } while (!input.equalsIgnoreCase("s") && !input.equalsIgnoreCase("n"));
-
         return input.equalsIgnoreCase("s");
     }
 
@@ -90,46 +73,33 @@ public class Utils {
 
     static public void showList(List list, String header) {
         System.out.println(header);
-
-        int index = 0;
-        for (Object o : list) {
-            index++;
-
-            System.out.println("  " + index + " - " + o.toString());
+        for (int i = 0; i < list.size(); i++) {
+            System.out.println("  " + (i + 1) + " - " + list.get(i));
         }
-        //System.out.println();
         System.out.println("  0 - Cancel");
     }
 
+    static public void showListWithoutIndex(List list, String header) {
+        System.out.println(header);
+        for (int i = 0; i < list.size(); i++) {
+            System.out.println(" - " + list.get(i));
+        }
+        System.out.println();
+    }
+
     static public Object selectsObject(List list) {
-        String input;
         int value;
         do {
-            input = Utils.readLineFromConsole("Type your option: ");
-            value = Integer.valueOf(input);
+            value = readIntegerFromConsole("Type your option: ");
         } while (value < 0 || value > list.size());
-
-        if (value == 0) {
-            return null;
-        } else {
-            return list.get(value - 1);
-        }
+        return value == 0 ? null : list.get(value - 1);
     }
 
     static public int selectsIndex(List list) {
-        String input;
         int value;
         do {
-            input = Utils.readLineFromConsole("Type your option: ");
-            try {
-                value = Integer.valueOf(input);
-            } catch (NumberFormatException ex) {
-                value = -1;
-            }
+            value = readIntegerFromConsole("Type your option: ");
         } while (value < 0 || value > list.size());
-
         return value - 1;
     }
-
-    // metodo ler ficheiro
 }

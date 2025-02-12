@@ -1,7 +1,6 @@
 package org.project.repository;
 
 import org.project.data.DatabaseConnection;
-import org.project.data.Persistable;
 import org.project.domain.Address;
 
 import java.sql.PreparedStatement;
@@ -10,18 +9,18 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AddressRepository implements Persistable {
+public class AddressRepository implements Persistable<Address, Integer> {
 
     @Override
-    public boolean save(DatabaseConnection connection, Object object) {
-        Address address = (Address) object;
-        String sql = "INSERT INTO Address (Street, ZipCode, Town, Country) VALUES (?, ?, ?, ?)";
+    public boolean save(DatabaseConnection connection, Address address) {
+        String sql = "INSERT INTO Address (AddressID, Street, ZipCode, Town, Country) VALUES (?, ?, ?, ?, ?)";
 
         try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
-            statement.setString(1, address.getStreet());
-            statement.setString(2, address.getZipCode());
-            statement.setString(3, address.getTown());
-            statement.setString(4, address.getCountry());
+            statement.setInt(1, address.getId());
+            statement.setString(2, address.getStreet());
+            statement.setString(3, address.getZipCode());
+            statement.setString(4, address.getTown());
+            statement.setString(5, address.getCountry());
 
             int rowsInserted = statement.executeUpdate();
             return rowsInserted > 0;
@@ -32,12 +31,7 @@ public class AddressRepository implements Persistable {
     }
 
     @Override
-    public boolean delete(DatabaseConnection connection, Object object) {
-        if (!(object instanceof Address)) {
-            return false;
-        }
-
-        Address address = (Address) object;
+    public boolean delete(DatabaseConnection connection, Address address) {
         String sql = "DELETE FROM Address WHERE addressid = ?";
 
         try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
@@ -52,8 +46,8 @@ public class AddressRepository implements Persistable {
     }
 
     @Override
-    public List<Object> getAll(DatabaseConnection connection) {
-        List<Object> addresses = new ArrayList<>();
+    public List<Address> getAll(DatabaseConnection connection) {
+        List<Address> addresses = new ArrayList<>();
         String sql = "SELECT * FROM Address";
 
         try (PreparedStatement statement = connection.getConnection().prepareStatement(sql);
@@ -76,7 +70,7 @@ public class AddressRepository implements Persistable {
         return addresses;
     }
 
-    public Address getById(DatabaseConnection connection, int id) {
+    public Address getById(DatabaseConnection connection, Integer id) {
         Address address = null;
         String sql = "SELECT * FROM Address WHERE addressid = ?";
 
@@ -92,6 +86,48 @@ public class AddressRepository implements Persistable {
                         resultSet.getString("town"),
                         resultSet.getString("country")
                 );
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return address;
+    }
+
+    public int getAddressCount(DatabaseConnection connection) {
+        String sql = "SELECT COUNT(*) FROM Address";
+        int count = 0;
+
+        try (PreparedStatement statement = connection.getConnection().prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
+
+            if (resultSet.next()) {
+                count = resultSet.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return count;
+    }
+
+    public Address findAddress(DatabaseConnection connection, String street, String zipCode, String town, String country) {
+        String sql = "SELECT * FROM Address WHERE Street = ? AND ZipCode = ? AND Town = ? AND Country = ?";
+        Address address = null;
+
+        try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
+            statement.setString(1, street);
+            statement.setString(2, zipCode);
+            statement.setString(3, town);
+            statement.setString(4, country);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                address = new Address(resultSet.getInt("AddressID"),
+                        resultSet.getString("Street"),
+                        resultSet.getString("ZipCode"),
+                        resultSet.getString("Town"),
+                        resultSet.getString("Country"));
             }
         } catch (SQLException e) {
             e.printStackTrace();

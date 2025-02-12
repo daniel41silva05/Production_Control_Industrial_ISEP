@@ -24,7 +24,7 @@ DROP TABLE IF EXISTS Unit CASCADE;
 
 -- Table creation
 CREATE TABLE Client (
-    ClientID SERIAL NOT NULL,
+    ClientID int4 NOT NULL,
     AddressID int4 NOT NULL,
     Name varchar(255) NOT NULL,
     Vatin varchar(15) NOT NULL,
@@ -36,7 +36,7 @@ CREATE TABLE Client (
 );
 
 CREATE TABLE Address (
-    AddressID SERIAL NOT NULL,
+    AddressID int4 NOT NULL,
     Street varchar(255) NOT NULL,
     ZipCode varchar(10) NOT NULL,
     Town varchar(50) NOT NULL,
@@ -45,7 +45,7 @@ CREATE TABLE Address (
 );
 
 CREATE TABLE "Order" (
-    OrderID SERIAL NOT NULL,
+    OrderID int4 NOT NULL,
     ClientID int4 NOT NULL,
     DeliveryAddressID int4 NOT NULL,
     OrderDate date NOT NULL,
@@ -65,7 +65,7 @@ CREATE TABLE Product (
 );
 
 CREATE TABLE ProductCategory (
-    ProductCategoryID SERIAL NOT NULL,
+    ProductCategoryID int4 NOT NULL,
     Name varchar(255) NOT NULL,
     PRIMARY KEY (ProductCategoryID)
 );
@@ -78,7 +78,7 @@ CREATE TABLE ProductOrder (
 );
 
 CREATE TABLE Operation (
-    OperationID SERIAL NOT NULL,
+    OperationID int4 NOT NULL,
     OperationTypeID int4 NOT NULL,
     Name varchar(255) NOT NULL,
     ExecutionTime int4 NOT NULL CHECK (ExecutionTime > 0),
@@ -94,19 +94,19 @@ CREATE TABLE BOO (
 );
 
 CREATE TABLE OperationType (
-    OperationTypeID SERIAL NOT NULL,
+    OperationTypeID int4 NOT NULL,
     Name varchar(255) NOT NULL,
     PRIMARY KEY (OperationTypeID)
 );
 
 CREATE TABLE WorkstationType (
-    WorkstationTypeID SERIAL NOT NULL,
+    WorkstationTypeID int4 NOT NULL,
     Name varchar(255) NOT NULL,
     PRIMARY KEY (WorkstationTypeID)
 );
 
 CREATE TABLE Workstation (
-    WorkstationID SERIAL NOT NULL,
+    WorkstationID int4 NOT NULL,
     WorkstationTypeID int4 NOT NULL,
     Name varchar(255) NOT NULL,
     PRIMARY KEY (WorkstationID)
@@ -154,7 +154,7 @@ CREATE TABLE OperationOutput (
 );
 
 CREATE TABLE Supplier (
-    SupplierID SERIAL NOT NULL,
+    SupplierID int4 NOT NULL,
     Name varchar(255) NOT NULL,
     PhoneNumber int4 NOT NULL,
     EmailAddress varchar(255) NOT NULL,
@@ -163,7 +163,7 @@ CREATE TABLE Supplier (
 );
 
 CREATE TABLE SupplyOffer (
-    SupplyOfferID SERIAL NOT NULL,
+    SupplyOfferID int4 NOT NULL,
     SupplierID int4 NOT NULL,
     DeliveryAddressID int4 NOT NULL,
     UnitID int4 NOT NULL,
@@ -173,7 +173,7 @@ CREATE TABLE SupplyOffer (
 );
 
 CREATE TABLE Unit (
-    UnitID SERIAL NOT NULL,
+    UnitID int4 NOT NULL,
     Name varchar(100) NOT NULL,
     Symbol varchar(10) NOT NULL,
     PRIMARY KEY (UnitID)

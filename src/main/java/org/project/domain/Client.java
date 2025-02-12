@@ -28,6 +28,18 @@ public class Client {
         this.orders = new ArrayList<>();
     }
 
+    public Client(int id, Address address, String name, String vatin, int phoneNumber, String email, CompanyType type, State state, List<Order> orders) {
+        this.id = id;
+        this.address = address;
+        this.name = name;
+        this.vatin = vatin;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+        this.type = type;
+        this.state = state;
+        this.orders = orders;
+    }
+
     public int getId() {
         return id;
     }

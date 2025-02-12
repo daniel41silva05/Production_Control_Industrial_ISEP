@@ -17,4 +17,5 @@ public class RegisterAddressController {
         Address address = new Address(0, street, zipCode, town, country);
         return addressRepository.save(ConnectionFactory.getInstance().getDatabaseConnection(), address);
     }
+
 }
