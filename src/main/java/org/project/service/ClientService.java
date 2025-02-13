@@ -4,7 +4,7 @@ import org.project.data.ConnectionFactory;
 import org.project.data.DatabaseConnection;
 import org.project.domain.Address;
 import org.project.domain.Client;
-import org.project.domain.ClientException;
+import org.project.exceptions.ClientException;
 import org.project.domain.CompanyType;
 import org.project.repository.AddressRepository;
 import org.project.repository.ClientRepository;
@@ -47,6 +47,22 @@ public class ClientService {
         if (!success) {
             return null;
         }
+        return client;
+    }
+
+    public Client deleteClient (int id) throws ClientException {
+        DatabaseConnection connection = ConnectionFactory.getInstance().getDatabaseConnection();
+
+        if (!clientRepository.getClientExists(connection, id)) {
+            throw new ClientException("Client with ID " + id + " not exists.");
+        }
+
+        Client client = clientRepository.getById(connection, id);
+        boolean success = clientRepository.delete(connection, client);
+        if (!success) {
+            return null;
+        }
+
         return client;
     }
 }

@@ -1,6 +1,6 @@
 package org.project.ui.menu;
 
-import org.project.ui.RegisterAddressUI;
+import org.project.ui.DeleteClientUI;
 import org.project.ui.RegisterClientUI;
 import org.project.ui.utils.Utils;
 
@@ -16,8 +16,8 @@ public class MainMenuUI implements Runnable {
 
     public void run() {
         List<MenuItem> options = new ArrayList<MenuItem>();
-        options.add(new MenuItem("Register a Address", new RegisterAddressUI()));
         options.add(new MenuItem("Register a Client", new RegisterClientUI()));
+        options.add(new MenuItem("Delete a Client", new DeleteClientUI()));
 
         int option = 0;
         do {
