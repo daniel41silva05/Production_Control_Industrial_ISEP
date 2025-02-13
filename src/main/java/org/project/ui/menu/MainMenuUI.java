@@ -2,6 +2,7 @@ package org.project.ui.menu;
 
 import org.project.ui.DeleteClientUI;
 import org.project.ui.RegisterClientUI;
+import org.project.ui.UpdateClientUI;
 import org.project.ui.utils.Utils;
 
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ public class MainMenuUI implements Runnable {
         List<MenuItem> options = new ArrayList<MenuItem>();
         options.add(new MenuItem("Register a Client", new RegisterClientUI()));
         options.add(new MenuItem("Delete a Client", new DeleteClientUI()));
+        options.add(new MenuItem("Update a Client", new UpdateClientUI()));
 
         int option = 0;
         do {

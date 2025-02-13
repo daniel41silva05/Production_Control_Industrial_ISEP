@@ -50,6 +50,27 @@ public class ClientRepository implements Persistable<Client, Integer> {
         }
     }
 
+    public boolean update(DatabaseConnection connection, Client client) {
+        String sql = "UPDATE Client SET AddressID = ?, Name = ?, Vatin = ?, PhoneNumber = ?, EmailAddress = ?, Type = ?, State = ? WHERE ClientID = ?";
+
+        try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
+            statement.setInt(1, client.getAddress().getId());
+            statement.setString(2, client.getName());
+            statement.setString(3, client.getVatin());
+            statement.setInt(4, client.getPhoneNumber());
+            statement.setString(5, client.getEmail());
+            statement.setString(6, client.getType().toString());
+            statement.setString(7, client.getState().toString());
+            statement.setInt(8, client.getId());
+
+            int rowsUpdated = statement.executeUpdate();
+            return rowsUpdated > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     @Override
     public List<Client> getAll(DatabaseConnection connection) {
         List<Client> clients = new ArrayList<>();

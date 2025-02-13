@@ -20,10 +20,9 @@ public class DeleteClientUI implements Runnable {
         if (clients.isEmpty()) {
             System.out.println("No clients registered.");
             return;
-        } else {
-            for (Client client : clients) {
-                System.out.println(" - Client ID: " + client.getId() + " | Name: " + client.getName() + " | VATIN: " + client.getVatin());
-            }
+        }
+        for (Client client : clients) {
+            System.out.println(" - Client ID: " + client.getId() + " | Name: " + client.getName() + " | VATIN: " + client.getVatin());
         }
 
         boolean delete = Utils.confirm("Do you want to delete a client?");

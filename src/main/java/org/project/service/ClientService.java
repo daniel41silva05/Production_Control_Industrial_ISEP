@@ -65,4 +65,30 @@ public class ClientService {
 
         return client;
     }
+
+    public Client getClientByID(int id) throws ClientException {
+        DatabaseConnection connection = ConnectionFactory.getInstance().getDatabaseConnection();
+
+        if (!clientRepository.getClientExists(connection, id)) {
+            throw new ClientException("Client with ID " + id + " not exists.");
+        }
+
+        return clientRepository.getById(connection, id);
+    }
+
+    public Client updateClient (Client newClient) {
+        DatabaseConnection connection = ConnectionFactory.getInstance().getDatabaseConnection();
+
+        boolean success1 = addressRepository.update(connection, newClient.getAddress());
+        if (!success1) {
+            return null;
+        }
+
+        boolean success2 = clientRepository.update(connection, newClient);
+        if (!success2) {
+            return null;
+        }
+
+        return newClient;
+    }
 }

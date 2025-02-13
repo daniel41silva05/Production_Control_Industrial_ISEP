@@ -45,6 +45,24 @@ public class AddressRepository implements Persistable<Address, Integer> {
         }
     }
 
+    public boolean update(DatabaseConnection connection, Address address) {
+        String sql = "UPDATE Address SET Street = ?, ZipCode = ?, Town = ?, Country = ? WHERE AddressID = ?";
+
+        try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
+            statement.setString(1, address.getStreet());
+            statement.setString(2, address.getZipCode());
+            statement.setString(3, address.getTown());
+            statement.setString(4, address.getCountry());
+            statement.setInt(5, address.getId());
+
+            int rowsUpdated = statement.executeUpdate();
+            return rowsUpdated > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     @Override
     public List<Address> getAll(DatabaseConnection connection) {
         List<Address> addresses = new ArrayList<>();
