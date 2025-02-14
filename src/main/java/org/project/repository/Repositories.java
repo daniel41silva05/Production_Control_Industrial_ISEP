@@ -9,6 +9,8 @@ public class Repositories {
     private static Repositories instance;
     private ClientRepository clientRepository;
     private AddressRepository addressRepository;
+    private OrderRepository orderRepository;
+    private ProductRepository productRepository;
 
     /**
      * Constructs a new Repositories object, initializing all repositories.
@@ -16,6 +18,8 @@ public class Repositories {
     private Repositories() {
         clientRepository = new ClientRepository();
         addressRepository = new AddressRepository();
+        orderRepository = new OrderRepository();
+        productRepository = new ProductRepository();
     }
 
     /**
@@ -39,6 +43,14 @@ public class Repositories {
 
     public AddressRepository getAddressRepository() {
         return addressRepository;
+    }
+
+    public OrderRepository getOrderRepository() {
+        return orderRepository;
+    }
+
+    public ProductRepository getProductRepository() {
+        return productRepository;
     }
 }
 

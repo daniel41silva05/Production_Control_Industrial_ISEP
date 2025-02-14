@@ -1,7 +1,6 @@
 package org.project.ui;
 
 import org.project.controller.ClientController;
-import org.project.domain.Address;
 import org.project.domain.Client;
 import org.project.domain.CompanyType;
 import org.project.exceptions.ClientException;
@@ -37,62 +36,58 @@ public class UpdateClientUI implements Runnable {
 
         try {
             Client client = controller.getClientById(clientID);
-            if (client == null) {
-                System.out.println("\nClient not found.");
-                return;
-            }
 
             showClient(client);
 
+            String street = client.getAddress().getStreet();
+            String zipCode = client.getAddress().getZipCode();
+            String town = client.getAddress().getTown();
+            String country = client.getAddress().getCountry();
+            String name = client.getName();
+            String vatin = client.getVatin();
+            int phoneNumber = client.getPhoneNumber();
+            String email = client.getEmail();
+            CompanyType type = client.getType();
+
             if (Utils.confirm("Do you want to update the Name?")) {
-                String newName = Utils.readLineFromConsole("Enter new Name: ");
-                client.setName(newName);
+                name = Utils.readLineFromConsole("Enter new Name: ");
             }
 
             if (Utils.confirm("Do you want to update the VATIN?")) {
-                String newVatin = Utils.readLineFromConsole("Enter new VATIN: ");
-                client.setVatin(newVatin);
+                vatin = Utils.readLineFromConsole("Enter new VATIN: ");
             }
 
             if (Utils.confirm("Do you want to update the Email?")) {
-                String newEmail = Utils.readLineFromConsole("Enter new Email: ");
-                client.setEmail(newEmail);
+                email = Utils.readLineFromConsole("Enter new Email: ");
             }
 
             if (Utils.confirm("Do you want to update the Phone Number?")) {
-                int newPhone = Utils.readIntegerFromConsole("Enter new Phone Number: ");
-                client.setPhoneNumber(newPhone);
+                phoneNumber = Utils.readIntegerFromConsole("Enter new Phone Number: ");
             }
 
             if (Utils.confirm("Do you want to update the Type?")) {
                 System.out.println();
                 List<CompanyType> options = Arrays.asList(CompanyType.values());
-                CompanyType newType = (CompanyType) Utils.showAndSelectOne(options, "Select Company Type:");
-                client.setType(newType);
+                type = (CompanyType) Utils.showAndSelectOne(options, "Select Company Type:");
             }
 
             if (Utils.confirm("Do you want to update the Address?")) {
-                Address address = client.getAddress();
 
                 if (Utils.confirm("Do you want to update the Street?")) {
-                    String newStreet = Utils.readLineFromConsole("Enter new Street: ");
-                    address.setStreet(newStreet);
+                    street = Utils.readLineFromConsole("Enter new Street: ");
                 }
                 if (Utils.confirm("Do you want to update the Zip Code?")) {
-                    String newZipCode = Utils.readLineFromConsole("Enter new Zip Code: ");
-                    address.setZipCode(newZipCode);
+                    zipCode = Utils.readLineFromConsole("Enter new Zip Code: ");
                 }
                 if (Utils.confirm("Do you want to update the Town?")) {
-                    String newTown = Utils.readLineFromConsole("Enter new Town: ");
-                    address.setTown(newTown);
+                    town = Utils.readLineFromConsole("Enter new Town: ");
                 }
                 if (Utils.confirm("Do you want to update the Country?")) {
-                    String newCountry = Utils.readLineFromConsole("Enter new Country: ");
-                    address.setCountry(newCountry);
+                    country = Utils.readLineFromConsole("Enter new Country: ");
                 }
             }
 
-            Client newClient = controller.updateClient(client);
+            Client newClient = controller.updateClient(client, street, zipCode, town, country, name, vatin, phoneNumber, email, type);
             if (newClient != null) {
                 System.out.println("\nClient updated successfully.");
                 showClient(newClient);

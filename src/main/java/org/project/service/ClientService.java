@@ -14,23 +14,22 @@ import java.util.List;
 
 public class ClientService {
 
+    private DatabaseConnection connection;
     private ClientRepository clientRepository;
     private AddressRepository addressRepository;
 
     public ClientService() {
+        connection = ConnectionFactory.getInstance().getDatabaseConnection();
         Repositories repositories = Repositories.getInstance();
         clientRepository = repositories.getClientRepository();
         addressRepository = repositories.getAddressRepository();
     }
 
     public List<Client> getClients() {
-        DatabaseConnection connection = ConnectionFactory.getInstance().getDatabaseConnection();
         return clientRepository.getAll(connection);
     }
 
     public Client registerClient(int clientID, String street, String zipCode, String town, String country,String name, String vatin, int phoneNumber, String email, CompanyType type) throws ClientException {
-        DatabaseConnection connection = ConnectionFactory.getInstance().getDatabaseConnection();
-
         if (clientRepository.getClientExists(connection, clientID)) {
             throw new ClientException("Client with ID " + clientID + " already exists.");
         }
@@ -51,13 +50,14 @@ public class ClientService {
     }
 
     public Client deleteClient (int id) throws ClientException {
-        DatabaseConnection connection = ConnectionFactory.getInstance().getDatabaseConnection();
-
         if (!clientRepository.getClientExists(connection, id)) {
             throw new ClientException("Client with ID " + id + " not exists.");
         }
 
         Client client = clientRepository.getById(connection, id);
+
+        // delete order e productorder da base dados antes apagar cliente
+
         boolean success = clientRepository.delete(connection, client);
         if (!success) {
             return null;
@@ -67,8 +67,6 @@ public class ClientService {
     }
 
     public Client getClientByID(int id) throws ClientException {
-        DatabaseConnection connection = ConnectionFactory.getInstance().getDatabaseConnection();
-
         if (!clientRepository.getClientExists(connection, id)) {
             throw new ClientException("Client with ID " + id + " not exists.");
         }
@@ -76,19 +74,26 @@ public class ClientService {
         return clientRepository.getById(connection, id);
     }
 
-    public Client updateClient (Client newClient) {
-        DatabaseConnection connection = ConnectionFactory.getInstance().getDatabaseConnection();
+    public Client updateClient (Client client, String street, String zipCode, String town, String country, String name, String vatin, int phoneNumber, String email, CompanyType type) {
+        Address address = client.getAddress();
+        if (!address.getStreet().equals(street) || !address.getZipCode().equals(zipCode) || !address.getTown().equals(town) || !address.getCountry().equals(country)) {
+            int id = addressRepository.getAddressCount(connection);
+            address = new Address(id, street, zipCode, town, country);
+            addressRepository.save(connection, address);
+        }
 
-        boolean success1 = addressRepository.update(connection, newClient.getAddress());
-        if (!success1) {
+        client.setAddress(address);
+        client.setName(name);
+        client.setVatin(vatin);
+        client.setPhoneNumber(phoneNumber);
+        client.setEmail(email);
+        client.setType(type);
+
+        boolean success = clientRepository.update(connection, client);
+        if (!success) {
             return null;
         }
 
-        boolean success2 = clientRepository.update(connection, newClient);
-        if (!success2) {
-            return null;
-        }
-
-        return newClient;
+        return client;
     }
 }

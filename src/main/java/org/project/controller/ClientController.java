@@ -31,8 +31,8 @@ public class ClientController {
         return clientService.deleteClient(clientID);
     }
 
-    public Client updateClient (Client newClient) throws ClientException {
-        return clientService.updateClient(newClient);
+    public Client updateClient (Client newClient, String street, String zipCode, String town, String country, String name, String vatin, int phoneNumber, String email, CompanyType type) throws ClientException {
+        return clientService.updateClient(newClient, street, zipCode, town, country, name, vatin, phoneNumber, email, type);
     }
 
 }

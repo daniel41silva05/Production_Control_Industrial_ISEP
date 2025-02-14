@@ -1,6 +1,8 @@
 package org.project.domain;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class Order {
@@ -10,6 +12,7 @@ public class Order {
     private Date orderDate;
     private Date deliveryDate;
     private double price;
+    private Map<Product, Double> productQuantity;
 
     public Order(int id, Address deliveryAddress, Date orderDate, Date deliveryDate, double price) {
         this.id = id;
@@ -17,6 +20,16 @@ public class Order {
         this.orderDate = orderDate;
         this.deliveryDate = deliveryDate;
         this.price = price;
+        this.productQuantity = new HashMap<>();
+    }
+
+    public Order(int id, Address deliveryAddress, Date orderDate, Date deliveryDate, double price, Map<Product, Double> productQuantity) {
+        this.id = id;
+        this.deliveryAddress = deliveryAddress;
+        this.orderDate = orderDate;
+        this.deliveryDate = deliveryDate;
+        this.price = price;
+        this.productQuantity = productQuantity;
     }
 
     public int getId() {
@@ -59,6 +72,14 @@ public class Order {
         this.price = price;
     }
 
+    public Map<Product, Double> getProductQuantity() {
+        return productQuantity;
+    }
+
+    public void setProductQuantity(Map<Product, Double> productQuantity) {
+        this.productQuantity = productQuantity;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -80,7 +101,7 @@ public class Order {
                 ", orderDate=" + orderDate +
                 ", deliveryDate=" + deliveryDate +
                 ", price=" + price +
+                ", productQuantity=" + productQuantity +
                 '}';
     }
-
 }

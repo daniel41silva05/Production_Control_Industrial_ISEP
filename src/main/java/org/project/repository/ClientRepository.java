@@ -7,7 +7,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ClientRepository implements Persistable<Client, Integer> {
 
@@ -51,17 +53,16 @@ public class ClientRepository implements Persistable<Client, Integer> {
     }
 
     public boolean update(DatabaseConnection connection, Client client) {
-        String sql = "UPDATE Client SET AddressID = ?, Name = ?, Vatin = ?, PhoneNumber = ?, EmailAddress = ?, Type = ?, State = ? WHERE ClientID = ?";
+        String sql = "UPDATE Client SET Name = ?, Vatin = ?, PhoneNumber = ?, EmailAddress = ?, Type = ?, AddressID = ? WHERE ClientID = ?";
 
         try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
-            statement.setInt(1, client.getAddress().getId());
-            statement.setString(2, client.getName());
-            statement.setString(3, client.getVatin());
-            statement.setInt(4, client.getPhoneNumber());
-            statement.setString(5, client.getEmail());
-            statement.setString(6, client.getType().toString());
-            statement.setString(7, client.getState().toString());
-            statement.setInt(8, client.getId());
+            statement.setString(1, client.getName());
+            statement.setString(2, client.getVatin());
+            statement.setInt(3, client.getPhoneNumber());
+            statement.setString(4, client.getEmail());
+            statement.setString(5, client.getType().toString());
+            statement.setInt(6, client.getAddress().getId());
+            statement.setInt(7, client.getId());
 
             int rowsUpdated = statement.executeUpdate();
             return rowsUpdated > 0;
@@ -74,26 +75,58 @@ public class ClientRepository implements Persistable<Client, Integer> {
     @Override
     public List<Client> getAll(DatabaseConnection connection) {
         List<Client> clients = new ArrayList<>();
-        String sql = "SELECT * FROM Client";
+        String sql = """
+        SELECT c.clientid, c.name, c.vatin, c.phonenumber, c.emailaddress, c.type, c.state, 
+               a.addressid, a.street, a.zipcode, a.town, a.country,
+               o.orderid, o.orderdate, o.deliverydate, o.price
+        FROM Client c
+        JOIN Address a ON c.addressid = a.addressid
+        LEFT JOIN "Order" o ON c.clientid = o.clientid
+        ORDER BY c.clientid, o.orderid;
+    """;
 
         try (PreparedStatement statement = connection.getConnection().prepareStatement(sql);
              ResultSet resultSet = statement.executeQuery()) {
 
+            Map<Integer, Client> clientMap = new HashMap<>();
+
             while (resultSet.next()) {
                 int clientId = resultSet.getInt("clientid");
-                Client client = new Client(
-                        clientId,
-                        getAddressById(connection, resultSet.getInt("addressid")),
-                        resultSet.getString("name"),
-                        resultSet.getString("vatin"),
-                        resultSet.getInt("phonenumber"),
-                        resultSet.getString("emailaddress"),
-                        CompanyType.valueOf(resultSet.getString("type").toUpperCase()),
-                        State.valueOf(resultSet.getString("state").toUpperCase()),
-                        getOrdersByClientId(connection, clientId)
-                );
-                clients.add(client);
+                Client client = clientMap.get(clientId);
+
+                if (client == null) {
+                    client = new Client(
+                            clientId,
+                            new Address(
+                                    resultSet.getInt("addressid"),
+                                    resultSet.getString("street"),
+                                    resultSet.getString("zipcode"),
+                                    resultSet.getString("town"),
+                                    resultSet.getString("country")
+                            ),
+                            resultSet.getString("name"),
+                            resultSet.getString("vatin"),
+                            resultSet.getInt("phonenumber"),
+                            resultSet.getString("emailaddress"),
+                            CompanyType.valueOf(resultSet.getString("type").toUpperCase()),
+                            State.valueOf(resultSet.getString("state").toUpperCase()),
+                            new ArrayList<>()
+                    );
+                    clientMap.put(clientId, client);
+                }
+
+                if (resultSet.getObject("orderid") != null) {
+                    Order order = new Order(
+                            resultSet.getInt("orderid"),
+                            client.getAddress(),
+                            resultSet.getDate("orderdate"),
+                            resultSet.getDate("deliverydate"),
+                            resultSet.getDouble("price")
+                    );
+                    client.getOrders().add(order);
+                }
             }
+            clients.addAll(clientMap.values());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -104,25 +137,51 @@ public class ClientRepository implements Persistable<Client, Integer> {
     @Override
     public Client getById(DatabaseConnection connection, Integer id) {
         Client client = null;
-        String sql = "SELECT * FROM Client WHERE clientid = ?";
+        String sql = """
+        SELECT c.clientid, c.name, c.vatin, c.phonenumber, c.emailaddress, c.type, c.state, 
+               a.addressid, a.street, a.zipcode, a.town, a.country,
+               o.orderid, o.orderdate, o.deliverydate, o.price
+        FROM Client c
+        JOIN Address a ON c.addressid = a.addressid
+        LEFT JOIN "Order" o ON c.clientid = o.clientid
+        WHERE c.clientid = ?;
+    """;
 
         try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
             statement.setInt(1, id);
             ResultSet resultSet = statement.executeQuery();
 
-            if (resultSet.next()) {
-                int clientId = resultSet.getInt("clientid");
-                client = new Client(
-                        clientId,
-                        getAddressById(connection, resultSet.getInt("addressid")),
-                        resultSet.getString("name"),
-                        resultSet.getString("vatin"),
-                        resultSet.getInt("phonenumber"),
-                        resultSet.getString("emailaddress"),
-                        CompanyType.valueOf(resultSet.getString("type").toUpperCase()),
-                        State.valueOf(resultSet.getString("state").toUpperCase()),
-                        getOrdersByClientId(connection, clientId)
-                );
+            while (resultSet.next()) {
+                if (client == null) {
+                    client = new Client(
+                            resultSet.getInt("clientid"),
+                            new Address(
+                                    resultSet.getInt("addressid"),
+                                    resultSet.getString("street"),
+                                    resultSet.getString("zipcode"),
+                                    resultSet.getString("town"),
+                                    resultSet.getString("country")
+                            ),
+                            resultSet.getString("name"),
+                            resultSet.getString("vatin"),
+                            resultSet.getInt("phonenumber"),
+                            resultSet.getString("emailaddress"),
+                            CompanyType.valueOf(resultSet.getString("type").toUpperCase()),
+                            State.valueOf(resultSet.getString("state").toUpperCase()),
+                            new ArrayList<>()
+                    );
+                }
+
+                if (resultSet.getObject("orderid") != null) {
+                    Order order = new Order(
+                            resultSet.getInt("orderid"),
+                            client.getAddress(),
+                            resultSet.getDate("orderdate"),
+                            resultSet.getDate("deliverydate"),
+                            resultSet.getDouble("price")
+                    );
+                    client.getOrders().add(order);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -165,55 +224,6 @@ public class ClientRepository implements Persistable<Client, Integer> {
         }
 
         return count;
-    }
-
-    private List<Order> getOrdersByClientId(DatabaseConnection connection, int clientId) {
-        List<Order> orders = new ArrayList<>();
-        String sql = "SELECT * FROM \"Order\" WHERE ClientID = ?";
-
-        try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
-            statement.setInt(1, clientId);
-            ResultSet resultSet = statement.executeQuery();
-
-            while (resultSet.next()) {
-                Order order = new Order(
-                        resultSet.getInt("orderid"),
-                        getAddressById(connection, resultSet.getInt("deliveryaddressid")),
-                        resultSet.getDate("orderdate"),
-                        resultSet.getDate("deliverydate"),
-                        resultSet.getDouble("price")
-                );
-                orders.add(order);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return orders;
-    }
-
-    private Address getAddressById(DatabaseConnection connection, int id) {
-        Address address = null;
-        String sql = "SELECT * FROM Address WHERE addressid = ?";
-
-        try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
-            statement.setInt(1, id);
-            ResultSet resultSet = statement.executeQuery();
-
-            if (resultSet.next()) {
-                address = new Address(
-                        resultSet.getInt("addressid"),
-                        resultSet.getString("street"),
-                        resultSet.getString("zipcode"),
-                        resultSet.getString("town"),
-                        resultSet.getString("country")
-                );
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return address;
     }
 
 }
