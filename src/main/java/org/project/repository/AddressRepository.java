@@ -9,7 +9,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AddressRepository implements Persistable<Address, Integer> {
+public class AddressRepository implements Persistable<Address> {
 
     @Override
     public boolean save(DatabaseConnection connection, Address address) {

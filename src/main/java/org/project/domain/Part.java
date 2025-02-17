@@ -4,23 +4,23 @@ import java.util.Objects;
 
 public abstract class Part {
 
-    private int id;
+    private String id;
     private Unit unit;
     private String name;
     private String description;
 
-    public Part(int id, Unit unit, String name, String description) {
+    public Part(String id, Unit unit, String name, String description) {
         this.id = id;
         this.unit = unit;
         this.name = name;
         this.description = description;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

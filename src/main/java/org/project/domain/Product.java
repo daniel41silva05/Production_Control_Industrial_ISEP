@@ -9,7 +9,7 @@ public class Product extends Part {
     private double price;
     // missing tree
 
-    public Product(int id, Unit unit, String name, String description, ProductCategory category, int capacity, int size, String color, double price) {
+    public Product(String id, Unit unit, String name, String description, ProductCategory category, int capacity, int size, String color, double price) {
         super(id, unit, name, description);
         this.category = category;
         this.capacity = capacity;

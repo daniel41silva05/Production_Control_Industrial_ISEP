@@ -56,8 +56,6 @@ public class ClientService {
 
         Client client = clientRepository.getById(connection, id);
 
-        // delete order e productorder da base dados antes apagar cliente
-
         boolean success = clientRepository.delete(connection, client);
         if (!success) {
             return null;

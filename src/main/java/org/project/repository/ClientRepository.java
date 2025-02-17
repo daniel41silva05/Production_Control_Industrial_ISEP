@@ -3,6 +3,7 @@ package org.project.repository;
 import org.project.data.DatabaseConnection;
 import org.project.domain.*;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ClientRepository implements Persistable<Client, Integer> {
+public class ClientRepository implements Persistable<Client> {
 
     @Override
     public boolean save(DatabaseConnection connection, Client client) {
@@ -38,18 +39,39 @@ public class ClientRepository implements Persistable<Client, Integer> {
 
     @Override
     public boolean delete(DatabaseConnection connection, Client client) {
+        String deleteProductOrdersSQL = "DELETE FROM ProductOrder WHERE OrderID = ?;";
+        String deleteOrdersSQL = "DELETE FROM \"Order\" WHERE OrderID = ?;";
+        String deleteClientSQL = "DELETE FROM Client WHERE ClientID = ?;";
 
-        String sql = "DELETE FROM Client WHERE clientid = ?";
+        try (Connection conn = connection.getConnection()) {
+            conn.setAutoCommit(false);
 
-        try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
-            statement.setInt(1, client.getId());
+            try (PreparedStatement stmtProductOrders = conn.prepareStatement(deleteProductOrdersSQL);
+                 PreparedStatement stmtOrders = conn.prepareStatement(deleteOrdersSQL);
+                 PreparedStatement stmtClient = conn.prepareStatement(deleteClientSQL)) {
 
-            int rowsDeleted = statement.executeUpdate();
-            return rowsDeleted > 0;
+                for (Order order : client.getOrders()) {
+                    stmtProductOrders.setInt(1, order.getId());
+                    stmtProductOrders.executeUpdate();
+
+                    stmtOrders.setInt(1, order.getId());
+                    stmtOrders.executeUpdate();
+                }
+
+                stmtClient.setInt(1, client.getId());
+                int rowsDeleted = stmtClient.executeUpdate();
+
+                conn.commit();
+
+                return rowsDeleted > 0;
+            } catch (SQLException e) {
+                conn.rollback();
+                e.printStackTrace();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }
+        return false;
     }
 
     public boolean update(DatabaseConnection connection, Client client) {
@@ -134,7 +156,6 @@ public class ClientRepository implements Persistable<Client, Integer> {
         return clients;
     }
 
-    @Override
     public Client getById(DatabaseConnection connection, Integer id) {
         Client client = null;
         String sql = """
