@@ -146,4 +146,23 @@ public class OrderRepository implements Persistable<Order> {
         return orders;
     }
 
+    public boolean getOrderExists(DatabaseConnection connection, int id) {
+        String sql = "SELECT COUNT(*) FROM Order WHERE orderid = ?";
+        int count = 0;
+
+        try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
+            statement.setInt(1, id);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    count = resultSet.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return count > 0;
+    }
+
 }

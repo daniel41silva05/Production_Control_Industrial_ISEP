@@ -7,8 +7,9 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProductRepository {
+public class ProductRepository implements Persistable<Product>{
 
+    @Override
     public boolean save(DatabaseConnection connection, Product product) {
         String insertPartSQL = """
             INSERT INTO Part (PartID, UnitID, Name, Description)
@@ -60,6 +61,7 @@ public class ProductRepository {
         }
     }
 
+    @Override
     public boolean delete(DatabaseConnection connection, Product product) {
         String deletePartSQL = "DELETE FROM Part WHERE PartID = ?";
         String deleteProductSQL = "DELETE FROM Product WHERE ProductID = ?";
@@ -90,6 +92,7 @@ public class ProductRepository {
         }
     }
 
+    @Override
     public List<Product> getAll(DatabaseConnection connection) {
         List<Product> products = new ArrayList<>();
         String sql = """
@@ -137,5 +140,74 @@ public class ProductRepository {
             e.printStackTrace();
         }
         return products;
+    }
+
+    public Product getByID (DatabaseConnection connection, String id) {
+        Product product = null;
+        String sql = """
+            SELECT p.ProductID, p.Capacity, p.Size, p.Color, p.Price, 
+                   u.UnitID, u.Name AS UnitName, u.Symbol AS UnitSymbol,
+                   part.PartID, part.Name AS PartName, part.Description AS PartDescription,
+                   pc.ProductCategoryID, pc.Name AS ProductCategoryName
+            FROM Product p
+            JOIN Unit u ON p.UnitID = u.UnitID
+            JOIN Part part ON p.PartID = part.PartID
+            JOIN ProductCategory pc ON p.CategoryID = pc.ProductCategoryID
+            WHERE p.ProductID = ?;
+        """;
+
+        try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
+            statement.setString(1, id);
+            ResultSet rs = statement.executeQuery();
+
+            while (rs.next()) {
+
+                Unit unit = new Unit(
+                        rs.getInt("UnitID"),
+                        rs.getString("UnitName"),
+                        rs.getString("UnitSymbol")
+                );
+
+                ProductCategory productCategory = new ProductCategory(
+                        rs.getInt("ProductCategoryID"),
+                        rs.getString("ProductCategoryName")
+                );
+
+                product = new Product(
+                        rs.getString("ProductID"),
+                        unit,
+                        rs.getString("PartName"),
+                        rs.getString("PartDescription"),
+                        productCategory,
+                        rs.getInt("Capacity"),
+                        rs.getInt("Size"),
+                        rs.getString("Color"),
+                        rs.getDouble("Price")
+                );
+
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return product;
+    }
+
+    public boolean getProductExists(DatabaseConnection connection, String id) {
+        String sql = "SELECT COUNT(*) FROM Product WHERE productid = ?";
+        int count = 0;
+
+        try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
+            statement.setString(1, id);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    count = resultSet.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return count > 0;
     }
 }

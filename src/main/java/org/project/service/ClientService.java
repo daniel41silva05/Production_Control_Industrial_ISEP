@@ -29,7 +29,7 @@ public class ClientService {
         return clientRepository.getAll(connection);
     }
 
-    public Client registerClient(int clientID, String street, String zipCode, String town, String country,String name, String vatin, int phoneNumber, String email, CompanyType type) throws ClientException {
+    public Client registerClient(int clientID, String street, String zipCode, String town, String country, String name, String vatin, int phoneNumber, String email, CompanyType type) throws ClientException {
         if (clientRepository.getClientExists(connection, clientID)) {
             throw new ClientException("Client with ID " + clientID + " already exists.");
         }
