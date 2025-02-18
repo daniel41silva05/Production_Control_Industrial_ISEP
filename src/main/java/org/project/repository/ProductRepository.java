@@ -33,7 +33,6 @@ public class ProductRepository implements Persistable<Product>{
                 int rowsInsertedPart = stmtPart.executeUpdate();
 
                 if (rowsInsertedPart > 0) {
-                    // Inserir Product
                     stmtProduct.setString(1, product.getId());
                     stmtProduct.setInt(2, product.getCategory().getId());
                     stmtProduct.setInt(3, product.getCapacity());
