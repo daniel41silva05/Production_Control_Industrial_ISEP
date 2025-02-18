@@ -6,8 +6,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class Utils {
 
@@ -25,7 +23,12 @@ public class Utils {
     static public int readIntegerFromConsole(String prompt) {
         while (true) {
             try {
-                return Integer.parseInt(readLineFromConsole(prompt));
+                int value = Integer.parseInt(readLineFromConsole(prompt));
+                if (value >= 0) {
+                    return value;
+                } else {
+                    System.out.println("Invalid input. Please enter a positive number.");
+                }
             } catch (NumberFormatException ex) {
                 System.out.println("Invalid input. Please enter a valid number.");
             }
@@ -35,7 +38,12 @@ public class Utils {
     static public double readDoubleFromConsole(String prompt) {
         while (true) {
             try {
-                return Double.parseDouble(readLineFromConsole(prompt));
+                double value = Double.parseDouble(readLineFromConsole(prompt));
+                if (value >= 0) {
+                    return value;
+                } else {
+                    System.out.println("Invalid input. Please enter a positive number.");
+                }
             } catch (NumberFormatException ex) {
                 System.out.println("Invalid input. Please enter a valid number.");
             }
@@ -56,7 +64,7 @@ public class Utils {
     static public boolean confirm(String message) {
         String input;
         do {
-            input = readLineFromConsole("\n" + message + " (s/n): ");
+            input = readLineFromConsole(message + " (s/n): ");
         } while (!input.equalsIgnoreCase("s") && !input.equalsIgnoreCase("n"));
         return input.equalsIgnoreCase("s");
     }

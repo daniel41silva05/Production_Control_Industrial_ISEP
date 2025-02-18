@@ -12,7 +12,7 @@ public class Order {
     private Date orderDate;
     private Date deliveryDate;
     private double price;
-    private Map<Product, Double> productQuantity;
+    private Map<Product, Integer> productQuantity;
 
     public Order(int id, Address deliveryAddress, Date orderDate, Date deliveryDate, double price) {
         this.id = id;
@@ -23,7 +23,7 @@ public class Order {
         this.productQuantity = new HashMap<>();
     }
 
-    public Order(int id, Address deliveryAddress, Date orderDate, Date deliveryDate, double price, Map<Product, Double> productQuantity) {
+    public Order(int id, Address deliveryAddress, Date orderDate, Date deliveryDate, double price, Map<Product, Integer> productQuantity) {
         this.id = id;
         this.deliveryAddress = deliveryAddress;
         this.orderDate = orderDate;
@@ -72,11 +72,11 @@ public class Order {
         this.price = price;
     }
 
-    public Map<Product, Double> getProductQuantity() {
+    public Map<Product, Integer> getProductQuantity() {
         return productQuantity;
     }
 
-    public void setProductQuantity(Map<Product, Double> productQuantity) {
+    public void setProductQuantity(Map<Product, Integer> productQuantity) {
         this.productQuantity = productQuantity;
     }
 

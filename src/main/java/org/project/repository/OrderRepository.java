@@ -24,10 +24,10 @@ public class OrderRepository implements Persistable<Order> {
 
             int rowsInserted = orderStmt.executeUpdate();
 
-            for (Map.Entry<Product, Double> entry : order.getProductQuantity().entrySet()) {
+            for (Map.Entry<Product, Integer> entry : order.getProductQuantity().entrySet()) {
                 productOrderStmt.setInt(1, order.getId());
                 productOrderStmt.setString(2, entry.getKey().getId());
-                productOrderStmt.setDouble(3, entry.getValue());
+                productOrderStmt.setInt(3, entry.getValue());
                 productOrderStmt.executeUpdate();
             }
             return rowsInserted > 0;
@@ -137,7 +137,7 @@ public class OrderRepository implements Persistable<Order> {
                         rs.getDouble("ProductPrice")
                 );
 
-                order.getProductQuantity().put(product, rs.getDouble("Quantity"));
+                order.getProductQuantity().put(product, rs.getInt("Quantity"));
             }
             orders.addAll(orderMap.values());
         } catch (SQLException e) {
@@ -147,7 +147,7 @@ public class OrderRepository implements Persistable<Order> {
     }
 
     public boolean getOrderExists(DatabaseConnection connection, int id) {
-        String sql = "SELECT COUNT(*) FROM Order WHERE orderid = ?";
+        String sql = "SELECT COUNT(*) FROM \"Order\" WHERE orderid = ?";
         int count = 0;
 
         try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {

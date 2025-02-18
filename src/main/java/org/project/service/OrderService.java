@@ -32,7 +32,11 @@ public class OrderService {
         addressRepository = repositories.getAddressRepository();
     }
 
-    public Order registerOrder(int clientID, int orderID, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date orderDate, Date deliveryDate, int price, Map<String, Double> productIDQuantity) throws ClientException, OrderException, ProductException {
+    public Order registerOrder(int clientID, int orderID, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date orderDate, Date deliveryDate, int price, Map<String, Integer> productIDQuantity) throws ClientException, OrderException, ProductException {
+        if (deliveryDate.before(orderDate)) {
+            throw new OrderException("Delivery date cannot be before Order date.");
+        }
+
         if (orderRepository.getOrderExists(connection, orderID)) {
             throw new OrderException("Order with ID " + orderID + " already exists.");
         }
@@ -52,8 +56,8 @@ public class OrderService {
             addressRepository.save(connection, address);
         }
 
-        Map<Product, Double> productQuantity = new HashMap<>();
-        for (Map.Entry<String, Double> productEntry : productIDQuantity.entrySet()) {
+        Map<Product, Integer> productQuantity = new HashMap<>();
+        for (Map.Entry<String, Integer> productEntry : productIDQuantity.entrySet()) {
             if (!productRepository.getProductExists(connection, productEntry.getKey())) {
                 throw new ProductException("Product with ID " + productEntry.getKey() + " not exists.");
             }
@@ -74,10 +78,10 @@ public class OrderService {
         return order;
     }
 
-    private int calculatePrice(Map<Product, Double> productQuantity) {
+    private int calculatePrice(Map<Product, Integer> productQuantity) {
         double result = 0;
 
-        for (Map.Entry<Product, Double> productEntry : productQuantity.entrySet()) {
+        for (Map.Entry<Product, Integer> productEntry : productQuantity.entrySet()) {
             Product product = productEntry.getKey();
             double quantity = productEntry.getValue();
             result += product.getPrice() * quantity;
