@@ -11,7 +11,7 @@ import org.project.ui.utils.Utils;
 
 import java.util.*;
 
-public class RegisterOrderUI  implements Runnable {
+public class RegisterOrderUI implements Runnable {
 
     private final RegisterOrderController controller;
 

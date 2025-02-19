@@ -16,7 +16,7 @@ public class ProductRepository implements Persistable<Product>{
             VALUES (?, ?, ?, ?)
         """;
         String insertProductSQL = """
-            INSERT INTO Product (ProductID, CategoryID, Capacity, Size, Color, Price)
+            INSERT INTO Product (ProductID, CategoryID, Capacity, "Size", Color, Price)
             VALUES (?, ?, ?, ?, ?, ?)
         """;
 
@@ -95,7 +95,7 @@ public class ProductRepository implements Persistable<Product>{
     public List<Product> getAll(DatabaseConnection connection) {
         List<Product> products = new ArrayList<>();
         String sql = """
-            SELECT p.ProductID, p.Capacity, p.Size, p.Color, p.Price, 
+            SELECT p.ProductID, p.Capacity, p."Size", p.Color, p.Price, 
                    u.UnitID, u.Name AS UnitName, u.Symbol AS UnitSymbol,
                    part.PartID, part.Name AS PartName, part.Description AS PartDescription,
                    pc.ProductCategoryID, pc.Name AS ProductCategoryName
@@ -128,7 +128,7 @@ public class ProductRepository implements Persistable<Product>{
                         rs.getString("PartDescription"),
                         productCategory,
                         rs.getInt("Capacity"),
-                        rs.getInt("Size"),
+                        rs.getInt("\"Size\""),
                         rs.getString("Color"),
                         rs.getDouble("Price")
                 );
@@ -144,7 +144,7 @@ public class ProductRepository implements Persistable<Product>{
     public Product getByID (DatabaseConnection connection, String id) {
         Product product = null;
         String sql = """
-            SELECT p.ProductID, p.Capacity, p.Size, p.Color, p.Price, 
+            SELECT p.ProductID, p.Capacity, p."Size", p.Color, p.Price, 
                    u.UnitID, u.Name AS UnitName, u.Symbol AS UnitSymbol,
                    part.PartID, part.Name AS PartName, part.Description AS PartDescription,
                    pc.ProductCategoryID, pc.Name AS ProductCategoryName
@@ -179,7 +179,7 @@ public class ProductRepository implements Persistable<Product>{
                         rs.getString("PartDescription"),
                         productCategory,
                         rs.getInt("Capacity"),
-                        rs.getInt("Size"),
+                        rs.getInt("\"Size\""),
                         rs.getString("Color"),
                         rs.getDouble("Price")
                 );

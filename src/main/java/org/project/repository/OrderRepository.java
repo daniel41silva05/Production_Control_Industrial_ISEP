@@ -72,7 +72,7 @@ public class OrderRepository implements Persistable<Order> {
         String sql = """
         SELECT o.OrderID, o.OrderDate, o.DeliveryDate, o.Price, 
                a.AddressID, a.Street, a.ZipCode, a.Town, a.Country, 
-               p.ProductID, p.CategoryID, p.Capacity, p.Size, p.Color, p.Price AS ProductPrice, 
+               p.ProductID, p.CategoryID, p.Capacity, p."Size", p.Color, p.Price AS ProductPrice, 
                pc.ProductCategoryID, pc.Name AS ProductCategoryName, 
                u.UnitID, u.Name AS UnitName, u.Symbol AS UnitSymbol, 
                po.Quantity,
@@ -132,7 +132,7 @@ public class OrderRepository implements Persistable<Order> {
                         rs.getString("PartDescription"),
                         productCategory,
                         rs.getInt("Capacity"),
-                        rs.getInt("Size"),
+                        rs.getInt("\"Size\""),
                         rs.getString("Color"),
                         rs.getDouble("ProductPrice")
                 );

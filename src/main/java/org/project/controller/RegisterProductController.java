@@ -19,11 +19,15 @@ public class RegisterProductController {
         return registerProductService.getProductCategories();
     }
 
+    public ProductCategory getProductCategory(int id) throws ProductException {
+        return registerProductService.getCategoryByID(id);
+    }
+
     public ProductCategory registerCategory(int id, String name) throws ProductException {
         return registerProductService.registerCategory(id, name);
     }
 
-    public Product registerProduct(String productID, String unitName, String unitSymbol, String name, String description, int categoryID, int capacity, int size, String color, double price) throws ProductException {
-        return registerProductService.registerProduct(productID, unitName, unitSymbol, name, description, categoryID, capacity, size, color, price);
+    public Product registerProduct(String productID, String unitName, String unitSymbol, String name, String description, ProductCategory category, int capacity, int size, String color, double price) throws ProductException {
+        return registerProductService.registerProduct(productID, unitName, unitSymbol, name, description, category, capacity, size, color, price);
     }
 }

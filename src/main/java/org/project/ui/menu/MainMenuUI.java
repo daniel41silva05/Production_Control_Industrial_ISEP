@@ -1,9 +1,6 @@
 package org.project.ui.menu;
 
-import org.project.ui.DeleteClientUI;
-import org.project.ui.RegisterClientUI;
-import org.project.ui.RegisterOrderUI;
-import org.project.ui.UpdateClientUI;
+import org.project.ui.*;
 import org.project.ui.utils.Utils;
 
 import java.util.ArrayList;
@@ -22,6 +19,7 @@ public class MainMenuUI implements Runnable {
         options.add(new MenuItem("Delete a Client", new DeleteClientUI()));
         options.add(new MenuItem("Update a Client", new UpdateClientUI()));
         options.add(new MenuItem("Register a Client's Order", new RegisterOrderUI()));
+        options.add(new MenuItem("Register a Product", new RegisterProductUI()));
 
         int option = 0;
         do {

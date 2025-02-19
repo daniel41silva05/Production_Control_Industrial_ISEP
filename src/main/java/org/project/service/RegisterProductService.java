@@ -29,6 +29,14 @@ public class RegisterProductService {
         return productCategoryRepository.getAll(connection);
     }
 
+    public ProductCategory getCategoryByID(int id) throws ProductException {
+        if (!productCategoryRepository.getCategoryExists(connection, id)) {
+            throw new ProductException("Product Category with ID " + id + " not exists.");
+        }
+
+        return productCategoryRepository.getByID(connection, id);
+    }
+
     public ProductCategory registerCategory(int id, String name) throws ProductException {
         if (productCategoryRepository.getCategoryExists(connection, id)) {
             throw new ProductException("Product Category with ID " + id + " already exists.");
@@ -42,19 +50,10 @@ public class RegisterProductService {
         return productCategory;
     }
 
-    public Product registerProduct(String productID, String unitName, String unitSymbol, String name, String description, int categoryID, int capacity, int size, String color, double price) throws ProductException {
+    public Product registerProduct(String productID, String unitName, String unitSymbol, String name, String description, ProductCategory category, int capacity, int size, String color, double price) throws ProductException {
 
         if (productRepository.getProductExists(connection, productID)) {
             throw new ProductException("Product with ID " + productID + " already exists.");
-        }
-
-        if (!productCategoryRepository.getCategoryExists(connection, categoryID)) {
-            throw new ProductException("Product Category with ID " + categoryID + " not exists.");
-        }
-
-        ProductCategory category = productCategoryRepository.getByID(connection, categoryID);
-        if (category == null) {
-            return null;
         }
 
         Unit unit = unitRepository.findUnit(connection, unitName, unitSymbol);
