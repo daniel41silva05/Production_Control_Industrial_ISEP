@@ -132,7 +132,7 @@ public class OrderRepository implements Persistable<Order> {
                         rs.getString("PartDescription"),
                         productCategory,
                         rs.getInt("Capacity"),
-                        rs.getInt("\"Size\""),
+                        rs.getInt("Size"),
                         rs.getString("Color"),
                         rs.getDouble("ProductPrice")
                 );

@@ -100,8 +100,8 @@ public class ProductRepository implements Persistable<Product>{
                    part.PartID, part.Name AS PartName, part.Description AS PartDescription,
                    pc.ProductCategoryID, pc.Name AS ProductCategoryName
             FROM Product p
-            JOIN Unit u ON p.UnitID = u.UnitID
-            JOIN Part part ON p.PartID = part.PartID
+            JOIN Part part ON p.ProductID = part.PartID
+            JOIN Unit u ON part.UnitID = u.UnitID
             JOIN ProductCategory pc ON p.CategoryID = pc.ProductCategoryID
         """;
 
@@ -128,7 +128,7 @@ public class ProductRepository implements Persistable<Product>{
                         rs.getString("PartDescription"),
                         productCategory,
                         rs.getInt("Capacity"),
-                        rs.getInt("\"Size\""),
+                        rs.getInt("Size"),
                         rs.getString("Color"),
                         rs.getDouble("Price")
                 );
@@ -149,8 +149,8 @@ public class ProductRepository implements Persistable<Product>{
                    part.PartID, part.Name AS PartName, part.Description AS PartDescription,
                    pc.ProductCategoryID, pc.Name AS ProductCategoryName
             FROM Product p
-            JOIN Unit u ON p.UnitID = u.UnitID
-            JOIN Part part ON p.PartID = part.PartID
+            JOIN Part part ON p.ProductID = part.PartID
+            JOIN Unit u ON part.UnitID = u.UnitID
             JOIN ProductCategory pc ON p.CategoryID = pc.ProductCategoryID
             WHERE p.ProductID = ?;
         """;
@@ -179,7 +179,7 @@ public class ProductRepository implements Persistable<Product>{
                         rs.getString("PartDescription"),
                         productCategory,
                         rs.getInt("Capacity"),
-                        rs.getInt("\"Size\""),
+                        rs.getInt("Size"),
                         rs.getString("Color"),
                         rs.getDouble("Price")
                 );

@@ -23,6 +23,11 @@ public class RegisterOrderUI implements Runnable {
         showClients();
 
         try {
+            List<Product> products = controller.getProducts();
+            if (products.isEmpty()) {
+                System.out.println("\nNo products available to order.");
+            }
+
             int clientID = Utils.readIntegerFromConsole("Enter Client ID: ");
 
             Client client = controller.getClient(clientID);
@@ -50,7 +55,7 @@ public class RegisterOrderUI implements Runnable {
                 price = Utils.readIntegerFromConsole("Enter Price: ");
             }
 
-            Order order = controller.registerOrder(clientID, orderID, street, zipCode, town, country, orderDate, deliveryDate, price, orderProducts());
+            Order order = controller.registerOrder(clientID, orderID, street, zipCode, town, country, orderDate, deliveryDate, price, orderProducts(products));
             if (order == null) {
                 System.out.println("\nOrder registration failed.");
             } else {
@@ -90,7 +95,12 @@ public class RegisterOrderUI implements Runnable {
         }
     }
 
-    private Map<String, Integer> orderProducts() {
+    private Map<String, Integer> orderProducts(List<Product> productList) {
+        System.out.println("\nProducts:");
+        for (Product product : productList) {
+            System.out.println(" - Product ID: " + product.getId() + " | Name: " + product.getName());
+        }
+
         Map<String, Integer> products = new HashMap<>();
         boolean addMoreProducts = true;
 

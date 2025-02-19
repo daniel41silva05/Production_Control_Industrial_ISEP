@@ -37,6 +37,10 @@ public class RegisterProductService {
         return productCategoryRepository.getByID(connection, id);
     }
 
+    public List<Product> getProducts() {
+        return productRepository.getAll(connection);
+    }
+
     public ProductCategory registerCategory(int id, String name) throws ProductException {
         if (productCategoryRepository.getCategoryExists(connection, id)) {
             throw new ProductException("Product Category with ID " + id + " already exists.");
