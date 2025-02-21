@@ -75,9 +75,12 @@ public class ClientService {
     public Client updateClient (Client client, String street, String zipCode, String town, String country, String name, String vatin, int phoneNumber, String email, CompanyType type) {
         Address address = client.getAddress();
         if (!address.getStreet().equals(street) || !address.getZipCode().equals(zipCode) || !address.getTown().equals(town) || !address.getCountry().equals(country)) {
-            int id = addressRepository.getAddressCount(connection);
-            address = new Address(id, street, zipCode, town, country);
-            addressRepository.save(connection, address);
+            address = addressRepository.findAddress(connection, street, zipCode, town, country);
+            if (address == null) {
+                int id = addressRepository.getAddressCount(connection);
+                address = new Address(id, street, zipCode, town, country);
+                addressRepository.save(connection, address);
+            }
         }
 
         client.setAddress(address);

@@ -66,6 +66,24 @@ public class OrderRepository implements Persistable<Order> {
         return false;
     }
 
+    public boolean update(DatabaseConnection connection, Order order) {
+        String sql = "UPDATE Order SET DeliveryAddressID = ?, OrderDate = ?, DeliveryDate = ?, Price = ? WHERE OrderID = ?";
+
+        try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
+            statement.setInt(1, order.getDeliveryAddress().getId());
+            statement.setDate(2, new java.sql.Date(order.getOrderDate().getTime()));
+            statement.setDate(3, new java.sql.Date(order.getDeliveryDate().getTime()));
+            statement.setDouble(4, order.getPrice());
+            statement.setInt(5, order.getId());
+
+            int rowsUpdated = statement.executeUpdate();
+            return rowsUpdated > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     @Override
     public List<Order> getAll(DatabaseConnection connection) {
         List<Order> orders = new ArrayList<>();
@@ -144,6 +162,80 @@ public class OrderRepository implements Persistable<Order> {
             e.printStackTrace();
         }
         return orders;
+    }
+
+    public Order getByID(DatabaseConnection connection, int id) {
+        String sql = """
+        SELECT o.OrderID, o.OrderDate, o.DeliveryDate, o.Price, 
+               a.AddressID, a.Street, a.ZipCode, a.Town, a.Country, 
+               p.ProductID, p.CategoryID, p.Capacity, p."Size", p.Color, p.Price AS ProductPrice, 
+               pc.ProductCategoryID, pc.Name AS ProductCategoryName, 
+               u.UnitID, u.Name AS UnitName, u.Symbol AS UnitSymbol, 
+               po.Quantity,
+               part.PartID, part.Name AS PartName, part.Description AS PartDescription
+        FROM "Order" o 
+        JOIN Address a ON o.DeliveryAddressID = a.AddressID 
+        JOIN ProductOrder po ON o.OrderID = po.OrderID 
+        JOIN Product p ON po.ProductID = p.ProductID
+        JOIN ProductCategory pc ON p.CategoryID = pc.ProductCategoryID
+        JOIN Unit u ON p.UnitID = u.UnitID
+        JOIN Part part ON p.ProductID = part.PartID
+        WHERE o.OrderID = ?;
+    """;
+
+        try (PreparedStatement stmt = connection.getConnection().prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                Order order = null;
+
+                while (rs.next()) {
+                    if (order == null) {
+                        Address address = new Address(
+                                rs.getInt("AddressID"),
+                                rs.getString("Street"),
+                                rs.getString("ZipCode"),
+                                rs.getString("Town"),
+                                rs.getString("Country")
+                        );
+
+                        order = new Order(
+                                id,
+                                address,
+                                rs.getDate("OrderDate"),
+                                rs.getDate("DeliveryDate"),
+                                rs.getDouble("Price")
+                        );
+                    }
+
+                    ProductCategory productCategory = new ProductCategory(
+                            rs.getInt("ProductCategoryID"),
+                            rs.getString("ProductCategoryName"));
+
+                    Unit unit = new Unit(
+                            rs.getInt("UnitID"),
+                            rs.getString("UnitName"),
+                            rs.getString("UnitSymbol"));
+
+                    Product product = new Product(
+                            rs.getString("ProductID"),
+                            unit,
+                            rs.getString("PartName"),
+                            rs.getString("PartDescription"),
+                            productCategory,
+                            rs.getInt("Capacity"),
+                            rs.getInt("Size"),
+                            rs.getString("Color"),
+                            rs.getDouble("ProductPrice")
+                    );
+
+                    order.getProductQuantity().put(product, rs.getInt("Quantity"));
+                }
+                return order;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public boolean getOrderExists(DatabaseConnection connection, int id) {

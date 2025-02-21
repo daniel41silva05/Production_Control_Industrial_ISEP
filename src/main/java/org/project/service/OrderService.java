@@ -2,10 +2,7 @@ package org.project.service;
 
 import org.project.data.ConnectionFactory;
 import org.project.data.DatabaseConnection;
-import org.project.domain.Address;
-import org.project.domain.Client;
-import org.project.domain.Order;
-import org.project.domain.Product;
+import org.project.domain.*;
 import org.project.exceptions.ClientException;
 import org.project.exceptions.OrderException;
 import org.project.exceptions.ProductException;
@@ -88,5 +85,48 @@ public class OrderService {
         }
 
         return (int) result;
+    }
+
+    public Order deleteOrder (int id) throws OrderException {
+        if (!orderRepository.getOrderExists(connection, id)) {
+            throw new OrderException("Order with ID " + id + " not exists.");
+        }
+
+        Order order = orderRepository.getByID(connection, id);
+
+        boolean success = orderRepository.delete(connection, order);
+        if (!success) {
+            return null;
+        }
+
+        return order;
+    }
+
+    public Order updateOrder (Order order, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date orderDate, Date deliveryDate, int price) throws OrderException {
+        if (deliveryDate.before(orderDate)) {
+            throw new OrderException("Delivery date cannot be before Order date.");
+        }
+
+        Address address = order.getDeliveryAddress();
+        if (!address.getStreet().equals(deliveryStreet) || !address.getZipCode().equals(deliveryZipCode) || !address.getTown().equals(deliveryTown) || !address.getCountry().equals(deliveryCountry)) {
+            address = addressRepository.findAddress(connection, deliveryStreet, deliveryZipCode, deliveryTown, deliveryCountry);
+            if (address == null) {
+                int id = addressRepository.getAddressCount(connection);
+                address = new Address(id, deliveryStreet, deliveryZipCode, deliveryTown, deliveryCountry);
+                addressRepository.save(connection, address);
+            }
+        }
+
+        order.setDeliveryAddress(address);
+        order.setOrderDate(orderDate);
+        order.setDeliveryDate(deliveryDate);
+        order.setPrice(price);
+
+        boolean success = orderRepository.update(connection, order);
+        if (!success) {
+            return null;
+        }
+
+        return order;
     }
 }
