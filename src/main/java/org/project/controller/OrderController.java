@@ -49,4 +49,8 @@ public class OrderController {
     public Order updateOrder (Order order, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date orderDate, Date deliveryDate, int price) throws OrderException {
         return orderService.updateOrder(order, deliveryStreet, deliveryZipCode, deliveryTown, deliveryCountry, orderDate, deliveryDate, price);
     }
+
+    public List<Order> consultActiveOrders () {
+        return orderService.activeOrders();
+    }
 }

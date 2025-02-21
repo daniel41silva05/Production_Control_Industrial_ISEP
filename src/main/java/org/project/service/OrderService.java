@@ -8,9 +8,7 @@ import org.project.exceptions.OrderException;
 import org.project.exceptions.ProductException;
 import org.project.repository.*;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class OrderService {
 
@@ -128,5 +126,19 @@ public class OrderService {
         }
 
         return order;
+    }
+
+    public List<Order> activeOrders () {
+        List<Order> activeOrders = new ArrayList<>();
+
+        List<Order> orders = orderRepository.getAll(connection);
+
+        for (Order order : orders) {
+            if (order.getDeliveryDate().after(new Date())) {
+                activeOrders.add(order);
+            }
+        }
+
+        return activeOrders;
     }
 }
