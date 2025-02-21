@@ -35,4 +35,8 @@ public class ClientController {
         return clientService.updateClient(newClient, street, zipCode, town, country, name, vatin, phoneNumber, email, type);
     }
 
+    public List<Client> updateClientStatus () throws ClientException {
+        return clientService.updateClientStatus();
+    }
+
 }

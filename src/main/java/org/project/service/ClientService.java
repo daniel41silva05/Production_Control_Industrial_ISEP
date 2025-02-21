@@ -2,14 +2,14 @@ package org.project.service;
 
 import org.project.data.ConnectionFactory;
 import org.project.data.DatabaseConnection;
-import org.project.domain.Address;
-import org.project.domain.Client;
+import org.project.domain.*;
 import org.project.exceptions.ClientException;
-import org.project.domain.CompanyType;
 import org.project.repository.AddressRepository;
 import org.project.repository.ClientRepository;
 import org.project.repository.Repositories;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ClientService {
@@ -96,5 +96,35 @@ public class ClientService {
         }
 
         return client;
+    }
+
+    public List<Client> updateClientStatus () throws ClientException {
+        List<Client> clients = clientRepository.getAll(connection);
+
+        for (Client client : clients) {
+
+            List<Order> activeOrders = new ArrayList<>();
+            for (Order order : client.getOrders()) {
+                if (order.getDeliveryDate().after(new Date())) {
+                    activeOrders.add(order);
+                }
+            }
+
+            if (client.getState().equals(State.INACTIVE) && !activeOrders.isEmpty()) {
+                client.setState(State.ACTIVE);
+                boolean success = clientRepository.updateStatus(connection, client);
+                if (!success) {
+                    throw new ClientException("Problems updating client status.");
+                }
+            } else if (client.getState().equals(State.ACTIVE) && activeOrders.isEmpty()) {
+                client.setState(State.INACTIVE);
+                boolean success = clientRepository.updateStatus(connection, client);
+                if (!success) {
+                    throw new ClientException("Problems updating client status.");
+                }
+            }
+        }
+
+        return clients;
     }
 }
