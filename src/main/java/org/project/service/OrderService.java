@@ -15,7 +15,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RegisterOrderService {
+public class OrderService {
 
     private DatabaseConnection connection;
     private OrderRepository orderRepository;
@@ -23,7 +23,7 @@ public class RegisterOrderService {
     private ClientRepository clientRepository;
     private AddressRepository addressRepository;
 
-    public RegisterOrderService() {
+    public OrderService() {
         connection = ConnectionFactory.getInstance().getDatabaseConnection();
         Repositories repositories = Repositories.getInstance();
         orderRepository = repositories.getOrderRepository();

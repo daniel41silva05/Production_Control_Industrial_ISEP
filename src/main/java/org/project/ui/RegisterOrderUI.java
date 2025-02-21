@@ -1,6 +1,6 @@
 package org.project.ui;
 
-import org.project.controller.RegisterOrderController;
+import org.project.controller.OrderController;
 import org.project.domain.Client;
 import org.project.domain.Order;
 import org.project.domain.Product;
@@ -9,14 +9,15 @@ import org.project.exceptions.OrderException;
 import org.project.exceptions.ProductException;
 import org.project.ui.utils.Utils;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class RegisterOrderUI implements Runnable {
 
-    private final RegisterOrderController controller;
+    private final OrderController controller;
 
     public RegisterOrderUI() {
-        this.controller = new RegisterOrderController();
+        this.controller = new OrderController();
     }
 
     public void run() {
@@ -117,9 +118,10 @@ public class RegisterOrderUI implements Runnable {
     }
 
     private void showOrder(Order order) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
         System.out.println(" - Order ID: " + order.getId());
-        System.out.println(" - Order Date: " + order.getOrderDate());
-        System.out.println(" - Delivery Date: " + order.getDeliveryDate());
+        System.out.println(" - Order Date: " + dateFormat.format(order.getOrderDate()));
+        System.out.println(" - Delivery Date: " + dateFormat.format(order.getDeliveryDate()));
         System.out.println(" - Delivery Address ID: " + order.getDeliveryAddress().getId());
         System.out.println(" - Delivery Street: " + order.getDeliveryAddress().getStreet());
         System.out.println(" - Delivery Zip Code: " + order.getDeliveryAddress().getZipCode());

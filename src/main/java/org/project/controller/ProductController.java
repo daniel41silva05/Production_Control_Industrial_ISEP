@@ -3,31 +3,31 @@ package org.project.controller;
 import org.project.domain.Product;
 import org.project.domain.ProductCategory;
 import org.project.exceptions.ProductException;
-import org.project.service.RegisterProductService;
+import org.project.service.ProductService;
 
 import java.util.List;
 
-public class RegisterProductController {
+public class ProductController {
 
-    private RegisterProductService registerProductService;
+    private ProductService productService;
 
-    public RegisterProductController() {
-        registerProductService = new RegisterProductService();
+    public ProductController() {
+        productService = new ProductService();
     }
 
     public List<ProductCategory> getProductCategories() {
-        return registerProductService.getProductCategories();
+        return productService.getProductCategories();
     }
 
     public ProductCategory getProductCategory(int id) throws ProductException {
-        return registerProductService.getCategoryByID(id);
+        return productService.getCategoryByID(id);
     }
 
     public ProductCategory registerCategory(int id, String name) throws ProductException {
-        return registerProductService.registerCategory(id, name);
+        return productService.registerCategory(id, name);
     }
 
     public Product registerProduct(String productID, String unitName, String unitSymbol, String name, String description, ProductCategory category, int capacity, int size, String color, double price) throws ProductException {
-        return registerProductService.registerProduct(productID, unitName, unitSymbol, name, description, category, capacity, size, color, price);
+        return productService.registerProduct(productID, unitName, unitSymbol, name, description, category, capacity, size, color, price);
     }
 }

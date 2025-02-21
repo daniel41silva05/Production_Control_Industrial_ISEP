@@ -10,14 +10,14 @@ import org.project.repository.*;
 
 import java.util.List;
 
-public class RegisterProductService {
+public class ProductService {
 
     private DatabaseConnection connection;
     private ProductRepository productRepository;
     private ProductCategoryRepository productCategoryRepository;
     private UnitRepository unitRepository;
 
-    public RegisterProductService() {
+    public ProductService() {
         connection = ConnectionFactory.getInstance().getDatabaseConnection();
         Repositories repositories = Repositories.getInstance();
         productRepository = repositories.getProductRepository();

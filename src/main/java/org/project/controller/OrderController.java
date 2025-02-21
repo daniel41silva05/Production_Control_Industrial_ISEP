@@ -7,23 +7,23 @@ import org.project.exceptions.ClientException;
 import org.project.exceptions.OrderException;
 import org.project.exceptions.ProductException;
 import org.project.service.ClientService;
-import org.project.service.RegisterOrderService;
-import org.project.service.RegisterProductService;
+import org.project.service.OrderService;
+import org.project.service.ProductService;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class RegisterOrderController {
+public class OrderController {
 
-    private RegisterOrderService orderService;
+    private OrderService orderService;
     private ClientService clientService;
-    private RegisterProductService productService;
+    private ProductService productService;
 
-    public RegisterOrderController() {
-        this.orderService = new RegisterOrderService();
+    public OrderController() {
+        this.orderService = new OrderService();
         this.clientService = new ClientService();
-        this.productService = new RegisterProductService();
+        this.productService = new ProductService();
     }
 
     public List<Client> getClients() {

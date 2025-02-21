@@ -1,6 +1,6 @@
 package org.project.ui;
 
-import org.project.controller.RegisterProductController;
+import org.project.controller.ProductController;
 import org.project.domain.Product;
 import org.project.domain.ProductCategory;
 import org.project.exceptions.ProductException;
@@ -10,10 +10,10 @@ import java.util.*;
 
 public class RegisterProductUI implements Runnable {
 
-    private final RegisterProductController controller;
+    private final ProductController controller;
 
     public RegisterProductUI() {
-        this.controller = new RegisterProductController();
+        this.controller = new ProductController();
     }
 
     public void run() {
