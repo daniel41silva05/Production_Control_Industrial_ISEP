@@ -27,6 +27,14 @@ public class OrderService {
         addressRepository = repositories.getAddressRepository();
     }
 
+    public Order getOrderByID (int orderID) throws OrderException {
+        Order order = orderRepository.getByID(connection, orderID);
+        if (order == null) {
+            throw new OrderException("Order with ID " + orderID + " not exists.");
+        }
+        return order;
+    }
+
     public Order registerOrder(int clientID, int orderID, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date orderDate, Date deliveryDate, int price, Map<String, Integer> productIDQuantity) throws ClientException, OrderException, ProductException {
         if (deliveryDate.before(orderDate)) {
             throw new OrderException("Delivery date cannot be before Order date.");
@@ -100,7 +108,7 @@ public class OrderService {
         return order;
     }
 
-    public Order updateOrder (Order order, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date orderDate, Date deliveryDate, int price) throws OrderException {
+    public Order updateOrder (Order order, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date orderDate, Date deliveryDate, double price) throws OrderException {
         if (deliveryDate.before(orderDate)) {
             throw new OrderException("Delivery date cannot be before Order date.");
         }

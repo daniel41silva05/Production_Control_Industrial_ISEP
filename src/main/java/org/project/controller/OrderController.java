@@ -38,6 +38,10 @@ public class OrderController {
         return productService.getProducts();
     }
 
+    public Order getOrderByID (int orderID) throws OrderException {
+        return orderService.getOrderByID(orderID);
+    }
+
     public Order registerOrder(int clientID, int orderID, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date orderDate, Date deliveryDate, int price, Map<String, Integer> productIDQuantity) throws ClientException, OrderException, ProductException {
         return orderService.registerOrder(clientID, orderID, deliveryStreet, deliveryZipCode, deliveryTown, deliveryCountry, orderDate, deliveryDate, price, productIDQuantity);
     }
@@ -46,7 +50,7 @@ public class OrderController {
         return orderService.deleteOrder(orderID);
     }
 
-    public Order updateOrder (Order order, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date orderDate, Date deliveryDate, int price) throws OrderException {
+    public Order updateOrder (Order order, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date orderDate, Date deliveryDate, double price) throws OrderException {
         return orderService.updateOrder(order, deliveryStreet, deliveryZipCode, deliveryTown, deliveryCountry, orderDate, deliveryDate, price);
     }
 

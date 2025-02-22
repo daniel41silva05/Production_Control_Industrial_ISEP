@@ -41,7 +41,7 @@ public class CancelOrderUI implements Runnable {
 
             showOrdersClient(client);
 
-            boolean delete = Utils.confirm("Do you want to cancel a order?");
+            boolean delete = Utils.confirm("Do you want to cancel an order?");
             if (!delete) {
                 return;
             }
