@@ -15,30 +15,31 @@ public class DeleteClientUI implements Runnable {
     }
 
     public void run() {
-        List<Client> clients = controller.getAllClients();
-        System.out.println("\nClients:");
-        if (clients.isEmpty()) {
-            System.out.println("No clients registered.");
-            return;
-        }
-        for (Client client : clients) {
-            System.out.println(" - Client ID: " + client.getId() + " | Name: " + client.getName() + " | VATIN: " + client.getVatin());
-        }
-
-        boolean delete = Utils.confirm("Do you want to delete a client?");
-        if (!delete) {
-            return;
-        }
-
-        int clientID = Utils.readIntegerFromConsole("Enter Client ID: ");
-
         try {
+            List<Client> clients = controller.getAllClients();
+            System.out.println("\nClients:");
+            if (clients.isEmpty()) {
+                System.out.println("No clients registered.");
+                return;
+            }
+            for (Client client : clients) {
+                System.out.println(" - Client ID: " + client.getId() + " | Name: " + client.getName() + " | VATIN: " + client.getVatin());
+            }
+
+            boolean delete = Utils.confirm("Do you want to delete a client?");
+            if (!delete) {
+                return;
+            }
+
+            int clientID = Utils.readIntegerFromConsole("Enter Client ID: ");
+
             Client client = controller.deleteClient(clientID);
             if (client == null) {
                 System.out.println("\nFailed to delete client.");
             } else {
                 System.out.println("\nClient deleted successfully.");
             }
+
         } catch (ClientException e) {
             System.out.println("\nError: " + e.getMessage());
         } catch (Exception e) {

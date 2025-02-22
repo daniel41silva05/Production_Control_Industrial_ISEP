@@ -17,24 +17,24 @@ public class UpdateClientUI implements Runnable {
     }
 
     public void run() {
-        List<Client> clients = controller.getAllClients();
-        System.out.println("\nClients:");
-        if (clients.isEmpty()) {
-            System.out.println("No clients registered.");
-            return;
-        }
-        for (Client client : clients) {
-            System.out.println(" - Client ID: " + client.getId() + " | Name: " + client.getName() + " | VATIN: " + client.getVatin());
-        }
-
-        boolean update = Utils.confirm("Do you want to update a client's information?");
-        if (!update) {
-            return;
-        }
-
-        int clientID = Utils.readIntegerFromConsole("Enter Client ID to update: ");
-
         try {
+            List<Client> clients = controller.getAllClients();
+            System.out.println("\nClients:");
+            if (clients.isEmpty()) {
+                System.out.println("No clients registered.");
+                return;
+            }
+            for (Client client : clients) {
+                System.out.println(" - Client ID: " + client.getId() + " | Name: " + client.getName() + " | VATIN: " + client.getVatin());
+            }
+
+            boolean update = Utils.confirm("Do you want to update a client's information?");
+            if (!update) {
+                return;
+            }
+
+            int clientID = Utils.readIntegerFromConsole("Enter Client ID to update: ");
+
             Client client = controller.getClientById(clientID);
 
             showClient(client);

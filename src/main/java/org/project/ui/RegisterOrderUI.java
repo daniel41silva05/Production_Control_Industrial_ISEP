@@ -21,9 +21,9 @@ public class RegisterOrderUI implements Runnable {
     }
 
     public void run() {
-        showClients();
-
         try {
+            showClients();
+
             List<Product> products = controller.getProducts();
             if (products.isEmpty()) {
                 System.out.println("\nNo products available to order.");

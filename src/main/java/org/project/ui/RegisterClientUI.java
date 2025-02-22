@@ -17,13 +17,13 @@ public class RegisterClientUI implements Runnable {
     }
 
     public void run() {
-        showClients();
-        boolean register = Utils.confirm("Do you want to register a new client?");
-        if (!register) {
-            return;
-        }
-
         try {
+            showClients();
+            boolean register = Utils.confirm("Do you want to register a new client?");
+            if (!register) {
+                return;
+            }
+
             int clientID = Utils.readIntegerFromConsole("Enter Client ID: ");
             String name = Utils.readLineFromConsole("Enter Name: ");
             String vatin = Utils.readLineFromConsole("Enter VATIN: ");
