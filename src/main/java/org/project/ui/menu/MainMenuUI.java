@@ -22,6 +22,7 @@ public class MainMenuUI implements Runnable {
         options.add(new MenuItem("Register a Client's Order", new RegisterOrderUI()));
         options.add(new MenuItem("Cancel an Order", new CancelOrderUI()));
         options.add(new MenuItem("Update an Order", new UpdateOrderUI()));
+        options.add(new MenuItem("Consult Active Orders", new ConsultActiveOrdersUI()));
         options.add(new MenuItem("Register a Product", new RegisterProductUI()));
 
         int option = 0;

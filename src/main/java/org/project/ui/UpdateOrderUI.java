@@ -2,7 +2,6 @@ package org.project.ui;
 
 import org.project.controller.OrderController;
 import org.project.domain.Client;
-import org.project.domain.CompanyType;
 import org.project.domain.Order;
 import org.project.domain.Product;
 import org.project.exceptions.ClientException;
@@ -10,7 +9,6 @@ import org.project.exceptions.OrderException;
 import org.project.ui.utils.Utils;
 
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
