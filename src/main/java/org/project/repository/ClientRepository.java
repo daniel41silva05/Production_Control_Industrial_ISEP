@@ -98,7 +98,7 @@ public class ClientRepository implements Persistable<Client> {
         String sql = "UPDATE Client SET State = ? WHERE ClientID = ?";
 
         try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
-            statement.setString(1, client.getType().toString());
+            statement.setString(1, client.getState().toString());
             statement.setInt(2, client.getId());
 
             int rowsUpdated = statement.executeUpdate();
@@ -113,13 +113,17 @@ public class ClientRepository implements Persistable<Client> {
     public List<Client> getAll(DatabaseConnection connection) {
         List<Client> clients = new ArrayList<>();
         String sql = """
-        SELECT c.clientid, c.name, c.vatin, c.phonenumber, c.emailaddress, c.type, c.state, 
-               a.addressid, a.street, a.zipcode, a.town, a.country,
-               o.orderid, o.orderdate, o.deliverydate, o.price
-        FROM Client c
-        JOIN Address a ON c.addressid = a.addressid
-        LEFT JOIN "Order" o ON c.clientid = o.clientid
-        ORDER BY c.clientid, o.orderid;
+    SELECT c.clientid, c.name, c.vatin, c.phonenumber, c.emailaddress, c.type, c.state, 
+           a.addressid AS client_addressid, a.street AS client_street, a.zipcode AS client_zipcode, 
+           a.town AS client_town, a.country AS client_country,
+           o.orderid, o.orderdate, o.deliverydate, o.price,
+           oa.addressid AS order_addressid, oa.street AS order_street, oa.zipcode AS order_zipcode,
+           oa.town AS order_town, oa.country AS order_country
+    FROM Client c
+    JOIN Address a ON c.addressid = a.addressid
+    LEFT JOIN "Order" o ON c.clientid = o.clientid
+    LEFT JOIN Address oa ON o.deliveryaddressid = oa.addressid
+    ORDER BY c.clientid, o.orderid;
     """;
 
         try (PreparedStatement statement = connection.getConnection().prepareStatement(sql);
@@ -135,11 +139,11 @@ public class ClientRepository implements Persistable<Client> {
                     client = new Client(
                             clientId,
                             new Address(
-                                    resultSet.getInt("addressid"),
-                                    resultSet.getString("street"),
-                                    resultSet.getString("zipcode"),
-                                    resultSet.getString("town"),
-                                    resultSet.getString("country")
+                                    resultSet.getInt("client_addressid"),
+                                    resultSet.getString("client_street"),
+                                    resultSet.getString("client_zipcode"),
+                                    resultSet.getString("client_town"),
+                                    resultSet.getString("client_country")
                             ),
                             resultSet.getString("name"),
                             resultSet.getString("vatin"),
@@ -155,7 +159,13 @@ public class ClientRepository implements Persistable<Client> {
                 if (resultSet.getObject("orderid") != null) {
                     Order order = new Order(
                             resultSet.getInt("orderid"),
-                            client.getAddress(),
+                            new Address(  // Agora o endereço é o da Order (DeliveryAddress)
+                                    resultSet.getInt("order_addressid"),
+                                    resultSet.getString("order_street"),
+                                    resultSet.getString("order_zipcode"),
+                                    resultSet.getString("order_town"),
+                                    resultSet.getString("order_country")
+                            ),
                             resultSet.getDate("orderdate"),
                             resultSet.getDate("deliverydate"),
                             resultSet.getDouble("price")
@@ -174,13 +184,17 @@ public class ClientRepository implements Persistable<Client> {
     public Client getById(DatabaseConnection connection, Integer id) {
         Client client = null;
         String sql = """
-        SELECT c.clientid, c.name, c.vatin, c.phonenumber, c.emailaddress, c.type, c.state, 
-               a.addressid, a.street, a.zipcode, a.town, a.country,
-               o.orderid, o.orderdate, o.deliverydate, o.price
-        FROM Client c
-        JOIN Address a ON c.addressid = a.addressid
-        LEFT JOIN "Order" o ON c.clientid = o.clientid
-        WHERE c.clientid = ?;
+    SELECT c.clientid, c.name, c.vatin, c.phonenumber, c.emailaddress, c.type, c.state, 
+           a.addressid AS client_addressid, a.street AS client_street, a.zipcode AS client_zipcode, 
+           a.town AS client_town, a.country AS client_country,
+           o.orderid, o.orderdate, o.deliverydate, o.price,
+           oa.addressid AS order_addressid, oa.street AS order_street, oa.zipcode AS order_zipcode,
+           oa.town AS order_town, oa.country AS order_country
+    FROM Client c
+    JOIN Address a ON c.addressid = a.addressid
+    LEFT JOIN "Order" o ON c.clientid = o.clientid
+    LEFT JOIN Address oa ON o.deliveryaddressid = oa.addressid
+    WHERE c.clientid = ?;
     """;
 
         try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
@@ -192,11 +206,11 @@ public class ClientRepository implements Persistable<Client> {
                     client = new Client(
                             resultSet.getInt("clientid"),
                             new Address(
-                                    resultSet.getInt("addressid"),
-                                    resultSet.getString("street"),
-                                    resultSet.getString("zipcode"),
-                                    resultSet.getString("town"),
-                                    resultSet.getString("country")
+                                    resultSet.getInt("client_addressid"),
+                                    resultSet.getString("client_street"),
+                                    resultSet.getString("client_zipcode"),
+                                    resultSet.getString("client_town"),
+                                    resultSet.getString("client_country")
                             ),
                             resultSet.getString("name"),
                             resultSet.getString("vatin"),
@@ -211,7 +225,13 @@ public class ClientRepository implements Persistable<Client> {
                 if (resultSet.getObject("orderid") != null) {
                     Order order = new Order(
                             resultSet.getInt("orderid"),
-                            client.getAddress(),
+                            new Address( // Agora o endereço da Order é único
+                                    resultSet.getInt("order_addressid"),
+                                    resultSet.getString("order_street"),
+                                    resultSet.getString("order_zipcode"),
+                                    resultSet.getString("order_town"),
+                                    resultSet.getString("order_country")
+                            ),
                             resultSet.getDate("orderdate"),
                             resultSet.getDate("deliverydate"),
                             resultSet.getDouble("price")

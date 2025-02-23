@@ -76,8 +76,13 @@ public class OrderService {
         }
 
         Order order = new Order(orderID, address, orderDate, deliveryDate, price, productQuantity);
-        client.getOrders().add(order);
 
+        boolean success = orderRepository.save(connection, order, client);
+        if (!success) {
+            return null;
+        }
+
+        client.getOrders().add(order);
         return order;
     }
 

@@ -22,7 +22,7 @@ public class ConsultActiveOrdersUI implements Runnable {
             List<Order> orders = controller.consultActiveOrders();
 
             if (orders.isEmpty()) {
-                System.out.println("\nNo clients registered.");
+                System.out.println("\nNo active orders.");
             } else {
                 System.out.println("\nActive Orders:\n");
                 for (Order order : orders) {

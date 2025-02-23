@@ -113,10 +113,6 @@ public class UpdateOrderUI implements Runnable {
         System.out.println(" - Delivery Town: " + order.getDeliveryAddress().getTown());
         System.out.println(" - Delivery Country: " + order.getDeliveryAddress().getCountry());
         System.out.println(" - Price: " + order.getPrice());
-        System.out.println(" - Products: ");
-        for (Map.Entry<Product, Integer> entry : order.getProductQuantity().entrySet()) {
-            System.out.println(" --- Product ID: " + entry.getKey().getId() + " | Product Name: " + entry.getKey().getName() + " | Quantity: " + entry.getValue());
-        }
     }
 
 }

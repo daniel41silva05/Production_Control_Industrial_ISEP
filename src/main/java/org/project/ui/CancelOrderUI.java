@@ -69,9 +69,6 @@ public class CancelOrderUI implements Runnable {
             System.out.println(" - Orders: ");
             for (Order order : orders) {
                 System.out.println(" -- Order ID: " + order.getId());
-                for (Map.Entry<Product, Integer> entry : order.getProductQuantity().entrySet()) {
-                    System.out.println(" --- Product ID: " + entry.getKey().getId() + " | Product Name: " + entry.getKey().getName() + " | Quantity: " + entry.getValue());
-                }
             }
         }
     }

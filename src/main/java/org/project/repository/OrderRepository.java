@@ -6,10 +6,9 @@ import org.project.domain.*;
 import java.sql.*;
 import java.util.*;
 
-public class OrderRepository implements Persistable<Order> {
+public class OrderRepository {
 
-    @Override
-    public boolean save(DatabaseConnection connection, Order order) {
+    public boolean save(DatabaseConnection connection, Order order, Client client) {
         String insertOrderSQL = "INSERT INTO \"Order\" (OrderID, ClientID, DeliveryAddressID, OrderDate, DeliveryDate, Price) VALUES (?, ?, ?, ?, ?, ?)";
         String insertProductOrderSQL = "INSERT INTO ProductOrder (OrderID, ProductID, Quantity) VALUES (?, ?, ?)";
 
@@ -17,6 +16,7 @@ public class OrderRepository implements Persistable<Order> {
              PreparedStatement productOrderStmt = connection.getConnection().prepareStatement(insertProductOrderSQL)) {
 
             orderStmt.setInt(1, order.getId());
+            orderStmt.setInt(2, client.getId());
             orderStmt.setInt(3, order.getDeliveryAddress().getId());
             orderStmt.setDate(4, new java.sql.Date(order.getOrderDate().getTime()));
             orderStmt.setDate(5, new java.sql.Date(order.getDeliveryDate().getTime()));
@@ -37,7 +37,6 @@ public class OrderRepository implements Persistable<Order> {
         }
     }
 
-    @Override
     public boolean delete(DatabaseConnection connection, Order order) {
         String deleteProductOrdersSQL = "DELETE FROM ProductOrder WHERE OrderID = ?;";
         String deleteOrdersSQL = "DELETE FROM \"Order\" WHERE OrderID = ?;";
@@ -67,7 +66,7 @@ public class OrderRepository implements Persistable<Order> {
     }
 
     public boolean update(DatabaseConnection connection, Order order) {
-        String sql = "UPDATE Order SET DeliveryAddressID = ?, OrderDate = ?, DeliveryDate = ?, Price = ? WHERE OrderID = ?";
+        String sql = "UPDATE \"Order\" SET DeliveryAddressID = ?, OrderDate = ?, DeliveryDate = ?, Price = ? WHERE OrderID = ?";
 
         try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
             statement.setInt(1, order.getDeliveryAddress().getId());
@@ -84,7 +83,6 @@ public class OrderRepository implements Persistable<Order> {
         }
     }
 
-    @Override
     public List<Order> getAll(DatabaseConnection connection) {
         List<Order> orders = new ArrayList<>();
         String sql = """
@@ -100,8 +98,8 @@ public class OrderRepository implements Persistable<Order> {
         JOIN ProductOrder po ON o.OrderID = po.OrderID 
         JOIN Product p ON po.ProductID = p.ProductID
         JOIN ProductCategory pc ON p.CategoryID = pc.ProductCategoryID
-        JOIN Unit u ON p.UnitID = u.UnitID
         JOIN Part part ON p.ProductID = part.PartID
+        JOIN Unit u ON part.UnitID = u.UnitID
         ORDER BY o.OrderID;
     """;
 
@@ -178,8 +176,8 @@ public class OrderRepository implements Persistable<Order> {
         JOIN ProductOrder po ON o.OrderID = po.OrderID 
         JOIN Product p ON po.ProductID = p.ProductID
         JOIN ProductCategory pc ON p.CategoryID = pc.ProductCategoryID
-        JOIN Unit u ON p.UnitID = u.UnitID
         JOIN Part part ON p.ProductID = part.PartID
+        JOIN Unit u ON part.UnitID = u.UnitID
         WHERE o.OrderID = ?;
     """;
 
