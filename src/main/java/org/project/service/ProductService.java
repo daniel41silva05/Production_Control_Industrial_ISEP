@@ -78,6 +78,25 @@ public class ProductService {
         return product;
     }
 
+    public Product changeProductCategory (String productID, ProductCategory category) throws ProductException {
+        if (!productRepository.getProductExists(connection, productID)) {
+            throw new ProductException("Product with ID " + productID + " not exists.");
+        }
+
+        Product product = productRepository.getByID(connection, productID);
+        if (product.getCategory().equals(category)) {
+            throw new ProductException("Product with ID " + productID + " already belongs to category" + category.getName() + ".");
+        }
+        product.setCategory(category);
+
+        boolean success = productRepository.updateCategory(connection, product);
+        if (!success) {
+            return null;
+        }
+
+        return product;
+    }
+
     public List<Product> productListInCategory(int categoryID) throws ProductException {
         if (!productCategoryRepository.getCategoryExists(connection, categoryID)) {
             throw new ProductException("Product Category with ID " + categoryID + " not exists.");

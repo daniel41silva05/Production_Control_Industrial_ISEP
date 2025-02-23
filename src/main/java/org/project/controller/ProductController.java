@@ -16,6 +16,10 @@ public class ProductController {
         productService = new ProductService();
     }
 
+    public List<Product> getProducts() {
+        return productService.getProducts();
+    }
+
     public List<ProductCategory> getProductCategories() {
         return productService.getProductCategories();
     }
@@ -30,6 +34,10 @@ public class ProductController {
 
     public Product registerProduct(String productID, String unitName, String unitSymbol, String name, String description, ProductCategory category, int capacity, int size, String color, double price) throws ProductException {
         return productService.registerProduct(productID, unitName, unitSymbol, name, description, category, capacity, size, color, price);
+    }
+
+    public Product changeProductCategory (String productID, ProductCategory category) throws ProductException {
+        return productService.changeProductCategory(productID, category);
     }
 
     public List<Product> productListInCategory(int categoryID) throws ProductException {
