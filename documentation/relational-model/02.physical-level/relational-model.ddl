@@ -20,7 +20,6 @@ DROP TABLE IF EXISTS ProductCategory CASCADE;
 DROP TABLE IF EXISTS "Order" CASCADE;
 DROP TABLE IF EXISTS Client CASCADE;
 DROP TABLE IF EXISTS Address CASCADE;
-DROP TABLE IF EXISTS Unit CASCADE;
 
 -- Table creation
 CREATE TABLE Client (
@@ -121,7 +120,6 @@ CREATE TABLE CanBeDoneAt (
 
 CREATE TABLE Part (
     PartID varchar(255) NOT NULL,
-    UnitID int4 NOT NULL,
     Name varchar(255) NOT NULL,
     Description varchar(255) NOT NULL,
     PRIMARY KEY (PartID)
@@ -141,16 +139,16 @@ CREATE TABLE RawMaterial (
 
 CREATE TABLE OperationInput (
     OperationID int4 NOT NULL,
-    RawMaterialID varchar(255) NOT NULL,
+    PartID varchar(255) NOT NULL,
     Quantity int4 NOT NULL CHECK (Quantity > 0),
-    PRIMARY KEY (OperationID, RawMaterialID)
+    PRIMARY KEY (OperationID, PartID)
 );
 
 CREATE TABLE OperationOutput (
     OperationID int4 NOT NULL,
-    ComponentID varchar(255) NOT NULL,
+    PartID varchar(255) NOT NULL,
     Quantity int4 NOT NULL CHECK (Quantity > 0),
-    PRIMARY KEY (OperationID, ComponentID)
+    PRIMARY KEY (OperationID, PartID)
 );
 
 CREATE TABLE Supplier (
@@ -166,17 +164,9 @@ CREATE TABLE SupplyOffer (
     SupplyOfferID int4 NOT NULL,
     SupplierID int4 NOT NULL,
     DeliveryAddressID int4 NOT NULL,
-    UnitID int4 NOT NULL,
     StartDate date NOT NULL,
     EndDate date,
     PRIMARY KEY (SupplyOfferID)
-);
-
-CREATE TABLE Unit (
-    UnitID int4 NOT NULL,
-    Name varchar(100) NOT NULL,
-    Symbol varchar(10) NOT NULL,
-    PRIMARY KEY (UnitID)
 );
 
 CREATE TABLE RawMaterialSupply (
@@ -208,18 +198,16 @@ ALTER TABLE Operation ADD CONSTRAINT FKOperation885065 FOREIGN KEY (OperationTyp
 ALTER TABLE Workstation ADD CONSTRAINT FKWorkstatio409310 FOREIGN KEY (WorkstationTypeID) REFERENCES WorkstationType (WorkstationTypeID);
 ALTER TABLE CanBeDoneAt ADD CONSTRAINT FKCanBeDoneA880921 FOREIGN KEY (OperationTypeID) REFERENCES OperationType (OperationTypeID);
 ALTER TABLE CanBeDoneAt ADD CONSTRAINT FKCanBeDoneA399444 FOREIGN KEY (WorkstationTypeID) REFERENCES WorkstationType (WorkstationTypeID);
-ALTER TABLE Product ADD CONSTRAINT FKProduct253320 FOREIGN KEY (ProductID) REFERENCES Part (PartID);
 ALTER TABLE Component ADD CONSTRAINT FKComponent67737 FOREIGN KEY (ComponentID) REFERENCES Part (PartID);
 ALTER TABLE RawMaterial ADD CONSTRAINT FKRawMateria380785 FOREIGN KEY (RawMaterialID) REFERENCES Part (PartID);
 ALTER TABLE OperationInput ADD CONSTRAINT FKOperationI389517 FOREIGN KEY (OperationID) REFERENCES Operation (OperationID);
-ALTER TABLE OperationInput ADD CONSTRAINT FKOperationI991994 FOREIGN KEY (RawMaterialID) REFERENCES RawMaterial (RawMaterialID);
 ALTER TABLE OperationOutput ADD CONSTRAINT FKOperationO382427 FOREIGN KEY (OperationID) REFERENCES Operation (OperationID);
-ALTER TABLE OperationOutput ADD CONSTRAINT FKOperationO535753 FOREIGN KEY (ComponentID) REFERENCES Component (ComponentID);
 ALTER TABLE SupplyOffer ADD CONSTRAINT FKSupplyOffe936292 FOREIGN KEY (SupplierID) REFERENCES Supplier (SupplierID);
-ALTER TABLE Part ADD CONSTRAINT FKPart768967 FOREIGN KEY (UnitID) REFERENCES Unit (UnitID);
-ALTER TABLE SupplyOffer ADD CONSTRAINT FKSupplyOffe864823 FOREIGN KEY (UnitID) REFERENCES Unit (UnitID);
 ALTER TABLE SupplyOffer ADD CONSTRAINT FKSupplyOffe630950 FOREIGN KEY (DeliveryAddressID) REFERENCES Address (AddressID);
 ALTER TABLE RawMaterialSupply ADD CONSTRAINT FKRawMateria943112 FOREIGN KEY (SupplyOfferID) REFERENCES SupplyOffer (SupplyOfferID);
 ALTER TABLE RawMaterialSupply ADD CONSTRAINT FKRawMateria932461 FOREIGN KEY (RawMaterialID) REFERENCES RawMaterial (RawMaterialID);
 ALTER TABLE RawMaterialSupplier ADD CONSTRAINT FKRawMateria614283 FOREIGN KEY (SupplierID) REFERENCES Supplier (SupplierID);
 ALTER TABLE RawMaterialSupplier ADD CONSTRAINT FKRawMateria361015 FOREIGN KEY (RawMaterialID) REFERENCES RawMaterial (RawMaterialID);
+ALTER TABLE OperationOutput ADD CONSTRAINT FKOperationO862409 FOREIGN KEY (PartID) REFERENCES Part (PartID);
+ALTER TABLE OperationInput ADD CONSTRAINT FKOperationI102091 FOREIGN KEY (PartID) REFERENCES Part (PartID);
+ALTER TABLE Product ADD CONSTRAINT FKProduct253320 FOREIGN KEY (ProductID) REFERENCES Part (PartID);
