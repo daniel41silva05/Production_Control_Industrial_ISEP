@@ -176,4 +176,19 @@ public class ProductRepository {
 
         return count > 0;
     }
+
+    public boolean updateCategory(DatabaseConnection connection, Product product) {
+        String sql = "UPDATE Product SET CategoryID = ? WHERE ProductID = ?";
+
+        try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
+            statement.setInt(1, product.getCategory().getId());
+            statement.setString(2, product.getId());
+
+            int rowsUpdated = statement.executeUpdate();
+            return rowsUpdated > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

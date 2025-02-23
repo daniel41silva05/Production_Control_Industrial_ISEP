@@ -8,7 +8,9 @@ import org.project.domain.Unit;
 import org.project.exceptions.ProductException;
 import org.project.repository.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ProductService {
 
@@ -74,6 +76,54 @@ public class ProductService {
         }
 
         return product;
+    }
+
+    public List<Product> productListInCategory(int categoryID) throws ProductException {
+        if (!productCategoryRepository.getCategoryExists(connection, categoryID)) {
+            throw new ProductException("Product Category with ID " + categoryID + " not exists.");
+        }
+        ProductCategory productCategory = productCategoryRepository.getByID(connection, categoryID);
+
+        List<Product> products = productRepository.getAll(connection);
+        List<Product> filteredProducts = new ArrayList<>();
+
+        for (Product product : products) {
+            if (product.getCategory().equals(productCategory)) {
+                filteredProducts.add(product);
+            }
+        }
+
+        return filteredProducts;
+    }
+
+    public ProductCategory deleteCategory(int id, Map<Product,Integer> productNewCategory) throws ProductException {
+        for (Map.Entry<Product, Integer> entry : productNewCategory.entrySet()) {
+            Product product = entry.getKey();
+            int categoryID = entry.getValue();
+
+            if (!productCategoryRepository.getCategoryExists(connection, categoryID)) {
+                throw new ProductException("Product Category with ID " + categoryID + " not exists.");
+            } else if (categoryID == id) {
+                throw new ProductException("Product Category with ID " + categoryID + " this is what will be deleted.");
+            }
+
+            ProductCategory productCategory = productCategoryRepository.getByID(connection, categoryID);
+            product.setCategory(productCategory);
+
+            boolean success = productRepository.updateCategory(connection, product);
+            if (!success) {
+                return null;
+            }
+        }
+
+        ProductCategory productCategory = productCategoryRepository.getByID(connection, id);
+
+        boolean success = productCategoryRepository.delete(connection, productCategory);
+        if (!success) {
+            return null;
+        }
+
+        return productCategory;
     }
 
 }
