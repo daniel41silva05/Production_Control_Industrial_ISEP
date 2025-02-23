@@ -12,9 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ClientRepository implements Persistable<Client> {
+public class ClientRepository {
 
-    @Override
     public boolean save(DatabaseConnection connection, Client client) {
 
         String sql = "INSERT INTO Client (ClientID, AddressID, Name, Vatin, PhoneNumber, EmailAddress, Type, State) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
@@ -37,7 +36,6 @@ public class ClientRepository implements Persistable<Client> {
         }
     }
 
-    @Override
     public boolean delete(DatabaseConnection connection, Client client) {
         String deleteProductOrdersSQL = "DELETE FROM ProductOrder WHERE OrderID = ?;";
         String deleteOrdersSQL = "DELETE FROM \"Order\" WHERE OrderID = ?;";
@@ -109,7 +107,6 @@ public class ClientRepository implements Persistable<Client> {
         }
     }
 
-    @Override
     public List<Client> getAll(DatabaseConnection connection) {
         List<Client> clients = new ArrayList<>();
         String sql = """
@@ -263,23 +260,6 @@ public class ClientRepository implements Persistable<Client> {
         }
 
         return count > 0;
-    }
-
-    public int getClientCount(DatabaseConnection connection) {
-        String sql = "SELECT COUNT(*) FROM Client";
-        int count = 0;
-
-        try (PreparedStatement statement = connection.getConnection().prepareStatement(sql);
-             ResultSet resultSet = statement.executeQuery()) {
-
-            if (resultSet.next()) {
-                count = resultSet.getInt(1);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return count;
     }
 
 }

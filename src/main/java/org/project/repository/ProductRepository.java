@@ -7,9 +7,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProductRepository implements Persistable<Product>{
+public class ProductRepository {
 
-    @Override
     public boolean save(DatabaseConnection connection, Product product) {
         String insertPartSQL = """
             INSERT INTO Part (PartID, UnitID, Name, Description)
@@ -60,38 +59,6 @@ public class ProductRepository implements Persistable<Product>{
         }
     }
 
-    @Override
-    public boolean delete(DatabaseConnection connection, Product product) {
-        String deletePartSQL = "DELETE FROM Part WHERE PartID = ?";
-        String deleteProductSQL = "DELETE FROM Product WHERE ProductID = ?";
-
-        try (Connection conn = connection.getConnection()) {
-            conn.setAutoCommit(false);
-
-            try (PreparedStatement stmtPart = conn.prepareStatement(deletePartSQL);
-                 PreparedStatement stmtProduct = conn.prepareStatement(deleteProductSQL)) {
-
-                stmtPart.setString(1, product.getId());
-                stmtPart.executeUpdate();
-
-                stmtProduct.setString(1, product.getId());
-                int rowsDeleted = stmtProduct.executeUpdate();
-
-                conn.commit();
-
-                return rowsDeleted > 0;
-            } catch (SQLException e) {
-                conn.rollback();
-                e.printStackTrace();
-                return false;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    @Override
     public List<Product> getAll(DatabaseConnection connection) {
         List<Product> products = new ArrayList<>();
         String sql = """

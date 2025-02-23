@@ -6,12 +6,9 @@ import org.project.domain.Unit;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
-public class UnitRepository implements Persistable<Unit> {
+public class UnitRepository {
 
-    @Override
     public boolean save(DatabaseConnection connection, Unit unit) {
         String sql = "INSERT INTO Unit (UnitID, Name, Symbol) VALUES (?, ?, ?)";
 
@@ -26,44 +23,6 @@ public class UnitRepository implements Persistable<Unit> {
             e.printStackTrace();
             return false;
         }
-    }
-
-    @Override
-    public boolean delete(DatabaseConnection connection, Unit unit) {
-        String sql = "DELETE FROM Unit WHERE unitid = ?";
-
-        try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
-            statement.setInt(1, unit.getId());
-
-            int rowsDeleted = statement.executeUpdate();
-            return rowsDeleted > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    @Override
-    public List<Unit> getAll(DatabaseConnection connection) {
-        List<Unit> units = new ArrayList<>();
-        String sql = "SELECT * FROM Unit";
-
-        try (PreparedStatement statement = connection.getConnection().prepareStatement(sql);
-             ResultSet resultSet = statement.executeQuery()) {
-
-            while (resultSet.next()) {
-                Unit unit = new Unit(
-                        resultSet.getInt("unitid"),
-                        resultSet.getString("name"),
-                        resultSet.getString("symbol")
-                );
-                units.add(unit);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return units;
     }
 
     public int getUnitCount(DatabaseConnection connection) {

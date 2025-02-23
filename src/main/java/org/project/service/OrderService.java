@@ -28,11 +28,11 @@ public class OrderService {
     }
 
     public Order getOrderByID (int orderID) throws OrderException {
-        Order order = orderRepository.getByID(connection, orderID);
-        if (order == null) {
+        if (orderRepository.getOrderExists(connection, orderID)) {
             throw new OrderException("Order with ID " + orderID + " not exists.");
         }
-        return order;
+
+        return orderRepository.getByID(connection, orderID);
     }
 
     public Order registerOrder(int clientID, int orderID, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date orderDate, Date deliveryDate, int price, Map<String, Integer> productIDQuantity) throws ClientException, OrderException, ProductException {

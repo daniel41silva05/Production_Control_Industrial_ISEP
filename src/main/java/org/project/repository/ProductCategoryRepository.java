@@ -8,9 +8,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProductCategoryRepository implements Persistable<ProductCategory>{
+public class ProductCategoryRepository {
 
-    @Override
     public boolean save(DatabaseConnection connection, ProductCategory category) {
         String sql = "INSERT INTO ProductCategory (ProductCategoryID, Name) VALUES (?, ?)";
 
@@ -26,7 +25,6 @@ public class ProductCategoryRepository implements Persistable<ProductCategory>{
         }
     }
 
-    @Override
     public boolean delete(DatabaseConnection connection, ProductCategory category) {
         String sql = "DELETE FROM ProductCategory WHERE ProductCategoryID = ?";
 
@@ -41,7 +39,6 @@ public class ProductCategoryRepository implements Persistable<ProductCategory>{
         }
     }
 
-    @Override
     public List<ProductCategory> getAll(DatabaseConnection connection) {
         List<ProductCategory> categories = new ArrayList<>();
         String sql = "SELECT * FROM ProductCategory";
