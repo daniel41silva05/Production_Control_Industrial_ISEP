@@ -32,8 +32,8 @@ public class ProductController {
         return productService.registerCategory(id, name);
     }
 
-    public Product registerProduct(String productID, String unitName, String unitSymbol, String name, String description, ProductCategory category, int capacity, int size, String color, double price) throws ProductException {
-        return productService.registerProduct(productID, unitName, unitSymbol, name, description, category, capacity, size, color, price);
+    public Product registerProduct(String productID, String name, String description, ProductCategory category, int capacity, int size, String color, double price) throws ProductException {
+        return productService.registerProduct(productID, name, description, category, capacity, size, color, price);
     }
 
     public Product changeProductCategory (String productID, ProductCategory category) throws ProductException {

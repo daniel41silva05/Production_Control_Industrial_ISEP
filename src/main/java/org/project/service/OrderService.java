@@ -28,7 +28,7 @@ public class OrderService {
     }
 
     public Order getOrderByID (int orderID) throws OrderException {
-        if (orderRepository.getOrderExists(connection, orderID)) {
+        if (!orderRepository.getOrderExists(connection, orderID)) {
             throw new OrderException("Order with ID " + orderID + " not exists.");
         }
 

@@ -43,11 +43,9 @@ public class RegisterProductUI implements Runnable {
             int size = Utils.readIntegerFromConsole("Enter Size: ");
             int capacity = Utils.readIntegerFromConsole("Enter Capacity: ");
             String color = Utils.readLineFromConsole("Enter Color: ");
-            String unitName = Utils.readLineFromConsole("Enter Unit Name: ");
-            String unitSymbol = Utils.readLineFromConsole("Enter Unit Symbol: ");
             double price = Utils.readDoubleFromConsole("Enter Price: ");
 
-            Product product = controller.registerProduct(productID, unitName, unitSymbol, name, description, category, capacity, size, color, price);
+            Product product = controller.registerProduct(productID, name, description, category, capacity, size, color, price);
             if (product == null) {
                 System.out.println("\nProduct registration failed.");
             } else {

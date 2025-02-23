@@ -12,7 +12,7 @@ public class ProductRepository {
     public boolean save(DatabaseConnection connection, Product product) {
         String insertPartSQL = """
             INSERT INTO Part (PartID, Name, Description)
-            VALUES (?, ?, ?, ?)
+            VALUES (?, ?, ?)
         """;
         String insertProductSQL = """
             INSERT INTO Product (ProductID, CategoryID, Capacity, "Size", Color, Price)

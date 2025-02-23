@@ -53,7 +53,7 @@ public class ProductService {
         return productCategory;
     }
 
-    public Product registerProduct(String productID, String unitName, String unitSymbol, String name, String description, ProductCategory category, int capacity, int size, String color, double price) throws ProductException {
+    public Product registerProduct(String productID, String name, String description, ProductCategory category, int capacity, int size, String color, double price) throws ProductException {
 
         if (productRepository.getProductExists(connection, productID)) {
             throw new ProductException("Product with ID " + productID + " already exists.");
