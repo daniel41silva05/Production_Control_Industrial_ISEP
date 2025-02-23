@@ -5,13 +5,11 @@ import java.util.Objects;
 public abstract class Part {
 
     private String id;
-    private Unit unit;
     private String name;
     private String description;
 
-    public Part(String id, Unit unit, String name, String description) {
+    public Part(String id, String name, String description) {
         this.id = id;
-        this.unit = unit;
         this.name = name;
         this.description = description;
     }
@@ -22,14 +20,6 @@ public abstract class Part {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public Unit getUnit() {
-        return unit;
-    }
-
-    public void setUnit(Unit unit) {
-        this.unit = unit;
     }
 
     public String getName() {

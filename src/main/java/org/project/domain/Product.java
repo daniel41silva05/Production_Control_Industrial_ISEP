@@ -1,5 +1,7 @@
 package org.project.domain;
 
+import org.project.common.NaryTree;
+
 public class Product extends Part {
 
     private ProductCategory category;
@@ -7,15 +9,16 @@ public class Product extends Part {
     private int size;
     private String color;
     private double price;
-    // missing tree
+    private NaryTree<Product> tree;
 
-    public Product(String id, Unit unit, String name, String description, ProductCategory category, int capacity, int size, String color, double price) {
-        super(id, unit, name, description);
+    public Product(String id, String name, String description, ProductCategory category, int capacity, int size, String color, double price) {
+        super(id, name, description);
         this.category = category;
         this.capacity = capacity;
         this.size = size;
         this.color = color;
         this.price = price;
+        this.tree = new NaryTree<>(this);
     }
 
     public ProductCategory getCategory() {
@@ -56,5 +59,13 @@ public class Product extends Part {
 
     public void setPrice(double price) {
         this.price = price;
+    }
+
+    public NaryTree<Product> getTree() {
+        return tree;
+    }
+
+    public void setTree(NaryTree<Product> tree) {
+        this.tree = tree;
     }
 }

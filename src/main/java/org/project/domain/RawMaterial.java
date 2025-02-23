@@ -8,15 +8,15 @@ public class RawMaterial extends Part {
     private int minimumStock;
     private Map<Supplier, Double> rawMaterialCost;
 
-    public RawMaterial(String id, Unit unit, String name, String description, int currentStock, int minimumStock, Map<Supplier, Double> rawMaterialCost) {
-        super(id, unit, name, description);
+    public RawMaterial(String id, String name, String description, int currentStock, int minimumStock, Map<Supplier, Double> rawMaterialCost) {
+        super(id, name, description);
         this.currentStock = currentStock;
         this.minimumStock = minimumStock;
         this.rawMaterialCost = rawMaterialCost;
     }
 
-    public RawMaterial(String id, Unit unit, String name, String description, int currentStock, Map<Supplier, Double> rawMaterialCost) {
-        super(id, unit, name, description);
+    public RawMaterial(String id, String name, String description, int currentStock, Map<Supplier, Double> rawMaterialCost) {
+        super(id, name, description);
         this.currentStock = currentStock;
         this.minimumStock = 0;
         this.rawMaterialCost = rawMaterialCost;

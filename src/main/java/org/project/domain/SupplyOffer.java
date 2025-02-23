@@ -8,24 +8,21 @@ public class SupplyOffer {
 
     private int id;
     private Address deliveryAddress;
-    private Unit unit;
     private Date startDate;
     private Date endDate;
     private Map<RawMaterial, Map<Integer, Double>> rawMaterialsQuantityCost;
 
-    public SupplyOffer(int id, Address deliveryAddress, Unit unit, Date startDate, Date endDate, Map<RawMaterial, Map<Integer, Double>> rawMaterialsQuantityCost) {
+    public SupplyOffer(int id, Address deliveryAddress, Date startDate, Date endDate, Map<RawMaterial, Map<Integer, Double>> rawMaterialsQuantityCost) {
         this.id = id;
         this.deliveryAddress = deliveryAddress;
-        this.unit = unit;
         this.startDate = startDate;
         this.endDate = endDate;
         this.rawMaterialsQuantityCost = rawMaterialsQuantityCost;
     }
 
-    public SupplyOffer(int id, Address deliveryAddress, Unit unit, Date startDate, Map<RawMaterial, Map<Integer, Double>> rawMaterialsQuantityCost) {
+    public SupplyOffer(int id, Address deliveryAddress, Date startDate, Map<RawMaterial, Map<Integer, Double>> rawMaterialsQuantityCost) {
         this.id = id;
         this.deliveryAddress = deliveryAddress;
-        this.unit = unit;
         this.startDate = startDate;
         this.endDate = null;
         this.rawMaterialsQuantityCost = rawMaterialsQuantityCost;
@@ -45,14 +42,6 @@ public class SupplyOffer {
 
     public void setDeliveryAddress(Address deliveryAddress) {
         this.deliveryAddress = deliveryAddress;
-    }
-
-    public Unit getUnit() {
-        return unit;
-    }
-
-    public void setUnit(Unit unit) {
-        this.unit = unit;
     }
 
     public Date getStartDate() {
@@ -97,7 +86,6 @@ public class SupplyOffer {
         return "SupplyOffer{" +
                 "id=" + id +
                 ", deliveryAddress=" + deliveryAddress +
-                ", unit=" + unit +
                 ", startDate=" + startDate +
                 ", endDate=" + endDate +
                 ", rawMaterials=" + rawMaterialsQuantityCost +
