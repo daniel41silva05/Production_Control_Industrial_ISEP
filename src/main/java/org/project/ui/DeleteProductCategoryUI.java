@@ -74,6 +74,6 @@ public class DeleteProductCategoryUI implements Runnable {
         System.out.println(" - Size: " + product.getSize());
         System.out.println(" - Capacity: " + product.getCapacity());
         System.out.println(" - Color: " + product.getColor());
-        System.out.println(" - Price: " + product.getPrice() + product.getUnit().getSymbol());
+        System.out.println(" - Price: " + product.getPrice() + "$");
     }
 }

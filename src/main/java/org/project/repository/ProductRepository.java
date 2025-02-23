@@ -11,7 +11,7 @@ public class ProductRepository {
 
     public boolean save(DatabaseConnection connection, Product product) {
         String insertPartSQL = """
-            INSERT INTO Part (PartID, UnitID, Name, Description)
+            INSERT INTO Part (PartID, Name, Description)
             VALUES (?, ?, ?, ?)
         """;
         String insertProductSQL = """
@@ -26,9 +26,8 @@ public class ProductRepository {
                  PreparedStatement stmtProduct = conn.prepareStatement(insertProductSQL)) {
 
                 stmtPart.setString(1, product.getId());
-                stmtPart.setInt(2, product.getUnit().getId());
-                stmtPart.setString(3, product.getName());
-                stmtPart.setString(4, product.getDescription());
+                stmtPart.setString(2, product.getName());
+                stmtPart.setString(3, product.getDescription());
                 int rowsInsertedPart = stmtPart.executeUpdate();
 
                 if (rowsInsertedPart > 0) {
@@ -63,12 +62,10 @@ public class ProductRepository {
         List<Product> products = new ArrayList<>();
         String sql = """
             SELECT p.ProductID, p.Capacity, p."Size", p.Color, p.Price, 
-                   u.UnitID, u.Name AS UnitName, u.Symbol AS UnitSymbol,
                    part.PartID, part.Name AS PartName, part.Description AS PartDescription,
                    pc.ProductCategoryID, pc.Name AS ProductCategoryName
             FROM Product p
             JOIN Part part ON p.ProductID = part.PartID
-            JOIN Unit u ON part.UnitID = u.UnitID
             JOIN ProductCategory pc ON p.CategoryID = pc.ProductCategoryID
         """;
 
@@ -77,12 +74,6 @@ public class ProductRepository {
 
             while (rs.next()) {
 
-                Unit unit = new Unit(
-                        rs.getInt("UnitID"),
-                        rs.getString("UnitName"),
-                        rs.getString("UnitSymbol")
-                );
-
                 ProductCategory productCategory = new ProductCategory(
                         rs.getInt("ProductCategoryID"),
                         rs.getString("ProductCategoryName")
@@ -90,7 +81,6 @@ public class ProductRepository {
 
                 Product product = new Product(
                         rs.getString("ProductID"),
-                        unit,
                         rs.getString("PartName"),
                         rs.getString("PartDescription"),
                         productCategory,
@@ -112,12 +102,10 @@ public class ProductRepository {
         Product product = null;
         String sql = """
             SELECT p.ProductID, p.Capacity, p."Size", p.Color, p.Price, 
-                   u.UnitID, u.Name AS UnitName, u.Symbol AS UnitSymbol,
                    part.PartID, part.Name AS PartName, part.Description AS PartDescription,
                    pc.ProductCategoryID, pc.Name AS ProductCategoryName
             FROM Product p
             JOIN Part part ON p.ProductID = part.PartID
-            JOIN Unit u ON part.UnitID = u.UnitID
             JOIN ProductCategory pc ON p.CategoryID = pc.ProductCategoryID
             WHERE p.ProductID = ?;
         """;
@@ -128,12 +116,6 @@ public class ProductRepository {
 
             while (rs.next()) {
 
-                Unit unit = new Unit(
-                        rs.getInt("UnitID"),
-                        rs.getString("UnitName"),
-                        rs.getString("UnitSymbol")
-                );
-
                 ProductCategory productCategory = new ProductCategory(
                         rs.getInt("ProductCategoryID"),
                         rs.getString("ProductCategoryName")
@@ -141,7 +123,6 @@ public class ProductRepository {
 
                 product = new Product(
                         rs.getString("ProductID"),
-                        unit,
                         rs.getString("PartName"),
                         rs.getString("PartDescription"),
                         productCategory,

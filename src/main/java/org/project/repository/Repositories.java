@@ -12,7 +12,6 @@ public class Repositories {
     private OrderRepository orderRepository;
     private ProductRepository productRepository;
     private ProductCategoryRepository productCategoryRepository;
-    private UnitRepository unitRepository;
 
     /**
      * Constructs a new Repositories object, initializing all repositories.
@@ -23,7 +22,6 @@ public class Repositories {
         orderRepository = new OrderRepository();
         productRepository = new ProductRepository();
         productCategoryRepository = new ProductCategoryRepository();
-        unitRepository = new UnitRepository();
     }
 
     /**
@@ -61,8 +59,5 @@ public class Repositories {
         return productCategoryRepository;
     }
 
-    public UnitRepository getUnitRepository() {
-        return unitRepository;
-    }
 }
 

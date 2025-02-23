@@ -4,7 +4,6 @@ import org.project.data.ConnectionFactory;
 import org.project.data.DatabaseConnection;
 import org.project.domain.Product;
 import org.project.domain.ProductCategory;
-import org.project.domain.Unit;
 import org.project.exceptions.ProductException;
 import org.project.repository.*;
 
@@ -17,14 +16,12 @@ public class ProductService {
     private DatabaseConnection connection;
     private ProductRepository productRepository;
     private ProductCategoryRepository productCategoryRepository;
-    private UnitRepository unitRepository;
 
     public ProductService() {
         connection = ConnectionFactory.getInstance().getDatabaseConnection();
         Repositories repositories = Repositories.getInstance();
         productRepository = repositories.getProductRepository();
         productCategoryRepository  = repositories.getProductCategoryRepository();
-        unitRepository = repositories.getUnitRepository();
     }
 
     public List<ProductCategory> getProductCategories() {
@@ -62,14 +59,7 @@ public class ProductService {
             throw new ProductException("Product with ID " + productID + " already exists.");
         }
 
-        Unit unit = unitRepository.findUnit(connection, unitName, unitSymbol);
-        if (unit == null) {
-            int id = unitRepository.getUnitCount(connection);
-            unit = new Unit(id, unitName, unitSymbol);
-            unitRepository.save(connection, unit);
-        }
-
-        Product product = new Product(productID, unit, name, description, category, capacity, size, color, price);
+        Product product = new Product(productID, name, description, category, capacity, size, color, price);
         boolean success = productRepository.save(connection, product);
         if (!success) {
             return null;
