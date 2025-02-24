@@ -9,7 +9,7 @@ public class Product extends Part {
     private int size;
     private String color;
     private double price;
-    private NaryTree<Product> tree;
+    private NaryTree<ProductionElement> tree;
 
     public Product(String id, String name, String description, ProductCategory category, int capacity, int size, String color, double price) {
         super(id, name, description);
@@ -18,7 +18,7 @@ public class Product extends Part {
         this.size = size;
         this.color = color;
         this.price = price;
-        this.tree = new NaryTree<>(this);
+        this.tree = new NaryTree<>(new ProductionElement(this));
     }
 
     public ProductCategory getCategory() {
@@ -61,11 +61,11 @@ public class Product extends Part {
         this.price = price;
     }
 
-    public NaryTree<Product> getTree() {
+    public NaryTree<ProductionElement> getTree() {
         return tree;
     }
 
-    public void setTree(NaryTree<Product> tree) {
+    public void setTree(NaryTree<ProductionElement> tree) {
         this.tree = tree;
     }
 }
