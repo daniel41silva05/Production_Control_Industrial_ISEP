@@ -3,8 +3,6 @@ DROP TABLE IF EXISTS RawMaterialSupplier CASCADE;
 DROP TABLE IF EXISTS RawMaterialSupply CASCADE;
 DROP TABLE IF EXISTS SupplyOffer CASCADE;
 DROP TABLE IF EXISTS Supplier CASCADE;
-DROP TABLE IF EXISTS OperationOutput CASCADE;
-DROP TABLE IF EXISTS OperationInput CASCADE;
 DROP TABLE IF EXISTS RawMaterial CASCADE;
 DROP TABLE IF EXISTS Component CASCADE;
 DROP TABLE IF EXISTS Part CASCADE;
@@ -13,7 +11,7 @@ DROP TABLE IF EXISTS Workstation CASCADE;
 DROP TABLE IF EXISTS WorkstationType CASCADE;
 DROP TABLE IF EXISTS Operation CASCADE;
 DROP TABLE IF EXISTS OperationType CASCADE;
-DROP TABLE IF EXISTS BOO CASCADE;
+DROP TABLE IF EXISTS ProductionTree CASCADE;
 DROP TABLE IF EXISTS ProductOrder CASCADE;
 DROP TABLE IF EXISTS Product CASCADE;
 DROP TABLE IF EXISTS ProductCategory CASCADE;
@@ -84,12 +82,13 @@ CREATE TABLE Operation (
     PRIMARY KEY (OperationID)
 );
 
-CREATE TABLE BOO (
+CREATE TABLE ProductionTree (
     ProductID varchar(255) NOT NULL,
     OperationID int4 NOT NULL,
-    OperationNumber int4 NOT NULL,
-    NextOperation int4 NOT NULL,
-    PRIMARY KEY (ProductID, OperationID, OperationNumber)
+    PartID varchar(255) NOT NULL,
+    ParentOperationID int4,
+    Quantity int4 NOT NULL,
+    PRIMARY KEY (ProductID, OperationID, PartID)
 );
 
 CREATE TABLE OperationType (
@@ -137,20 +136,6 @@ CREATE TABLE RawMaterial (
     PRIMARY KEY (RawMaterialID)
 );
 
-CREATE TABLE OperationInput (
-    OperationID int4 NOT NULL,
-    PartID varchar(255) NOT NULL,
-    Quantity int4 NOT NULL CHECK (Quantity > 0),
-    PRIMARY KEY (OperationID, PartID)
-);
-
-CREATE TABLE OperationOutput (
-    OperationID int4 NOT NULL,
-    PartID varchar(255) NOT NULL,
-    Quantity int4 NOT NULL CHECK (Quantity > 0),
-    PRIMARY KEY (OperationID, PartID)
-);
-
 CREATE TABLE Supplier (
     SupplierID int4 NOT NULL,
     Name varchar(255) NOT NULL,
@@ -184,30 +169,27 @@ CREATE TABLE RawMaterialSupplier (
     PRIMARY KEY (SupplierID, RawMaterialID)
 );
 
--- Table relationships
-ALTER TABLE Client ADD CONSTRAINT FKClient829449 FOREIGN KEY (AddressID) REFERENCES Address (AddressID);
-ALTER TABLE "Order" ADD CONSTRAINT FKOrder976445 FOREIGN KEY (DeliveryAddressID) REFERENCES Address (AddressID);
-ALTER TABLE "Order" ADD CONSTRAINT FKOrder286870 FOREIGN KEY (ClientID) REFERENCES Client (ClientID);
-ALTER TABLE ProductOrder ADD CONSTRAINT FKProductOrd388892 FOREIGN KEY (OrderID) REFERENCES "Order" (OrderID);
-ALTER TABLE ProductOrder ADD CONSTRAINT FKProductOrd527714 FOREIGN KEY (ProductID) REFERENCES Product (ProductID);
-ALTER TABLE Product ADD CONSTRAINT FKProduct24246 FOREIGN KEY (CategoryID) REFERENCES ProductCategory (ProductCategoryID);
-ALTER TABLE BOO ADD CONSTRAINT FKBOO448646 FOREIGN KEY (ProductID) REFERENCES Product (ProductID);
-ALTER TABLE BOO ADD CONSTRAINT FKBOO53507 FOREIGN KEY (OperationID) REFERENCES Operation (OperationID);
-ALTER TABLE BOO ADD CONSTRAINT FKBOO340922 FOREIGN KEY (NextOperation) REFERENCES Operation (OperationID);
-ALTER TABLE Operation ADD CONSTRAINT FKOperation885065 FOREIGN KEY (OperationTypeID) REFERENCES OperationType (OperationTypeID);
-ALTER TABLE Workstation ADD CONSTRAINT FKWorkstatio409310 FOREIGN KEY (WorkstationTypeID) REFERENCES WorkstationType (WorkstationTypeID);
-ALTER TABLE CanBeDoneAt ADD CONSTRAINT FKCanBeDoneA880921 FOREIGN KEY (OperationTypeID) REFERENCES OperationType (OperationTypeID);
-ALTER TABLE CanBeDoneAt ADD CONSTRAINT FKCanBeDoneA399444 FOREIGN KEY (WorkstationTypeID) REFERENCES WorkstationType (WorkstationTypeID);
-ALTER TABLE Component ADD CONSTRAINT FKComponent67737 FOREIGN KEY (ComponentID) REFERENCES Part (PartID);
-ALTER TABLE RawMaterial ADD CONSTRAINT FKRawMateria380785 FOREIGN KEY (RawMaterialID) REFERENCES Part (PartID);
-ALTER TABLE OperationInput ADD CONSTRAINT FKOperationI389517 FOREIGN KEY (OperationID) REFERENCES Operation (OperationID);
-ALTER TABLE OperationOutput ADD CONSTRAINT FKOperationO382427 FOREIGN KEY (OperationID) REFERENCES Operation (OperationID);
-ALTER TABLE SupplyOffer ADD CONSTRAINT FKSupplyOffe936292 FOREIGN KEY (SupplierID) REFERENCES Supplier (SupplierID);
-ALTER TABLE SupplyOffer ADD CONSTRAINT FKSupplyOffe630950 FOREIGN KEY (DeliveryAddressID) REFERENCES Address (AddressID);
-ALTER TABLE RawMaterialSupply ADD CONSTRAINT FKRawMateria943112 FOREIGN KEY (SupplyOfferID) REFERENCES SupplyOffer (SupplyOfferID);
-ALTER TABLE RawMaterialSupply ADD CONSTRAINT FKRawMateria932461 FOREIGN KEY (RawMaterialID) REFERENCES RawMaterial (RawMaterialID);
-ALTER TABLE RawMaterialSupplier ADD CONSTRAINT FKRawMateria614283 FOREIGN KEY (SupplierID) REFERENCES Supplier (SupplierID);
-ALTER TABLE RawMaterialSupplier ADD CONSTRAINT FKRawMateria361015 FOREIGN KEY (RawMaterialID) REFERENCES RawMaterial (RawMaterialID);
-ALTER TABLE OperationOutput ADD CONSTRAINT FKOperationO862409 FOREIGN KEY (PartID) REFERENCES Part (PartID);
-ALTER TABLE OperationInput ADD CONSTRAINT FKOperationI102091 FOREIGN KEY (PartID) REFERENCES Part (PartID);
-ALTER TABLE Product ADD CONSTRAINT FKProduct253320 FOREIGN KEY (ProductID) REFERENCES Part (PartID);
+-- Foreign Keys
+ALTER TABLE Client ADD CONSTRAINT FK_Client_Address FOREIGN KEY (AddressID) REFERENCES Address (AddressID);
+ALTER TABLE "Order" ADD CONSTRAINT FK_Order_Client FOREIGN KEY (ClientID) REFERENCES Client (ClientID);
+ALTER TABLE "Order" ADD CONSTRAINT FK_Order_Address FOREIGN KEY (DeliveryAddressID) REFERENCES Address (AddressID);
+ALTER TABLE ProductOrder ADD CONSTRAINT FK_ProductOrder_Order FOREIGN KEY (OrderID) REFERENCES "Order" (OrderID);
+ALTER TABLE ProductOrder ADD CONSTRAINT FK_ProductOrder_Product FOREIGN KEY (ProductID) REFERENCES Product (ProductID);
+ALTER TABLE Product ADD CONSTRAINT FK_Product_Category FOREIGN KEY (CategoryID) REFERENCES ProductCategory (ProductCategoryID);
+ALTER TABLE ProductionTree ADD CONSTRAINT FK_ProductionTree_Product FOREIGN KEY (ProductID) REFERENCES Product (ProductID);
+ALTER TABLE ProductionTree ADD CONSTRAINT FK_ProductionTree_Operation FOREIGN KEY (OperationID) REFERENCES Operation (OperationID);
+ALTER TABLE ProductionTree ADD CONSTRAINT FK_ProductionTree_ParentOperation FOREIGN KEY (ParentOperationID) REFERENCES Operation (OperationID);
+ALTER TABLE Operation ADD CONSTRAINT FK_Operation_Type FOREIGN KEY (OperationTypeID) REFERENCES OperationType (OperationTypeID);
+ALTER TABLE Workstation ADD CONSTRAINT FK_Workstation_Type FOREIGN KEY (WorkstationTypeID) REFERENCES WorkstationType (WorkstationTypeID);
+ALTER TABLE CanBeDoneAt ADD CONSTRAINT FK_CanBeDoneAt_OperationType FOREIGN KEY (OperationTypeID) REFERENCES OperationType (OperationTypeID);
+ALTER TABLE CanBeDoneAt ADD CONSTRAINT FK_CanBeDoneAt_WorkstationType FOREIGN KEY (WorkstationTypeID) REFERENCES WorkstationType (WorkstationTypeID);
+ALTER TABLE Component ADD CONSTRAINT FK_Component_Part FOREIGN KEY (ComponentID) REFERENCES Part (PartID);
+ALTER TABLE RawMaterial ADD CONSTRAINT FK_RawMaterial_Part FOREIGN KEY (RawMaterialID) REFERENCES Part (PartID);
+ALTER TABLE SupplyOffer ADD CONSTRAINT FK_SupplyOffer_Supplier FOREIGN KEY (SupplierID) REFERENCES Supplier (SupplierID);
+ALTER TABLE SupplyOffer ADD CONSTRAINT FK_SupplyOffer_Address FOREIGN KEY (DeliveryAddressID) REFERENCES Address (AddressID);
+ALTER TABLE RawMaterialSupply ADD CONSTRAINT FK_RawMaterialSupply_SupplyOffer FOREIGN KEY (SupplyOfferID) REFERENCES SupplyOffer (SupplyOfferID);
+ALTER TABLE RawMaterialSupply ADD CONSTRAINT FK_RawMaterialSupply_RawMaterial FOREIGN KEY (RawMaterialID) REFERENCES RawMaterial (RawMaterialID);
+ALTER TABLE RawMaterialSupplier ADD CONSTRAINT FK_RawMaterialSupplier_Supplier FOREIGN KEY (SupplierID) REFERENCES Supplier (SupplierID);
+ALTER TABLE RawMaterialSupplier ADD CONSTRAINT FK_RawMaterialSupplier_RawMaterial FOREIGN KEY (RawMaterialID) REFERENCES RawMaterial (RawMaterialID);
+ALTER TABLE Product ADD CONSTRAINT FK_Product_Part FOREIGN KEY (ProductID) REFERENCES Part (PartID);
+ALTER TABLE ProductionTree ADD CONSTRAINT FK_ProductionTree_Part FOREIGN KEY (PartID) REFERENCES Part (PartID);
