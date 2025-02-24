@@ -14,12 +14,6 @@ public class ProductionElement {
         this.quantity = quantity;
     }
 
-    public ProductionElement (Product product) {
-        this.part = product;
-        this.operation = null;
-        this.quantity = 1;
-    }
-
     public Part getPart() {
         return part;
     }
