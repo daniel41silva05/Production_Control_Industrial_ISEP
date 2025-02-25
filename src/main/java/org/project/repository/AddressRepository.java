@@ -1,7 +1,7 @@
 package org.project.repository;
 
 import org.project.data.DatabaseConnection;
-import org.project.domain.Address;
+import org.project.model.Address;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

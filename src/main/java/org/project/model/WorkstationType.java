@@ -1,15 +1,17 @@
-package org.project.domain;
+package org.project.model;
 
 import java.util.Objects;
 
-public class Workstation {
+public class WorkstationType {
 
     private int id;
     private String name;
+    private Workstation workstation;
 
-    public Workstation(int id, String name) {
+    public WorkstationType(int id, String name, Workstation workstation) {
         this.id = id;
         this.name = name;
+        this.workstation = workstation;
     }
 
     public int getId() {
@@ -28,11 +30,19 @@ public class Workstation {
         this.name = name;
     }
 
+    public Workstation getWorkstation() {
+        return workstation;
+    }
+
+    public void setWorkstation(Workstation workstation) {
+        this.workstation = workstation;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Workstation that = (Workstation) o;
+        WorkstationType that = (WorkstationType) o;
         return id == that.id;
     }
 
@@ -43,9 +53,10 @@ public class Workstation {
 
     @Override
     public String toString() {
-        return "Workstation{" +
+        return "WorkstationType{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
+                ", workstation=" + workstation +
                 '}';
     }
 }

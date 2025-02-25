@@ -1,7 +1,7 @@
 package org.project.repository;
 
 import org.project.data.DatabaseConnection;
-import org.project.domain.ProductCategory;
+import org.project.model.ProductCategory;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;

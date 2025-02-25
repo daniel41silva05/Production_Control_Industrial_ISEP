@@ -2,7 +2,7 @@ package org.project.service;
 
 import org.project.data.ConnectionFactory;
 import org.project.data.DatabaseConnection;
-import org.project.domain.*;
+import org.project.model.*;
 import org.project.exceptions.ClientException;
 import org.project.exceptions.OrderException;
 import org.project.exceptions.ProductException;

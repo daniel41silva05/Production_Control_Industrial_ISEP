@@ -1,8 +1,8 @@
 package org.project.ui;
 
 import org.project.controller.ProductController;
-import org.project.domain.Product;
-import org.project.domain.ProductCategory;
+import org.project.model.Product;
+import org.project.model.ProductCategory;
 import org.project.exceptions.ProductException;
 import org.project.ui.utils.Utils;
 

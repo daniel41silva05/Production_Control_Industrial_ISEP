@@ -1,7 +1,7 @@
 package org.project.ui;
 
 import org.project.controller.ClientController;
-import org.project.domain.Client;
+import org.project.model.Client;
 import org.project.exceptions.ClientException;
 import java.util.List;
 

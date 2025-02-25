@@ -1,8 +1,8 @@
 package org.project.controller;
 
-import org.project.domain.Client;
+import org.project.model.Client;
 import org.project.exceptions.ClientException;
-import org.project.domain.CompanyType;
+import org.project.model.CompanyType;
 import org.project.service.ClientService;
 
 import java.util.List;

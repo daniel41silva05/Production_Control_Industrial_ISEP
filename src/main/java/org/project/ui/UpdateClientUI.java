@@ -1,8 +1,8 @@
 package org.project.ui;
 
 import org.project.controller.ClientController;
-import org.project.domain.Client;
-import org.project.domain.CompanyType;
+import org.project.model.Client;
+import org.project.model.CompanyType;
 import org.project.exceptions.ClientException;
 import org.project.ui.utils.Utils;
 

@@ -1,9 +1,9 @@
 package org.project.ui;
 
 import org.project.controller.OrderController;
-import org.project.domain.Client;
-import org.project.domain.Order;
-import org.project.domain.Product;
+import org.project.model.Client;
+import org.project.model.Order;
+import org.project.model.Product;
 import org.project.exceptions.ClientException;
 import org.project.exceptions.OrderException;
 import org.project.exceptions.ProductException;

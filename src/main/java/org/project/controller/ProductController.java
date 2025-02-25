@@ -1,7 +1,7 @@
 package org.project.controller;
 
-import org.project.domain.Product;
-import org.project.domain.ProductCategory;
+import org.project.model.Product;
+import org.project.model.ProductCategory;
 import org.project.exceptions.ProductException;
 import org.project.service.ProductService;
 

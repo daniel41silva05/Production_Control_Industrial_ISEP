@@ -1,4 +1,4 @@
-package org.project.domain;
+package org.project.model;
 
 import org.project.common.NaryTree;
 

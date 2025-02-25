@@ -1,18 +1,15 @@
-package org.project.domain;
+package org.project.model;
 
-import java.util.Map;
 import java.util.Objects;
 
-public class OperationType {
+public class ProductCategory {
 
     private int id;
     private String name;
-    private Map<WorkstationType, Integer> workstationSetupTime;
 
-    public OperationType(int id, String name, Map<WorkstationType, Integer> workstationSetupTime) {
+    public ProductCategory(int id, String name) {
         this.id = id;
         this.name = name;
-        this.workstationSetupTime = workstationSetupTime;
     }
 
     public int getId() {
@@ -31,19 +28,11 @@ public class OperationType {
         this.name = name;
     }
 
-    public Map<WorkstationType, Integer> getWorkstationSetupTime() {
-        return workstationSetupTime;
-    }
-
-    public void setWorkstationSetupTime(Map<WorkstationType, Integer> workstationSetupTime) {
-        this.workstationSetupTime = workstationSetupTime;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        OperationType that = (OperationType) o;
+        ProductCategory that = (ProductCategory) o;
         return id == that.id;
     }
 
@@ -54,10 +43,9 @@ public class OperationType {
 
     @Override
     public String toString() {
-        return "OperationType{" +
+        return "ProductCategory{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", workstationSetupTime=" + workstationSetupTime +
                 '}';
     }
 }

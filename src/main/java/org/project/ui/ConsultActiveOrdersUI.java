@@ -1,8 +1,8 @@
 package org.project.ui;
 
 import org.project.controller.OrderController;
-import org.project.domain.Order;
-import org.project.domain.Product;
+import org.project.model.Order;
+import org.project.model.Product;
 
 import java.text.SimpleDateFormat;
 import java.util.List;

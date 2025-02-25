@@ -4,7 +4,7 @@ import org.project.common.NaryTree;
 import org.project.common.NaryTreeNode;
 import org.project.data.ConnectionFactory;
 import org.project.data.DatabaseConnection;
-import org.project.domain.ProductionElement;
+import org.project.model.ProductionElement;
 import org.project.exceptions.ProductException;
 import org.project.repository.ProductRepository;
 import org.project.repository.Repositories;

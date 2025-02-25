@@ -2,8 +2,8 @@ package org.project.service;
 
 import org.project.data.ConnectionFactory;
 import org.project.data.DatabaseConnection;
-import org.project.domain.Product;
-import org.project.domain.ProductCategory;
+import org.project.model.Product;
+import org.project.model.ProductCategory;
 import org.project.exceptions.ProductException;
 import org.project.repository.*;
 
