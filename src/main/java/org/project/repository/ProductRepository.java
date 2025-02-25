@@ -4,10 +4,7 @@ import org.project.data.DatabaseConnection;
 import org.project.domain.*;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ProductRepository {
 
@@ -160,8 +157,56 @@ public class ProductRepository {
         return count > 0;
     }
 
-    public HashMap<ProductionElement, Integer> getProductionHierarchy(DatabaseConnection connection, String productId) {
-        HashMap<ProductionElement, Integer> hierarchy = new HashMap<>();
+    public boolean saveProductionTree(DatabaseConnection connection, String productID, HashMap<ProductionElement, Integer> map) {
+        String insertSQL = """
+        INSERT INTO ProductionTree (ProductID, OperationID, PartID, ParentOperationID, Quantity)
+        VALUES (?, ?, ?, ?, ?)
+    """;
+
+        try (Connection conn = connection.getConnection()) {
+            conn.setAutoCommit(false);
+
+            try (PreparedStatement stmt = conn.prepareStatement(insertSQL)) {
+                for (Map.Entry<ProductionElement, Integer> entry : map.entrySet()) {
+                    ProductionElement productionElement = entry.getKey();
+                    Integer parentOperationID = entry.getValue();
+
+                    stmt.setString(1, productID);
+                    stmt.setInt(2, productionElement.getOperation().getId());
+                    stmt.setString(3, productionElement.getPart().getId());
+
+                    if (parentOperationID == null) {
+                        stmt.setNull(4, Types.INTEGER);
+                    } else {
+                        stmt.setInt(4, parentOperationID);
+                    }
+
+                    stmt.setDouble(5, productionElement.getQuantity());
+                    stmt.addBatch();
+                }
+
+                int[] rowsInserted = stmt.executeBatch();
+
+                if (Arrays.stream(rowsInserted).allMatch(row -> row > 0)) {
+                    conn.commit();
+                    return true;
+                }
+
+                conn.rollback();
+                return false;
+            } catch (SQLException e) {
+                conn.rollback();
+                e.printStackTrace();
+                return false;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public LinkedHashMap<ProductionElement, Integer> getProductionHierarchy(DatabaseConnection connection, String productId) {
+        LinkedHashMap<ProductionElement, Integer> hierarchy = new LinkedHashMap<>();
         String sql = """
         WITH RECURSIVE ProductionHierarchy AS (
             SELECT 
