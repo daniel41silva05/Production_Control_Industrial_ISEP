@@ -7,6 +7,7 @@ import org.project.data.DatabaseConnection;
 import org.project.model.ProductionElement;
 import org.project.exceptions.ProductException;
 import org.project.repository.ProductRepository;
+import org.project.repository.ProductionTreeRepository;
 import org.project.repository.Repositories;
 
 import java.util.*;
@@ -15,11 +16,13 @@ public class ProductionTreeService {
 
     private DatabaseConnection connection;
     private ProductRepository productRepository;
+    private ProductionTreeRepository productionTreeRepository;
 
     public ProductionTreeService() {
         connection = ConnectionFactory.getInstance().getDatabaseConnection();
         Repositories repositories = Repositories.getInstance();
         productRepository = repositories.getProductRepository();
+        productionTreeRepository = repositories.getProductionTreeRepository();
     }
 
     public void addTree (String productID, HashMap<ProductionElement, List<Integer>> elementNextOperations) throws ProductException {
@@ -48,7 +51,7 @@ public class ProductionTreeService {
             // verificações nos outros repositorios
         }
 
-        boolean success = productRepository.saveProductionTree(connection, productID, map);
+        boolean success = productionTreeRepository.saveProductionTree(connection, productID, map);
         if (!success) {
             throw new ProductException("Product with ID " + productID + " could not be saved.");
         }
@@ -94,7 +97,7 @@ public class ProductionTreeService {
             throw new ProductException("Product with ID " + productID + " does not exist.");
         }
 
-        LinkedHashMap<ProductionElement, Integer> elementParentOperationMap = productRepository.getProductionHierarchy(connection, productID);
+        LinkedHashMap<ProductionElement, Integer> elementParentOperationMap = productionTreeRepository.getProductionHierarchy(connection, productID);
 
         LinkedHashMap<ProductionElement, List<Integer>> map = buildReverseTree(elementParentOperationMap);
 
