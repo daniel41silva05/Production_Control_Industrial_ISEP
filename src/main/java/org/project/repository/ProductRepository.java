@@ -5,7 +5,9 @@ import org.project.domain.*;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ProductRepository {
 
@@ -158,18 +160,116 @@ public class ProductRepository {
         return count > 0;
     }
 
-    public boolean updateCategory(DatabaseConnection connection, Product product) {
-        String sql = "UPDATE Product SET CategoryID = ? WHERE ProductID = ?";
+    public HashMap<ProductionElement, Integer> getProductionHierarchy(DatabaseConnection connection, String productId) {
+        HashMap<ProductionElement, Integer> hierarchy = new HashMap<>();
+        String sql = """
+        WITH RECURSIVE ProductionHierarchy AS (
+            SELECT 
+                pt.ProductID,
+                pt.OperationID,
+                o.Name AS OperationName,
+                o.ExecutionTime,
+                o.OperationTypeID,
+                ot.Name AS OperationTypeName,
+                COALESCE(p.ProductID, c.ComponentID, r.RawMaterialID) AS PartID,
+                COALESCE(p.Name, c.Name, r.Name) AS PartName,
+                COALESCE(p.Description, c.Description, r.Description) AS PartDescription,
+                pt.ParentOperationID,
+                pt.Quantity,
+                CASE 
+                    WHEN p.ProductID IS NOT NULL THEN 'Product'
+                    WHEN c.ComponentID IS NOT NULL THEN 'Component'
+                    WHEN r.RawMaterialID IS NOT NULL THEN 'RawMaterial'
+                END AS PartType
+            FROM ProductionTree pt
+            JOIN Operation o ON pt.OperationID = o.OperationID
+            JOIN OperationType ot ON o.OperationTypeID = ot.OperationTypeID
+            LEFT JOIN Product p ON pt.PartID = p.ProductID
+            LEFT JOIN Component c ON pt.PartID = c.ComponentID
+            LEFT JOIN RawMaterial r ON pt.PartID = r.RawMaterialID
+            WHERE pt.ProductID = ?
 
-        try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
-            statement.setInt(1, product.getCategory().getId());
-            statement.setString(2, product.getId());
+            UNION ALL
 
-            int rowsUpdated = statement.executeUpdate();
-            return rowsUpdated > 0;
+            SELECT 
+                pt.ProductID,
+                pt.OperationID,
+                o.Name AS OperationName,
+                o.ExecutionTime,
+                o.OperationTypeID,
+                ot.Name AS OperationTypeName,
+                COALESCE(p.ProductID, c.ComponentID, r.RawMaterialID) AS PartID,
+                COALESCE(p.Name, c.Name, r.Name) AS PartName,
+                COALESCE(p.Description, c.Description, r.Description) AS PartDescription,
+                pt.ParentOperationID,
+                pt.Quantity,
+                CASE 
+                    WHEN p.ProductID IS NOT NULL THEN 'Product'
+                    WHEN c.ComponentID IS NOT NULL THEN 'Component'
+                    WHEN r.RawMaterialID IS NOT NULL THEN 'RawMaterial'
+                END AS PartType
+            FROM ProductionTree pt
+            JOIN Operation o ON pt.OperationID = o.OperationID
+            JOIN OperationType ot ON o.OperationTypeID = ot.OperationTypeID
+            LEFT JOIN Product p ON pt.PartID = p.ProductID
+            LEFT JOIN Component c ON pt.PartID = c.ComponentID
+            LEFT JOIN RawMaterial r ON pt.PartID = r.RawMaterialID
+            JOIN ProductionHierarchy ph ON pt.ParentOperationID = ph.OperationID
+        )
+        SELECT * FROM ProductionHierarchy;
+    """;
+
+        try (PreparedStatement stmt = connection.getConnection().prepareStatement(sql)) {
+            stmt.setString(1, productId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    int operationId = rs.getInt("OperationID");
+                    Integer parentOperationId = rs.getInt("ParentOperationID");
+                    if (rs.wasNull()) parentOperationId = null;
+
+                    String partType = rs.getString("PartType");
+
+                    OperationType operationType = new OperationType(
+                            rs.getInt("OperationTypeID"),
+                            rs.getString("OperationTypeName"),
+                            new HashMap<>()
+                    );
+
+                    Operation operation = new Operation(
+                            operationId,
+                            operationType,
+                            rs.getString("OperationName"),
+                            rs.getInt("ExecutionTime")
+                    );
+
+                    Part part;
+                    String partId = rs.getString("PartID");
+                    String partName = rs.getString("PartName");
+                    String partDescription = rs.getString("PartDescription");
+
+                    switch (partType) {
+                        case "Product":
+                            part = new Product(partId, partName, partDescription);
+                            break;
+                        case "Component":
+                            part = new Component(partId, partName, partDescription);
+                            break;
+                        case "RawMaterial":
+                            part = new RawMaterial(partId, partName, partDescription);
+                            break;
+                        default:
+                            throw new IllegalStateException("Tipo de parte desconhecido: " + partType);
+                    }
+
+                    ProductionElement element = new ProductionElement(part, operation, rs.getDouble("Quantity"));
+                    hierarchy.put(element, parentOperationId);
+                }
+            }
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }
+
+        return hierarchy;
     }
+
 }

@@ -22,6 +22,13 @@ public class RawMaterial extends Part {
         this.rawMaterialCost = rawMaterialCost;
     }
 
+    public RawMaterial(String id, String name, String description) {
+        super(id, name, description);
+        this.currentStock = 0;
+        this.minimumStock = 0;
+        this.rawMaterialCost = null;
+    }
+
     public int getCurrentStock() {
         return currentStock;
     }

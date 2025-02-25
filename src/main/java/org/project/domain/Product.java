@@ -31,6 +31,16 @@ public class Product extends Part {
         this.productionTree = null;
     }
 
+    public Product(String id, String name, String description) {
+        super(id, name, description);
+        this.category = null;
+        this.capacity = 0;
+        this.size = 0;
+        this.color = null;
+        this.price = 0;
+        this.productionTree = null;
+    }
+
     public ProductCategory getCategory() {
         return category;
     }
