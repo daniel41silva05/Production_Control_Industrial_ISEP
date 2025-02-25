@@ -4,6 +4,7 @@ import org.project.common.NaryTree;
 import org.project.common.NaryTreeNode;
 import org.project.data.ConnectionFactory;
 import org.project.data.DatabaseConnection;
+import org.project.dto.ProductionElementDTO;
 import org.project.model.ProductionElement;
 import org.project.exceptions.ProductException;
 import org.project.repository.ProductRepository;
@@ -25,10 +26,25 @@ public class ProductionTreeService {
         productionTreeRepository = repositories.getProductionTreeRepository();
     }
 
-    public void addTree (String productID, HashMap<ProductionElement, List<Integer>> elementNextOperations) throws ProductException {
+    public void addTree (String productID, HashMap<ProductionElementDTO, List<Integer>> elementNextOperationsDto) throws ProductException {
         if (!productRepository.getProductExists(connection, productID)) {
             throw new ProductException("Product with ID " + productID + " does not exist.");
         }
+
+        HashMap<ProductionElement, List<Integer>> elementNextOperations = new HashMap<>();
+
+        for (Map.Entry<ProductionElementDTO, List<Integer>> entry : elementNextOperationsDto.entrySet()) {
+            ProductionElementDTO productionElementDTO = entry.getKey();
+            String partID = productionElementDTO.getPartId();
+            int operationID = productionElementDTO.getOperationId();
+            double quantity = productionElementDTO.getQuantity();
+
+            // obter pela base dados com vericações
+
+            ProductionElement element = null;
+            elementNextOperations.put(element, entry.getValue());
+        }
+
 
         HashMap<ProductionElement, Integer> map = buildTree(productID, elementNextOperations);
 
@@ -45,10 +61,6 @@ public class ProductionTreeService {
         }
         if (!found) {
             throw new ProductException("Product with ID " + productID + " does not exist in csv file.");
-        }
-
-        for (Map.Entry<ProductionElement, Integer> entry : map.entrySet()) {
-            // verificações nos outros repositorios
         }
 
         boolean success = productionTreeRepository.saveProductionTree(connection, productID, map);
