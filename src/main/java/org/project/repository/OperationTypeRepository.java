@@ -218,6 +218,22 @@ public class OperationTypeRepository {
         }
     }
 
+    public boolean updateOperationWorkstationTime(DatabaseConnection connection, OperationType operationType, WorkstationType workstationType) {
+        String sql = "UPDATE CanBeDoneAt SET SetupTime = ? WHERE OperationTypeID = ? AND WorkstationTypeID = ?";
+
+        try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
+            statement.setInt(1, operationType.getWorkstationSetupTime().get(workstationType));
+            statement.setInt(2, operationType.getId());
+            statement.setInt(3, workstationType.getId());
+
+            int rowsUpdated = statement.executeUpdate();
+            return rowsUpdated > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public boolean deleteOperationWorkstationTime(DatabaseConnection connection, WorkstationType workstationType) {
         String deleteSQL = "DELETE FROM CanBeDoneAt WHERE WorkstationTypeID = ?";
 

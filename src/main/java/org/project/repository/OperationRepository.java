@@ -198,6 +198,21 @@ public class OperationRepository {
         return operation;
     }
 
+    public boolean updateExecutionTime(DatabaseConnection connection, Operation operation) {
+        String sql = "UPDATE Operation SET ExecutionTime = ? WHERE OperationID = ?";
+
+        try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
+            statement.setInt(1, operation.getExecutionTime());
+            statement.setInt(2, operation.getId());
+
+            int rowsUpdated = statement.executeUpdate();
+            return rowsUpdated > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public boolean getOperationExists(DatabaseConnection connection, int id) {
         String sql = "SELECT COUNT(*) FROM Operation WHERE OperationID = ?";
         int count = 0;

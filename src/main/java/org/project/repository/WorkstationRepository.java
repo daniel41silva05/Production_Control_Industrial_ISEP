@@ -25,6 +25,20 @@ public class WorkstationRepository {
         }
     }
 
+    public boolean delete(DatabaseConnection connection, Workstation workstation) {
+        String sql = "DELETE FROM Workstation WHERE WorkstationID = ?";
+
+        try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
+            statement.setInt(1, workstation.getId());
+
+            int rowsUpdated = statement.executeUpdate();
+            return rowsUpdated > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public List<Workstation> getAll(DatabaseConnection connection) {
         List<Workstation> workstations = new ArrayList<>();
         String sql = """

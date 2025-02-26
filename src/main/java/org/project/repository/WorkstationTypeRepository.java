@@ -26,6 +26,20 @@ public class WorkstationTypeRepository {
         }
     }
 
+    public boolean delete(DatabaseConnection connection, WorkstationType workstationType) {
+        String sql = "DELETE FROM WorkstationType WHERE WorkstationTypeID = ?";
+
+        try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
+            statement.setInt(1, workstationType.getId());
+
+            int rowsUpdated = statement.executeUpdate();
+            return rowsUpdated > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public List<WorkstationType> getAll(DatabaseConnection connection) {
         List<WorkstationType> workstationTypes = new ArrayList<>();
         String sql = """
