@@ -3,25 +3,17 @@ package org.project.repository;
 import org.project.data.DatabaseConnection;
 import org.project.model.*;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.*;
+import java.util.*;
 
-public class OperationRepository {
+public class OperationTypeRepository {
 
-    public boolean save(DatabaseConnection connection, Operation operation) {
-
-        String sql = "INSERT INTO Operation (OperationID, OperationTypeID, Name, ExecutionTime) VALUES (?, ?, ?, ?)";
+    public boolean save(DatabaseConnection connection, OperationType operationType) {
+        String sql = "INSERT INTO OperationType (OperationTypeID, Name) VALUES (?, ?)";
 
         try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
-            statement.setInt(1, operation.getId());
-            statement.setInt(2, operation.getType().getId());
-            statement.setString(3, operation.getName());
-            statement.setInt(4, operation.getExecutionTime());
+            statement.setInt(1, operationType.getId());
+            statement.setString(2, operationType.getName());
 
             int rowsInserted = statement.executeUpdate();
             return rowsInserted > 0;
@@ -31,43 +23,27 @@ public class OperationRepository {
         }
     }
 
-    public List<Operation> getAll(DatabaseConnection connection) {
-        List<Operation> operations = new ArrayList<>();
+    public List<OperationType> getAll(DatabaseConnection connection) {
+        List<OperationType> operationTypes = new ArrayList<>();
         String sql = """
-        SELECT o.operationid, o.name AS operation_name, o.executiontime,
-               ot.operationtypeid, ot.name AS operationtype_name,
+        SELECT ot.operationtypeid, ot.name AS operationtype_name,
                wt.workstationtypeid, wt.name AS workstationtype_name,
                w.workstationid, w.name AS workstation_name,
                cba.setuptime
-        FROM Operation o
-        JOIN OperationType ot ON o.operationtypeid = ot.operationtypeid
+        FROM OperationType ot
         LEFT JOIN CanBeDoneAt cba ON ot.operationtypeid = cba.operationtypeid
         LEFT JOIN WorkstationType wt ON cba.workstationtypeid = wt.workstationtypeid
         LEFT JOIN Workstation w ON wt.workstationtypeid = w.workstationtypeid
-        ORDER BY o.operationid;
+        ORDER BY ot.operationtypeid;
         """;
 
         try (PreparedStatement statement = connection.getConnection().prepareStatement(sql);
              ResultSet resultSet = statement.executeQuery()) {
 
-            Map<Integer, Operation> operationMap = new HashMap<>();
             Map<Integer, OperationType> operationTypeMap = new HashMap<>();
             Map<Integer, WorkstationType> workstationTypeMap = new HashMap<>();
 
             while (resultSet.next()) {
-                int operationId = resultSet.getInt("operationid");
-                Operation operation = operationMap.get(operationId);
-
-                if (operation == null) {
-                    operation = new Operation(
-                            operationId,
-                            null,
-                            resultSet.getString("operation_name"),
-                            resultSet.getInt("executiontime")
-                    );
-                    operationMap.put(operationId, operation);
-                }
-
                 int operationTypeId = resultSet.getInt("operationtypeid");
                 OperationType operationType = operationTypeMap.get(operationTypeId);
 
@@ -78,7 +54,6 @@ public class OperationRepository {
                             new HashMap<>()
                     );
                     operationTypeMap.put(operationTypeId, operationType);
-                    operation.setType(operationType);
                 }
 
                 int workstationTypeId = resultSet.getInt("workstationtypeid");
@@ -108,56 +83,43 @@ public class OperationRepository {
                 }
             }
 
-            operations.addAll(operationMap.values());
+            operationTypes.addAll(operationTypeMap.values());
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        return operations;
+        return operationTypes;
     }
 
-    public Operation getById(DatabaseConnection connection, int operationId) {
-        Operation operation = null;
+    public OperationType getById(DatabaseConnection connection, int operationTypeId) {
+        OperationType operationType = null;
         String sql = """
-        SELECT o.operationid, o.name AS operation_name, o.executiontime,
-               ot.operationtypeid, ot.name AS operationtype_name,
+        SELECT ot.operationtypeid, ot.name AS operationtype_name,
                wt.workstationtypeid, wt.name AS workstationtype_name,
                w.workstationid, w.name AS workstation_name,
                cba.setuptime
-        FROM Operation o
-        JOIN OperationType ot ON o.operationtypeid = ot.operationtypeid
+        FROM OperationType ot
         LEFT JOIN CanBeDoneAt cba ON ot.operationtypeid = cba.operationtypeid
         LEFT JOIN WorkstationType wt ON cba.workstationtypeid = wt.workstationtypeid
         LEFT JOIN Workstation w ON wt.workstationtypeid = w.workstationtypeid
-        WHERE o.operationid = ?
-        ORDER BY o.operationid;
+        WHERE ot.operationtypeid = ?
+        ORDER BY ot.operationtypeid;
         """;
 
         try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
-            statement.setInt(1, operationId);
+            statement.setInt(1, operationTypeId); // Define o ID do tipo de operação na consulta
             ResultSet resultSet = statement.executeQuery();
 
-            OperationType operationType = null;
             Map<WorkstationType, Integer> workstationSetupTimeMap = new HashMap<>();
             Map<Integer, WorkstationType> workstationTypeMap = new HashMap<>();
 
             while (resultSet.next()) {
-                if (operation == null) {
-                    operation = new Operation(
-                            resultSet.getInt("operationid"),
-                            null,
-                            resultSet.getString("operation_name"),
-                            resultSet.getInt("executiontime")
-                    );
-                }
-
                 if (operationType == null) {
                     operationType = new OperationType(
                             resultSet.getInt("operationtypeid"),
                             resultSet.getString("operationtype_name"),
                             new HashMap<>()
                     );
-                    operation.setType(operationType);
                 }
 
                 int workstationTypeId = resultSet.getInt("workstationtypeid");
@@ -195,11 +157,11 @@ public class OperationRepository {
             e.printStackTrace();
         }
 
-        return operation;
+        return operationType;
     }
 
-    public boolean getOperationExists(DatabaseConnection connection, int id) {
-        String sql = "SELECT COUNT(*) FROM Operation WHERE OperationID = ?";
+    public boolean getOperationTypeExists(DatabaseConnection connection, int id) {
+        String sql = "SELECT COUNT(*) FROM OperationType WHERE OperationTypeID = ?";
         int count = 0;
 
         try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
@@ -217,4 +179,71 @@ public class OperationRepository {
         return count > 0;
     }
 
+    public boolean saveOperationWorkstationTime(DatabaseConnection connection, OperationType operationType) {
+        Map<WorkstationType, Integer> workstationSetupTimeMap = operationType.getWorkstationSetupTime();
+
+        String sql = "INSERT INTO CanBeDoneAt (OperationTypeID, WorkstationTypeID, SetupTime) VALUES (?, ?, ?)";
+
+        try (Connection conn = connection.getConnection()) {
+            conn.setAutoCommit(false);
+
+            try (PreparedStatement statement = conn.prepareStatement(sql)) {
+                for (Map.Entry<WorkstationType, Integer> entry : workstationSetupTimeMap.entrySet()) {
+                    WorkstationType workstationType = entry.getKey();
+                    Integer setupTime = entry.getValue();
+
+                    statement.setInt(1, operationType.getId());
+                    statement.setInt(2, workstationType.getId());
+                    statement.setInt(3, setupTime);
+                    statement.addBatch();
+                }
+
+                int[] rowsInserted = statement.executeBatch();
+
+                if (Arrays.stream(rowsInserted).allMatch(row -> row > 0)) {
+                    conn.commit();
+                    return true;
+                }
+
+                conn.rollback();
+                return false;
+            } catch (SQLException e) {
+                conn.rollback();
+                e.printStackTrace();
+                return false;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean deleteOperationWorkstationTime(DatabaseConnection connection, WorkstationType workstationType) {
+        String deleteSQL = "DELETE FROM CanBeDoneAt WHERE WorkstationTypeID = ?";
+
+        try (Connection conn = connection.getConnection()) {
+            conn.setAutoCommit(false);
+
+            try (PreparedStatement statement = conn.prepareStatement(deleteSQL)) {
+                statement.setInt(1, workstationType.getId());
+
+                int rowsDeleted = statement.executeUpdate();
+
+                if (rowsDeleted > 0) {
+                    conn.commit();
+                    return true;
+                }
+
+                conn.rollback();
+                return false;
+            } catch (SQLException e) {
+                conn.rollback();
+                e.printStackTrace();
+                return false;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

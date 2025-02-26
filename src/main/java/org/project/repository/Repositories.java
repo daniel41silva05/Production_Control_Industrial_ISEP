@@ -14,7 +14,9 @@ public class Repositories {
     private ProductCategoryRepository productCategoryRepository;
     private ProductionTreeRepository productionTreeRepository;
     private OperationRepository operationRepository;
+    private OperationTypeRepository operationTypeRepository;
     private WorkstationRepository workstationRepository;
+    private WorkstationTypeRepository workstationTypeRepository;
 
     /**
      * Constructs a new Repositories object, initializing all repositories.
@@ -27,7 +29,9 @@ public class Repositories {
         productCategoryRepository = new ProductCategoryRepository();
         productionTreeRepository = new ProductionTreeRepository();
         operationRepository = new OperationRepository();
+        operationTypeRepository = new OperationTypeRepository();
         workstationRepository = new WorkstationRepository();
+        workstationTypeRepository = new WorkstationTypeRepository();
     }
 
     /**
@@ -73,9 +77,16 @@ public class Repositories {
         return operationRepository;
     }
 
+    public OperationTypeRepository getOperationTypeRepository() {
+        return operationTypeRepository;
+    }
+
     public WorkstationRepository getWorkstationRepository() {
         return workstationRepository;
     }
 
+    public WorkstationTypeRepository getWorkstationTypeRepository() {
+        return workstationTypeRepository;
+    }
 }
 

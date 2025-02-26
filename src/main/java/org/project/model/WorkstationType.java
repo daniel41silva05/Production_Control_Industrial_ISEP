@@ -1,17 +1,18 @@
 package org.project.model;
 
+import java.util.List;
 import java.util.Objects;
 
 public class WorkstationType {
 
     private int id;
     private String name;
-    private Workstation workstation;
+    private List<Workstation> workstations;
 
-    public WorkstationType(int id, String name, Workstation workstation) {
+    public WorkstationType(int id, String name, List<Workstation> workstations) {
         this.id = id;
         this.name = name;
-        this.workstation = workstation;
+        this.workstations = workstations;
     }
 
     public int getId() {
@@ -30,12 +31,12 @@ public class WorkstationType {
         this.name = name;
     }
 
-    public Workstation getWorkstation() {
-        return workstation;
+    public List<Workstation> getWorkstations() {
+        return workstations;
     }
 
-    public void setWorkstation(Workstation workstation) {
-        this.workstation = workstation;
+    public void setWorkstations(List<Workstation> workstations) {
+        this.workstations = workstations;
     }
 
     @Override
@@ -56,7 +57,8 @@ public class WorkstationType {
         return "WorkstationType{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", workstation=" + workstation +
+                ", workstations=" + workstations +
                 '}';
     }
+
 }
