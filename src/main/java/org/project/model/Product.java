@@ -1,7 +1,5 @@
 package org.project.model;
 
-import org.project.common.NaryTree;
-
 public class Product extends Part {
 
     private ProductCategory category;
@@ -9,17 +7,6 @@ public class Product extends Part {
     private int size;
     private String color;
     private double price;
-    private NaryTree<ProductionElement> productionTree;
-
-    public Product(String id, String name, String description, ProductCategory category, int capacity, int size, String color, double price, NaryTree<ProductionElement> productionTree) {
-        super(id, name, description);
-        this.category = category;
-        this.capacity = capacity;
-        this.size = size;
-        this.color = color;
-        this.price = price;
-        this.productionTree = productionTree;
-    }
 
     public Product(String id, String name, String description, ProductCategory category, int capacity, int size, String color, double price) {
         super(id, name, description);
@@ -28,7 +15,6 @@ public class Product extends Part {
         this.size = size;
         this.color = color;
         this.price = price;
-        this.productionTree = null;
     }
 
     public Product(String id, String name, String description) {
@@ -38,7 +24,6 @@ public class Product extends Part {
         this.size = 0;
         this.color = null;
         this.price = 0;
-        this.productionTree = null;
     }
 
     public ProductCategory getCategory() {
@@ -81,11 +66,4 @@ public class Product extends Part {
         this.price = price;
     }
 
-    public NaryTree<ProductionElement> getProductionTree() {
-        return productionTree;
-    }
-
-    public void setProductionTree(NaryTree<ProductionElement> tree) {
-        this.productionTree = tree;
-    }
 }

@@ -171,4 +171,23 @@ public class ProductionTreeRepository {
         return hierarchy;
     }
 
+    public boolean getProductionTreeExists(DatabaseConnection connection, String id) {
+        String sql = "SELECT COUNT(*) FROM ProductionTree WHERE ProductID = ?";
+        int count = 0;
+
+        try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
+            statement.setString(1, id);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    count = resultSet.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return count > 0;
+    }
+
 }

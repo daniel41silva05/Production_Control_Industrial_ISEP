@@ -64,13 +64,13 @@ public class ProductionTreeService {
                     Component component = productRepository.getComponentByID(connection, partID);
                     element = new ProductionElement(component, operation, quantity);
                 } else if (productRepository.getProductExists(connection, partID)) {
-                    Product product = productRepository.getProductByID(connection, partID);
-                    element = new ProductionElement(product, operation, quantity);
                     if (partID.equals(productID)) {
                         productFound = true;
-                    } else if (product.getProductionTree() == null) {
+                    } else if (!productionTreeRepository.getProductionTreeExists(connection, partID)) {
                         throw new ProductException("Product with ID " + partID + " does not have any production tree in the system.");
                     }
+                    Product product = productRepository.getProductByID(connection, partID);
+                    element = new ProductionElement(product, operation, quantity);
                 } else {
                     throw new ProductException("Part ID " + partID + " - All raw materials have nothing to form them in the production tree.");
                 }
