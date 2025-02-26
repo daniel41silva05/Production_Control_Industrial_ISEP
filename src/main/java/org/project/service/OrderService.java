@@ -64,7 +64,7 @@ public class OrderService {
             if (!productRepository.getProductExists(connection, productEntry.getKey())) {
                 throw new ProductException("Product with ID " + productEntry.getKey() + " not exists.");
             }
-            Product product = productRepository.getByID(connection, productEntry.getKey());
+            Product product = productRepository.getProductByID(connection, productEntry.getKey());
             if (product == null) {
                 return null;
             }

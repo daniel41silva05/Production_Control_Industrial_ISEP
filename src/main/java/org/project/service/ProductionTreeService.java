@@ -5,8 +5,12 @@ import org.project.common.NaryTreeNode;
 import org.project.data.ConnectionFactory;
 import org.project.data.DatabaseConnection;
 import org.project.dto.ProductionElementDTO;
+import org.project.exceptions.OperationException;
+import org.project.model.Operation;
+import org.project.model.Part;
 import org.project.model.ProductionElement;
 import org.project.exceptions.ProductException;
+import org.project.repository.OperationRepository;
 import org.project.repository.ProductRepository;
 import org.project.repository.ProductionTreeRepository;
 import org.project.repository.Repositories;
@@ -18,50 +22,52 @@ public class ProductionTreeService {
     private DatabaseConnection connection;
     private ProductRepository productRepository;
     private ProductionTreeRepository productionTreeRepository;
+    private OperationRepository operationRepository;
 
     public ProductionTreeService() {
         connection = ConnectionFactory.getInstance().getDatabaseConnection();
         Repositories repositories = Repositories.getInstance();
         productRepository = repositories.getProductRepository();
         productionTreeRepository = repositories.getProductionTreeRepository();
+        operationRepository = repositories.getOperationRepository();
     }
 
-    public void addTree (String productID, HashMap<ProductionElementDTO, List<Integer>> elementNextOperationsDto) throws ProductException {
+    public void addTree (String productID, HashMap<ProductionElementDTO, List<Integer>> elementNextOperationsDto) throws ProductException, OperationException {
         if (!productRepository.getProductExists(connection, productID)) {
             throw new ProductException("Product with ID " + productID + " does not exist.");
         }
 
         HashMap<ProductionElement, List<Integer>> elementNextOperations = new HashMap<>();
 
+        boolean productFound = false;
         for (Map.Entry<ProductionElementDTO, List<Integer>> entry : elementNextOperationsDto.entrySet()) {
             ProductionElementDTO productionElementDTO = entry.getKey();
             String partID = productionElementDTO.getPartId();
             int operationID = productionElementDTO.getOperationId();
             double quantity = productionElementDTO.getQuantity();
 
-            // obter pela base dados com vericações
+            if (!operationRepository.getOperationExists(connection, operationID)) {
+                throw new OperationException("Operation with ID " + operationID + " does not exist.");
+            }
+            Operation operation = operationRepository.getById(connection, operationID);
 
-            ProductionElement element = null;
+            // if existe part
+            Part part = null;
+            if (entry.getValue().isEmpty()) {
+                // if para rawmaterial
+            } else {
+                // if component else if product else erro
+                // no if product se for igual ao productID productFound = true else product.tree != null
+            }
+
+            ProductionElement element = new ProductionElement(part, operation, quantity);
             elementNextOperations.put(element, entry.getValue());
         }
-
-
-        HashMap<ProductionElement, Integer> map = buildTree(productID, elementNextOperations);
-
-        boolean found = false;
-        for (Map.Entry<ProductionElement, Integer> entry : map.entrySet()) {
-            ProductionElement element = entry.getKey();
-            if (element.getPart().getId().equals(productID)) {
-                found = true;
-                if (entry.getValue() == null) {
-                    throw new ProductException("Product with ID " + productID + " ...");
-                }
-                break;
-            }
-        }
-        if (!found) {
+        if (!productFound) {
             throw new ProductException("Product with ID " + productID + " does not exist in csv file.");
         }
+
+        HashMap<ProductionElement, Integer> map = buildTree(productID, elementNextOperations);
 
         boolean success = productionTreeRepository.saveProductionTree(connection, productID, map);
         if (!success) {
@@ -70,7 +76,7 @@ public class ProductionTreeService {
 
     }
 
-    public HashMap<ProductionElement, Integer> buildTree(String productID, HashMap<ProductionElement, List<Integer>> elementNextOperations) throws ProductException {
+    public HashMap<ProductionElement, Integer> buildTree(String productID, HashMap<ProductionElement, List<Integer>> elementNextOperations) throws OperationException {
 
         HashMap<ProductionElement, Integer> elementParentOperationMap = new HashMap<>();
 
@@ -81,7 +87,7 @@ public class ProductionTreeService {
             for (Integer operation : nextOperations) {
                 ProductionElement childElement = findElementByOperation(operation, elementNextOperations.keySet());
                 if (childElement == null) {
-                    throw new ProductException("Operation " + operation + " not found in the production elements.");
+                    throw new OperationException("Operation " + operation + " not found in the production elements.");
                 }
                 elementParentOperationMap.put(childElement, element.getOperation().getId());
             }

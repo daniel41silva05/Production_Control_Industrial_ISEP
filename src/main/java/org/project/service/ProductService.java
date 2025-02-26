@@ -37,7 +37,7 @@ public class ProductService {
     }
 
     public List<Product> getProducts() {
-        return productRepository.getAll(connection);
+        return productRepository.getAllProducts(connection);
     }
 
     public ProductCategory registerCategory(int id, String name) throws ProductException {
@@ -60,7 +60,7 @@ public class ProductService {
         }
 
         Product product = new Product(productID, name, description, category, capacity, size, color, price);
-        boolean success = productRepository.save(connection, product);
+        boolean success = productRepository.saveProduct(connection, product);
         if (!success) {
             return null;
         }
@@ -73,7 +73,7 @@ public class ProductService {
             throw new ProductException("Product with ID " + productID + " not exists.");
         }
 
-        Product product = productRepository.getByID(connection, productID);
+        Product product = productRepository.getProductByID(connection, productID);
         if (product.getCategory().equals(category)) {
             throw new ProductException("Product with ID " + productID + " already belongs to category" + category.getName() + ".");
         }
@@ -93,7 +93,7 @@ public class ProductService {
         }
         ProductCategory productCategory = productCategoryRepository.getByID(connection, categoryID);
 
-        List<Product> products = productRepository.getAll(connection);
+        List<Product> products = productRepository.getAllProducts(connection);
         List<Product> filteredProducts = new ArrayList<>();
 
         for (Product product : products) {
