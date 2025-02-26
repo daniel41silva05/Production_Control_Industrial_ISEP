@@ -6,9 +6,7 @@ import org.project.data.ConnectionFactory;
 import org.project.data.DatabaseConnection;
 import org.project.dto.ProductionElementDTO;
 import org.project.exceptions.OperationException;
-import org.project.model.Operation;
-import org.project.model.Part;
-import org.project.model.ProductionElement;
+import org.project.model.*;
 import org.project.exceptions.ProductException;
 import org.project.repository.OperationRepository;
 import org.project.repository.ProductRepository;
@@ -51,16 +49,33 @@ public class ProductionTreeService {
             }
             Operation operation = operationRepository.getById(connection, operationID);
 
-            // if existe part
-            Part part = null;
+            if (!productRepository.getPartExists(connection, partID)) {
+                throw new ProductException("Part with ID " + partID + " does not exist.");
+            }
+            ProductionElement element;
             if (entry.getValue().isEmpty()) {
-                // if para rawmaterial
+                if (!productRepository.getRawMaterialExists(connection, partID)) {
+                    throw new ProductException("Part ID " + partID + " - Only the raw materials have nothing to form them in the production tree.");
+                }
+                RawMaterial rawMaterial = productRepository.getRawMaterialByID(connection, partID);
+                element = new ProductionElement(rawMaterial, operation, quantity);
             } else {
-                // if component else if product else erro
-                // no if product se for igual ao productID productFound = true else product.tree != null
+                if (productRepository.getComponentExists(connection, partID)) {
+                    Component component = productRepository.getComponentByID(connection, partID);
+                    element = new ProductionElement(component, operation, quantity);
+                } else if (productRepository.getProductExists(connection, partID)) {
+                    Product product = productRepository.getProductByID(connection, partID);
+                    element = new ProductionElement(product, operation, quantity);
+                    if (partID.equals(productID)) {
+                        productFound = true;
+                    } else if (product.getProductionTree() == null) {
+                        throw new ProductException("Product with ID " + partID + " does not have any production tree in the system.");
+                    }
+                } else {
+                    throw new ProductException("Part ID " + partID + " - All raw materials have nothing to form them in the production tree.");
+                }
             }
 
-            ProductionElement element = new ProductionElement(part, operation, quantity);
             elementNextOperations.put(element, entry.getValue());
         }
         if (!productFound) {

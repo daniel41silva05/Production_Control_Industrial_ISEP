@@ -345,6 +345,25 @@ public class ProductRepository {
         return count > 0;
     }
 
+    public boolean getPartExists(DatabaseConnection connection, String id) {
+        String sql = "SELECT COUNT(*) FROM Part WHERE PartID = ?";
+        int count = 0;
+
+        try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
+            statement.setString(1, id);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    count = resultSet.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return count > 0;
+    }
+
     public boolean updateCategory(DatabaseConnection connection, Product product) {
         String sql = "UPDATE Product SET CategoryID = ? WHERE ProductID = ?";
 
