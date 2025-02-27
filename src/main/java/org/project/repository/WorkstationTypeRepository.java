@@ -157,39 +157,16 @@ public class WorkstationTypeRepository {
         return count > 0;
     }
 
-    public boolean saveOperationWorkstationTime(DatabaseConnection connection, OperationType operationType) {
-        Map<WorkstationType, Integer> workstationSetupTimeMap = operationType.getWorkstationSetupTime();
-
+    public boolean saveOperationWorkstationTime(DatabaseConnection connection, OperationType operationType, WorkstationType workstationType) {
         String sql = "INSERT INTO CanBeDoneAt (OperationTypeID, WorkstationTypeID, SetupTime) VALUES (?, ?, ?)";
 
-        try (Connection conn = connection.getConnection()) {
-            conn.setAutoCommit(false);
+        try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
+            statement.setInt(1, operationType.getId());
+            statement.setInt(2, workstationType.getId());
+            statement.setInt(3, operationType.getWorkstationSetupTime().get(workstationType));
 
-            try (PreparedStatement statement = conn.prepareStatement(sql)) {
-                for (Map.Entry<WorkstationType, Integer> entry : workstationSetupTimeMap.entrySet()) {
-                    WorkstationType workstationType = entry.getKey();
-                    Integer setupTime = entry.getValue();
-
-                    statement.setInt(1, operationType.getId());
-                    statement.setInt(2, workstationType.getId());
-                    statement.setInt(3, setupTime);
-                    statement.addBatch();
-                }
-
-                int[] rowsInserted = statement.executeBatch();
-
-                if (Arrays.stream(rowsInserted).allMatch(row -> row > 0)) {
-                    conn.commit();
-                    return true;
-                }
-
-                conn.rollback();
-                return false;
-            } catch (SQLException e) {
-                conn.rollback();
-                e.printStackTrace();
-                return false;
-            }
+            int rowsInserted = statement.executeUpdate();
+            return rowsInserted > 0;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
