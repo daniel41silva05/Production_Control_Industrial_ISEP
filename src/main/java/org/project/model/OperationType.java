@@ -15,6 +15,12 @@ public class OperationType {
         this.workstationSetupTime = workstationSetupTime;
     }
 
+    public OperationType(int id, String name) {
+        this.id = id;
+        this.name = name;
+        this.workstationSetupTime = null;
+    }
+
     public int getId() {
         return id;
     }

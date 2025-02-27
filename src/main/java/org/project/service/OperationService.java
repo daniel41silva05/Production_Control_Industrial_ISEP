@@ -54,6 +54,19 @@ public class OperationService {
         return operation;
     }
 
+    public OperationType registerOperationType(int id, String name) throws OperationException {
+        if (!operationTypeRepository.getOperationTypeExists(connection, id)) {
+            throw new OperationException("Operation Type with ID " + id + " not exists.");
+        }
+
+        OperationType operationType =  new OperationType(id, name);
+        boolean success = operationTypeRepository.save(connection, operationType);
+        if (!success) {
+            return null;
+        }
+        return operationType;
+    }
+
     public List<Operation> registerOperationsFromCSV(String filePath) throws OperationException {
         List<OperationDTO> operationDTOs = CsvReader.loadOperations(filePath);
         List<Operation> operations = new ArrayList<>();
@@ -86,6 +99,21 @@ public class OperationService {
         return operations;
     }
 
+    public List<OperationType> registerOperationTypesFromCSV(String filePath) throws OperationException {
+        List<OperationType> operationTypes = CsvReader.loadOperationTypes(filePath);
+
+        for (OperationType operationType : operationTypes) {
+
+            if (!operationTypeRepository.getOperationTypeExists(connection, operationType.getId())) {
+
+                boolean success = operationTypeRepository.save(connection, operationType);
+                if (!success) {
+                    return null;
+                }
+            }
+        }
+        return operationTypes;
+    }
 
     public Operation updateOperationTime(int id, int executionTime) throws OperationException {
         if (!operationRepository.getOperationExists(connection, id)) {
