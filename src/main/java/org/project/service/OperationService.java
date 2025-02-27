@@ -40,8 +40,8 @@ public class OperationService {
     }
 
     public Operation registerOperation(int id, String name, int executionTime, int typeID) throws OperationException {
-        if (!operationRepository.getOperationExists(connection, id)) {
-            throw new OperationException("Operation with ID " + id + " not exists.");
+        if (operationRepository.getOperationExists(connection, id)) {
+            throw new OperationException("Operation with ID " + id + " already exists.");
         }
 
         OperationType type = getOperationTypeByID(typeID);
@@ -55,8 +55,8 @@ public class OperationService {
     }
 
     public OperationType registerOperationType(int id, String name) throws OperationException {
-        if (!operationTypeRepository.getOperationTypeExists(connection, id)) {
-            throw new OperationException("Operation Type with ID " + id + " not exists.");
+        if (operationTypeRepository.getOperationTypeExists(connection, id)) {
+            throw new OperationException("Operation Type with ID " + id + " already exists.");
         }
 
         OperationType operationType =  new OperationType(id, name);
@@ -92,7 +92,9 @@ public class OperationService {
                 success = operationRepository.updateOperation(connection, operation);
             }
 
-            if (success) {
+            if (!success) {
+                return null;
+            } else {
                 operations.add(operation);
             }
         }

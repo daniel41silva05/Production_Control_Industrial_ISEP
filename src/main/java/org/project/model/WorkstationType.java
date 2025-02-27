@@ -1,5 +1,6 @@
 package org.project.model;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -13,6 +14,12 @@ public class WorkstationType {
         this.id = id;
         this.name = name;
         this.workstations = workstations;
+    }
+
+    public WorkstationType(int id, String name) {
+        this.id = id;
+        this.name = name;
+        this.workstations = new ArrayList<>();
     }
 
     public int getId() {

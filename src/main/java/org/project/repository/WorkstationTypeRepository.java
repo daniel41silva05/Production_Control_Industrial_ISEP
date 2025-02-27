@@ -4,10 +4,7 @@ import org.project.data.DatabaseConnection;
 import org.project.model.*;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class WorkstationTypeRepository {
 
@@ -27,17 +24,31 @@ public class WorkstationTypeRepository {
     }
 
     public boolean delete(DatabaseConnection connection, WorkstationType workstationType) {
-        String sql = "DELETE FROM WorkstationType WHERE WorkstationTypeID = ?";
+        String deleteTypeSql = "DELETE FROM WorkstationType WHERE WorkstationTypeID = ?";
+        String deleteCanBeDoneAtSQL = "DELETE FROM CanBeDoneAt WHERE WorkstationTypeID = ?";
 
-        try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
-            statement.setInt(1, workstationType.getId());
+        try (Connection conn = connection.getConnection()) {
+            conn.setAutoCommit(false);
 
-            int rowsUpdated = statement.executeUpdate();
-            return rowsUpdated > 0;
+            try (PreparedStatement stmtCanBeDoneAt = conn.prepareStatement(deleteCanBeDoneAtSQL);
+                 PreparedStatement stmtType = conn.prepareStatement(deleteTypeSql)) {
+
+                stmtCanBeDoneAt.setInt(1, workstationType.getId());
+                stmtCanBeDoneAt.executeUpdate();
+
+                stmtType.setInt(1, workstationType.getId());
+                int rowsDeleted = stmtType.executeUpdate();
+
+                conn.commit();
+                return rowsDeleted > 0;
+            } catch (SQLException e) {
+                conn.rollback();
+                e.printStackTrace();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }
+        return false;
     }
 
     public List<WorkstationType> getAll(DatabaseConnection connection) {
@@ -145,4 +156,60 @@ public class WorkstationTypeRepository {
 
         return count > 0;
     }
+
+    public boolean saveOperationWorkstationTime(DatabaseConnection connection, OperationType operationType) {
+        Map<WorkstationType, Integer> workstationSetupTimeMap = operationType.getWorkstationSetupTime();
+
+        String sql = "INSERT INTO CanBeDoneAt (OperationTypeID, WorkstationTypeID, SetupTime) VALUES (?, ?, ?)";
+
+        try (Connection conn = connection.getConnection()) {
+            conn.setAutoCommit(false);
+
+            try (PreparedStatement statement = conn.prepareStatement(sql)) {
+                for (Map.Entry<WorkstationType, Integer> entry : workstationSetupTimeMap.entrySet()) {
+                    WorkstationType workstationType = entry.getKey();
+                    Integer setupTime = entry.getValue();
+
+                    statement.setInt(1, operationType.getId());
+                    statement.setInt(2, workstationType.getId());
+                    statement.setInt(3, setupTime);
+                    statement.addBatch();
+                }
+
+                int[] rowsInserted = statement.executeBatch();
+
+                if (Arrays.stream(rowsInserted).allMatch(row -> row > 0)) {
+                    conn.commit();
+                    return true;
+                }
+
+                conn.rollback();
+                return false;
+            } catch (SQLException e) {
+                conn.rollback();
+                e.printStackTrace();
+                return false;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean updateOperationWorkstationTime(DatabaseConnection connection, OperationType operationType, WorkstationType workstationType) {
+        String sql = "UPDATE CanBeDoneAt SET SetupTime = ? WHERE OperationTypeID = ? AND WorkstationTypeID = ?";
+
+        try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
+            statement.setInt(1, operationType.getWorkstationSetupTime().get(workstationType));
+            statement.setInt(2, operationType.getId());
+            statement.setInt(3, workstationType.getId());
+
+            int rowsUpdated = statement.executeUpdate();
+            return rowsUpdated > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }

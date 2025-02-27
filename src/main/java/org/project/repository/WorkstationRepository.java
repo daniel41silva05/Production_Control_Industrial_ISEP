@@ -43,9 +43,7 @@ public class WorkstationRepository {
         List<Workstation> workstations = new ArrayList<>();
         String sql = """
             SELECT w.workstationid, w.name AS workstation_name,
-                   wt.workstationtypeid, wt.name AS workstationtype_name
             FROM Workstation w
-            JOIN WorkstationType wt ON w.workstationtypeid = wt.workstationtypeid
             ORDER BY w.workstationid;
             """;
 
@@ -53,11 +51,6 @@ public class WorkstationRepository {
              ResultSet resultSet = statement.executeQuery()) {
 
             while (resultSet.next()) {
-                WorkstationType workstationType = new WorkstationType(
-                        resultSet.getInt("workstationtypeid"),
-                        resultSet.getString("workstationtype_name"),
-                        null
-                );
 
                 Workstation workstation = new Workstation(
                         resultSet.getInt("workstationid"),
@@ -77,9 +70,7 @@ public class WorkstationRepository {
         Workstation workstation = null;
         String sql = """
             SELECT w.workstationid, w.name AS workstation_name,
-                   wt.workstationtypeid, wt.name AS workstationtype_name
             FROM Workstation w
-            JOIN WorkstationType wt ON w.workstationtypeid = wt.workstationtypeid
             WHERE w.workstationid = ?
             ORDER BY w.workstationid;
             """;
@@ -89,12 +80,6 @@ public class WorkstationRepository {
             ResultSet resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
-                WorkstationType workstationType = new WorkstationType(
-                        resultSet.getInt("workstationtypeid"),
-                        resultSet.getString("workstationtype_name"),
-                        null
-                );
-
                 workstation = new Workstation(
                         resultSet.getInt("workstationid"),
                         resultSet.getString("workstation_name")
