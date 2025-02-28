@@ -19,6 +19,10 @@ public class OperationController {
         return operationService.getOperationTypes();
     }
 
+    public List<Operation> getOperations() {
+        return operationService.getOperations();
+    }
+
     public Operation registerOperation(int id, String name, int executionTime, int typeID) throws OperationException {
         return operationService.registerOperation(id, name, executionTime, typeID);
     }

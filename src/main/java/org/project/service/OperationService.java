@@ -31,6 +31,10 @@ public class OperationService {
         return operationTypeRepository.getAll(connection);
     }
 
+    public List<Operation> getOperations() {
+        return operationRepository.getAll(connection);
+    }
+
     private OperationType getOperationTypeByID(int id) throws OperationException {
         if (!operationTypeRepository.getOperationTypeExists(connection, id)) {
             throw new OperationException("Operation Type with ID " + id + " not exists.");
