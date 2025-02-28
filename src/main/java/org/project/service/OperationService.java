@@ -67,14 +67,19 @@ public class OperationService {
         return operationType;
     }
 
-    public List<Operation> registerOperationsFromCSV(String filePath) throws OperationException {
+    public List<Operation> registerOperationsFromCSV(String filePath) {
         List<OperationDTO> operationDTOs = CsvReader.loadOperations(filePath);
         List<Operation> operations = new ArrayList<>();
 
         for (OperationDTO dto : operationDTOs) {
 
             Operation operation;
-            OperationType type = getOperationTypeByID(dto.getTypeId());
+
+            if (!operationTypeRepository.getOperationTypeExists(connection, dto.getTypeId())) {
+                return null;
+            }
+            OperationType type = operationTypeRepository.getById(connection, dto.getTypeId());
+
             boolean success;
 
             if (!operationRepository.getOperationExists(connection, dto.getId())) {
@@ -101,7 +106,7 @@ public class OperationService {
         return operations;
     }
 
-    public List<OperationType> registerOperationTypesFromCSV(String filePath) throws OperationException {
+    public List<OperationType> registerOperationTypesFromCSV(String filePath) {
         List<OperationType> operationTypes = CsvReader.loadOperationTypes(filePath);
 
         for (OperationType operationType : operationTypes) {
