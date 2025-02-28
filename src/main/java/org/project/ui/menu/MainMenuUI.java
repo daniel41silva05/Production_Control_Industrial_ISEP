@@ -27,6 +27,7 @@ public class MainMenuUI implements Runnable {
         options.add(new MenuItem("Change a product Category", new ChangeProductCategoryUI()));
         options.add(new MenuItem("Delete a Product Category", new DeleteProductCategoryUI()));
         options.add(new MenuItem("Consult products in a Category", new ConsultProductsInCategoryUI()));
+        options.add(new MenuItem("Register an Operation", new RegisterOperationUI()));
 
         int option = 0;
         do {

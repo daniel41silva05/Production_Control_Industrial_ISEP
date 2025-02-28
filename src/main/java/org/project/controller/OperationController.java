@@ -39,7 +39,4 @@ public class OperationController {
         return operationService.registerOperationTypesFromCSV(filePath);
     }
 
-
-
-
 }
