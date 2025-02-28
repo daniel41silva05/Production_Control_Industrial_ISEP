@@ -101,7 +101,7 @@ public class WorkstationService {
         return workstationType;
     }
 
-    public Map<OperationType, List<WorkstationType>> registerWorkstationTypesFromCSV (String filePath) throws WorkstationException, OperationException {
+    public Map<OperationType, List<WorkstationType>> registerWorkstationTypesFromCSV (String filePath) {
         Map<OperationType, List<WorkstationType>> operationWorkstationsMap = new HashMap<>();
         Map<WorkstationType, Map<Integer, Integer>> workstationOperationTimeMap = CsvReader.loadWorkstationTypes(filePath);
 
@@ -163,6 +163,34 @@ public class WorkstationService {
         }
 
         return  operationWorkstationsMap;
+    }
+
+    public Map<Workstation, WorkstationType> registerWorkstationFromCSV (String filePath) {
+        Map<Workstation, WorkstationType> operationWorkstationsMap = new HashMap<>();
+        Map<Workstation, Integer> operationWorkstationIdMap = CsvReader.loadWorkstations(filePath);
+        boolean success = false;
+
+        for (Map.Entry<Workstation, Integer> entry : operationWorkstationIdMap.entrySet()) {
+            Workstation workstation = entry.getKey();
+            Integer workstationTypeId = entry.getValue();
+            WorkstationType workstationType = null;
+
+            if (!workstationRepository.getWorkstationExists(connection, workstation.getId())) {
+                if (!workstationTypeRepository.getWorkstationTypeExists(connection, workstationTypeId)) {
+                    return null;
+                }
+                workstationType = workstationTypeRepository.getById(connection, workstationTypeId);
+
+                success = workstationRepository.save(connection, workstation, workstationType);
+            }
+
+            if (!success) {
+                return null;
+            }
+            operationWorkstationsMap.put(workstation, workstationType);
+        }
+
+        return operationWorkstationsMap;
     }
 
     public Integer changeSetupTime (int operationTypeId, int workstationTypeId, int newSetupTime) throws WorkstationException, OperationException {
