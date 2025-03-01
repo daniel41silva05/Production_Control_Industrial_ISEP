@@ -10,21 +10,24 @@ public class SupplyOffer {
     private Address deliveryAddress;
     private Date startDate;
     private Date endDate;
+    private ProcessState state;
     private Map<RawMaterial, Map<Integer, Double>> rawMaterialsQuantityCost;
 
-    public SupplyOffer(int id, Address deliveryAddress, Date startDate, Date endDate, Map<RawMaterial, Map<Integer, Double>> rawMaterialsQuantityCost) {
+    public SupplyOffer(int id, Address deliveryAddress, Date startDate, Date endDate, ProcessState state, Map<RawMaterial, Map<Integer, Double>> rawMaterialsQuantityCost) {
         this.id = id;
         this.deliveryAddress = deliveryAddress;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.state = state;
         this.rawMaterialsQuantityCost = rawMaterialsQuantityCost;
     }
 
-    public SupplyOffer(int id, Address deliveryAddress, Date startDate, Map<RawMaterial, Map<Integer, Double>> rawMaterialsQuantityCost) {
+    public SupplyOffer(int id, Address deliveryAddress, Date startDate, ProcessState state, Map<RawMaterial, Map<Integer, Double>> rawMaterialsQuantityCost) {
         this.id = id;
         this.deliveryAddress = deliveryAddress;
         this.startDate = startDate;
         this.endDate = null;
+        this.state = state;
         this.rawMaterialsQuantityCost = rawMaterialsQuantityCost;
     }
 
@@ -60,6 +63,14 @@ public class SupplyOffer {
         this.endDate = endDate;
     }
 
+    public ProcessState getState() {
+        return state;
+    }
+
+    public void setState(ProcessState state) {
+        this.state = state;
+    }
+
     public Map<RawMaterial, Map<Integer, Double>> getRawMaterialsQuantityCost() {
         return rawMaterialsQuantityCost;
     }
@@ -88,6 +99,7 @@ public class SupplyOffer {
                 ", deliveryAddress=" + deliveryAddress +
                 ", startDate=" + startDate +
                 ", endDate=" + endDate +
+                ", state=" + state +
                 ", rawMaterials=" + rawMaterialsQuantityCost +
                 '}';
     }

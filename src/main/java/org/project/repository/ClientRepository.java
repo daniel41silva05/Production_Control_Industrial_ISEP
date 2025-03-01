@@ -110,10 +110,10 @@ public class ClientRepository {
     public List<Client> getAll(DatabaseConnection connection) {
         List<Client> clients = new ArrayList<>();
         String sql = """
-    SELECT c.clientid, c.name, c.vatin, c.phonenumber, c.emailaddress, c.type, c.state, 
+    SELECT c.clientid, c.name, c.vatin, c.phonenumber, c.emailaddress, c.type, c.state AS client_state,
            a.addressid AS client_addressid, a.street AS client_street, a.zipcode AS client_zipcode, 
            a.town AS client_town, a.country AS client_country,
-           o.orderid, o.orderdate, o.deliverydate, o.price,
+           o.orderid, o.orderdate, o.deliverydate, o.price, o.State AS o_state, 
            oa.addressid AS order_addressid, oa.street AS order_street, oa.zipcode AS order_zipcode,
            oa.town AS order_town, oa.country AS order_country
     FROM Client c
@@ -147,7 +147,7 @@ public class ClientRepository {
                             resultSet.getInt("phonenumber"),
                             resultSet.getString("emailaddress"),
                             CompanyType.valueOf(resultSet.getString("type").toUpperCase()),
-                            State.valueOf(resultSet.getString("state").toUpperCase()),
+                            EntityState.valueOf(resultSet.getString("client_state").toUpperCase()),
                             new ArrayList<>()
                     );
                     clientMap.put(clientId, client);
@@ -156,7 +156,7 @@ public class ClientRepository {
                 if (resultSet.getObject("orderid") != null) {
                     Order order = new Order(
                             resultSet.getInt("orderid"),
-                            new Address(  // Agora o endereço é o da Order (DeliveryAddress)
+                            new Address(
                                     resultSet.getInt("order_addressid"),
                                     resultSet.getString("order_street"),
                                     resultSet.getString("order_zipcode"),
@@ -165,7 +165,8 @@ public class ClientRepository {
                             ),
                             resultSet.getDate("orderdate"),
                             resultSet.getDate("deliverydate"),
-                            resultSet.getDouble("price")
+                            resultSet.getDouble("price"),
+                            ProcessState.valueOf(resultSet.getString("o_state").toUpperCase())
                     );
                     client.getOrders().add(order);
                 }
@@ -181,10 +182,10 @@ public class ClientRepository {
     public Client getById(DatabaseConnection connection, Integer id) {
         Client client = null;
         String sql = """
-    SELECT c.clientid, c.name, c.vatin, c.phonenumber, c.emailaddress, c.type, c.state, 
+    SELECT c.clientid, c.name, c.vatin, c.phonenumber, c.emailaddress, c.type, c.state AS client_state,
            a.addressid AS client_addressid, a.street AS client_street, a.zipcode AS client_zipcode, 
            a.town AS client_town, a.country AS client_country,
-           o.orderid, o.orderdate, o.deliverydate, o.price,
+           o.orderid, o.orderdate, o.deliverydate, o.price, o.State AS o_state,
            oa.addressid AS order_addressid, oa.street AS order_street, oa.zipcode AS order_zipcode,
            oa.town AS order_town, oa.country AS order_country
     FROM Client c
@@ -214,7 +215,7 @@ public class ClientRepository {
                             resultSet.getInt("phonenumber"),
                             resultSet.getString("emailaddress"),
                             CompanyType.valueOf(resultSet.getString("type").toUpperCase()),
-                            State.valueOf(resultSet.getString("state").toUpperCase()),
+                            EntityState.valueOf(resultSet.getString("client_state").toUpperCase()),
                             new ArrayList<>()
                     );
                 }
@@ -222,7 +223,7 @@ public class ClientRepository {
                 if (resultSet.getObject("orderid") != null) {
                     Order order = new Order(
                             resultSet.getInt("orderid"),
-                            new Address( // Agora o endereço da Order é único
+                            new Address(
                                     resultSet.getInt("order_addressid"),
                                     resultSet.getString("order_street"),
                                     resultSet.getString("order_zipcode"),
@@ -231,7 +232,8 @@ public class ClientRepository {
                             ),
                             resultSet.getDate("orderdate"),
                             resultSet.getDate("deliverydate"),
-                            resultSet.getDouble("price")
+                            resultSet.getDouble("price"),
+                            ProcessState.valueOf(resultSet.getString("o_state").toUpperCase())
                     );
                     client.getOrders().add(order);
                 }

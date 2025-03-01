@@ -9,7 +9,7 @@ public class Supplier {
     private String name;
     private int phoneNumber;
     private String email;
-    private State state;
+    private EntityState state;
     private List<SupplyOffer> supplyOffers;
 
     public Supplier(int id, String name, int phoneNumber, String email, List<SupplyOffer> supplyOffers) {
@@ -17,7 +17,7 @@ public class Supplier {
         this.name = name;
         this.phoneNumber = phoneNumber;
         this.email = email;
-        this.state = State.INACTIVE;
+        this.state = EntityState.INACTIVE;
         this.supplyOffers = supplyOffers;
     }
 
@@ -53,11 +53,11 @@ public class Supplier {
         this.email = email;
     }
 
-    public State getState() {
+    public EntityState getState() {
         return state;
     }
 
-    public void setState(State state) {
+    public void setState(EntityState state) {
         this.state = state;
     }
 

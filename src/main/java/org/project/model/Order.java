@@ -12,14 +12,16 @@ public class Order {
     private Date orderDate;
     private Date deliveryDate;
     private double price;
+    private ProcessState state;
     private Map<Product, Integer> productQuantity;
 
-    public Order(int id, Address deliveryAddress, Date orderDate, Date deliveryDate, double price) {
+    public Order(int id, Address deliveryAddress, Date orderDate, Date deliveryDate, double price, ProcessState state) {
         this.id = id;
         this.deliveryAddress = deliveryAddress;
         this.orderDate = orderDate;
         this.deliveryDate = deliveryDate;
         this.price = price;
+        this.state = state;
         this.productQuantity = new HashMap<>();
     }
 
@@ -29,6 +31,7 @@ public class Order {
         this.orderDate = orderDate;
         this.deliveryDate = deliveryDate;
         this.price = price;
+        this.state = ProcessState.PENDING;
         this.productQuantity = productQuantity;
     }
 
@@ -72,6 +75,14 @@ public class Order {
         this.price = price;
     }
 
+    public ProcessState getState() {
+        return state;
+    }
+
+    public void setState(ProcessState state) {
+        this.state = state;
+    }
+
     public Map<Product, Integer> getProductQuantity() {
         return productQuantity;
     }
@@ -101,6 +112,7 @@ public class Order {
                 ", orderDate=" + orderDate +
                 ", deliveryDate=" + deliveryDate +
                 ", price=" + price +
+                ", state=" + state +
                 ", productQuantity=" + productQuantity +
                 '}';
     }

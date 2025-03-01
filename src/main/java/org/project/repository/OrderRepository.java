@@ -9,7 +9,7 @@ import java.util.*;
 public class OrderRepository {
 
     public boolean save(DatabaseConnection connection, Order order, Client client) {
-        String insertOrderSQL = "INSERT INTO \"Order\" (OrderID, ClientID, DeliveryAddressID, OrderDate, DeliveryDate, Price) VALUES (?, ?, ?, ?, ?, ?)";
+        String insertOrderSQL = "INSERT INTO \"Order\" (OrderID, ClientID, DeliveryAddressID, OrderDate, DeliveryDate, Price, State) VALUES (?, ?, ?, ?, ?, ?, ?)";
         String insertProductOrderSQL = "INSERT INTO ProductOrder (OrderID, ProductID, Quantity) VALUES (?, ?, ?)";
 
         try (PreparedStatement orderStmt = connection.getConnection().prepareStatement(insertOrderSQL);
@@ -21,6 +21,7 @@ public class OrderRepository {
             orderStmt.setDate(4, new java.sql.Date(order.getOrderDate().getTime()));
             orderStmt.setDate(5, new java.sql.Date(order.getDeliveryDate().getTime()));
             orderStmt.setDouble(6, order.getPrice());
+            orderStmt.setString(7, order.getState().toString());
 
             int rowsInserted = orderStmt.executeUpdate();
 
@@ -86,7 +87,7 @@ public class OrderRepository {
     public List<Order> getAll(DatabaseConnection connection) {
         List<Order> orders = new ArrayList<>();
         String sql = """
-        SELECT o.OrderID, o.OrderDate, o.DeliveryDate, o.Price, 
+        SELECT o.OrderID, o.OrderDate, o.DeliveryDate, o.Price, o.State, 
                a.AddressID, a.Street, a.ZipCode, a.Town, a.Country, 
                p.ProductID, p.CategoryID, p.Capacity, p."Size", p.Color, p.Price AS ProductPrice, 
                pc.ProductCategoryID, pc.Name AS ProductCategoryName, 
@@ -124,7 +125,8 @@ public class OrderRepository {
                             address,
                             rs.getDate("OrderDate"),
                             rs.getDate("DeliveryDate"),
-                            rs.getDouble("Price")
+                            rs.getDouble("Price"),
+                            ProcessState.valueOf(rs.getString("State").toUpperCase())
                     );
 
                     orderMap.put(orderId, order);
@@ -156,7 +158,7 @@ public class OrderRepository {
 
     public Order getByID(DatabaseConnection connection, int id) {
         String sql = """
-        SELECT o.OrderID, o.OrderDate, o.DeliveryDate, o.Price, 
+        SELECT o.OrderID, o.OrderDate, o.DeliveryDate, o.Price, o.State,
                a.AddressID, a.Street, a.ZipCode, a.Town, a.Country, 
                p.ProductID, p.CategoryID, p.Capacity, p."Size", p.Color, p.Price AS ProductPrice, 
                pc.ProductCategoryID, pc.Name AS ProductCategoryName, 
@@ -191,7 +193,8 @@ public class OrderRepository {
                                 address,
                                 rs.getDate("OrderDate"),
                                 rs.getDate("DeliveryDate"),
-                                rs.getDouble("Price")
+                                rs.getDouble("Price"),
+                                ProcessState.valueOf(rs.getString("State").toUpperCase())
                         );
                     }
 

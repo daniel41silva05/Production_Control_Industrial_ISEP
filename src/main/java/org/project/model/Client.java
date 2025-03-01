@@ -13,7 +13,7 @@ public class Client {
     private int phoneNumber;
     private String email;
     private CompanyType type;
-    private State state;
+    private EntityState state;
     private List<Order> orders;
 
     public Client(int id, Address address, String name, String vatin, int phoneNumber, String email, CompanyType type) {
@@ -24,11 +24,11 @@ public class Client {
         this.phoneNumber = phoneNumber;
         this.email = email;
         this.type = type;
-        this.state = State.INACTIVE;
+        this.state = EntityState.INACTIVE;
         this.orders = new ArrayList<>();
     }
 
-    public Client(int id, Address address, String name, String vatin, int phoneNumber, String email, CompanyType type, State state, List<Order> orders) {
+    public Client(int id, Address address, String name, String vatin, int phoneNumber, String email, CompanyType type, EntityState state, List<Order> orders) {
         this.id = id;
         this.address = address;
         this.name = name;
@@ -96,11 +96,11 @@ public class Client {
         this.type = type;
     }
 
-    public State getState() {
+    public EntityState getState() {
         return state;
     }
 
-    public void setState(State state) {
+    public void setState(EntityState state) {
         this.state = state;
     }
 

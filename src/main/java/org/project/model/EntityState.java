@@ -1,6 +1,6 @@
 package org.project.model;
 
-public enum State {
+public enum EntityState {
     ACTIVE,
     INACTIVE;
 

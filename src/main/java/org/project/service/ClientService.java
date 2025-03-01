@@ -110,14 +110,14 @@ public class ClientService {
                 }
             }
 
-            if (client.getState().equals(State.INACTIVE) && !activeOrders.isEmpty()) {
-                client.setState(State.ACTIVE);
+            if (client.getState().equals(EntityState.INACTIVE) && !activeOrders.isEmpty()) {
+                client.setState(EntityState.ACTIVE);
                 boolean success = clientRepository.updateStatus(connection, client);
                 if (!success) {
                     throw new ClientException("Problems updating client status.");
                 }
-            } else if (client.getState().equals(State.ACTIVE) && activeOrders.isEmpty()) {
-                client.setState(State.INACTIVE);
+            } else if (client.getState().equals(EntityState.ACTIVE) && activeOrders.isEmpty()) {
+                client.setState(EntityState.INACTIVE);
                 boolean success = clientRepository.updateStatus(connection, client);
                 if (!success) {
                     throw new ClientException("Problems updating client status.");
