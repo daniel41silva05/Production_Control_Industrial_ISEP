@@ -48,6 +48,7 @@ CREATE TABLE "Order" (
     OrderDate date NOT NULL,
     DeliveryDate date NOT NULL,
     Price int4 NOT NULL,
+    State varchar(9) NOT NULL CHECK(State IN ('Pending', 'Confirmed')),
     PRIMARY KEY (OrderID)
 );
 
@@ -151,6 +152,7 @@ CREATE TABLE SupplyOffer (
     DeliveryAddressID int4 NOT NULL,
     StartDate date NOT NULL,
     EndDate date,
+    State varchar(9) NOT NULL CHECK(State IN ('Pending', 'Confirmed')),
     PRIMARY KEY (SupplyOfferID)
 );
 
