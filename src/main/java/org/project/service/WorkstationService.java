@@ -37,6 +37,10 @@ public class WorkstationService {
         return workstationTypeRepository.getAll(connection);
     }
 
+    public List<Workstation> getWorkstations() {
+        return workstationRepository.getAll(connection);
+    }
+
     private WorkstationType getWorkstationTypeById(int id) throws WorkstationException {
         if (!workstationTypeRepository.getWorkstationTypeExists(connection, id)) {
             throw new WorkstationException("Workstation Type with ID " + id + " not exists.");

@@ -29,6 +29,10 @@ public class WorkstationController {
         return operationService.getOperationTypes();
     }
 
+    public List<Workstation> getWorkstations() {
+        return workstationService.getWorkstations();
+    }
+
     public Workstation registerWorkstation (int id, String name, int typeId) throws WorkstationException {
         return workstationService.registerWorkstation (id, name, typeId);
     }
