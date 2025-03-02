@@ -5,6 +5,7 @@ import org.project.exceptions.WorkstationException;
 import org.project.model.OperationType;
 import org.project.model.Workstation;
 import org.project.model.WorkstationType;
+import org.project.service.OperationService;
 import org.project.service.WorkstationService;
 
 import java.util.List;
@@ -13,13 +14,19 @@ import java.util.Map;
 public class WorkstationController {
 
     private WorkstationService workstationService;
+    private OperationService operationService;
 
     public WorkstationController() {
         workstationService = new WorkstationService();
+        operationService = new OperationService();
     }
 
     public List<WorkstationType> getWorkstationTypes() {
         return workstationService.getWorkstationTypes();
+    }
+
+    public List<OperationType> getOperationTypes() {
+        return operationService.getOperationTypes();
     }
 
     public Workstation registerWorkstation (int id, String name, int typeId) throws WorkstationException {
