@@ -42,7 +42,7 @@ public class WorkstationRepository {
     public List<Workstation> getAll(DatabaseConnection connection) {
         List<Workstation> workstations = new ArrayList<>();
         String sql = """
-            SELECT w.workstationid, w.name AS workstation_name,
+            SELECT w.workstationid, w.name AS workstation_name
             FROM Workstation w
             ORDER BY w.workstationid;
             """;
@@ -69,7 +69,7 @@ public class WorkstationRepository {
     public Workstation getById(DatabaseConnection connection, int workstationId) {
         Workstation workstation = null;
         String sql = """
-            SELECT w.workstationid, w.name AS workstation_name,
+            SELECT w.workstationid, w.name AS workstation_name
             FROM Workstation w
             WHERE w.workstationid = ?
             ORDER BY w.workstationid;
