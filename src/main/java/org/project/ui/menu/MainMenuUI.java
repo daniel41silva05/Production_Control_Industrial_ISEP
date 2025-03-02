@@ -32,6 +32,7 @@ public class MainMenuUI implements Runnable {
         options.add(new MenuItem("Upload Operations from CSV file", new LoadOperationsCsvUI()));
         options.add(new MenuItem("Register a Workstation", new RegisterWorkstationUI()));
         options.add(new MenuItem("Change Setup Time Workstation to an Operation", new ChangeOperationWorkstationSetupTimeUI()));
+        options.add(new MenuItem("Upload Workstations from CSV file", new LoadWorkstationsCsvUI()));
 
         int option = 0;
         do {
