@@ -99,11 +99,7 @@ public class OrderService {
     }
 
     public Order deleteOrder (int id) throws OrderException {
-        if (!orderRepository.getOrderExists(connection, id)) {
-            throw new OrderException("Order with ID " + id + " not exists.");
-        }
-
-        Order order = orderRepository.getByID(connection, id);
+        Order order = getOrderByID(id);
 
         boolean success = orderRepository.delete(connection, order);
         if (!success) {
@@ -153,5 +149,20 @@ public class OrderService {
         }
 
         return activeOrders;
+    }
+
+    public Order completeOrder(Order order) {
+        if (order == null) {
+            return null;
+        }
+
+        order.setState(ProcessState.CONFIRMED);
+
+        boolean success = orderRepository.updateState(connection, order);
+        if (!success) {
+            return null;
+        }
+
+        return order;
     }
 }

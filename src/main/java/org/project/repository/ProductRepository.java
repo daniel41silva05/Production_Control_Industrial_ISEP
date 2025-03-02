@@ -379,4 +379,19 @@ public class ProductRepository {
         }
     }
 
+    public boolean updateStock(DatabaseConnection connection, RawMaterial rawMaterial) {
+        String sql = "UPDATE RawMaterial SET CurrentStock = ? WHERE RawMaterialID = ?";
+
+        try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
+            statement.setInt(1, rawMaterial.getCurrentStock());
+            statement.setString(2, rawMaterial.getId());
+
+            int rowsUpdated = statement.executeUpdate();
+            return rowsUpdated > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }

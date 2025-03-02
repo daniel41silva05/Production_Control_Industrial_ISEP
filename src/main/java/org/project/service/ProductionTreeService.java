@@ -187,4 +187,48 @@ public class ProductionTreeService {
         return elementNextOperations;
     }
 
+    public void discountRawMaterialStock (Order order) throws ProductException {
+        if (order == null) {
+            return;
+        }
+
+        Map<Product, Integer> productQuantity = order.getProductQuantity();
+        for (Map.Entry<Product, Integer> productEntry : productQuantity.entrySet()) {
+            Product product = productEntry.getKey();
+            int quantity = productEntry.getValue();
+
+            if (!productionTreeRepository.getProductionTreeExists(connection, product.getId())) {
+                throw new ProductException("Product with ID " + product.getId() + " does not have any production tree in the system.");
+            }
+            NaryTree<ProductionElement> tree = getTree(product.getId());
+
+            discountRecursive(tree.getRoot(), quantity);
+        }
+
+    }
+
+    public void discountRecursive(NaryTreeNode<ProductionElement> node, int quantity) throws ProductException{
+        if (node == null) {
+            return;
+        }
+
+        Part part = node.getElement().getPart();
+        if (part instanceof RawMaterial) {
+            int currentStock = ((RawMaterial) part).getCurrentStock();
+            int newCurrentStock = (int) (currentStock - node.getElement().getQuantity() * quantity);
+            if (newCurrentStock < 0) {
+                throw new ProductException("There is not enough stock of the raw material id: " + part.getId());
+            }
+            ((RawMaterial) part).setCurrentStock(newCurrentStock);
+            boolean success = productRepository.updateStock(connection, (RawMaterial) part);
+            if (!success) {
+                throw new ProductException("Unable to update stock.");
+            }
+        }
+
+        for (NaryTreeNode<ProductionElement> child : node.getChildren()) {
+            discountRecursive(child, quantity);
+        }
+    }
+
 }

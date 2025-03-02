@@ -84,6 +84,21 @@ public class OrderRepository {
         }
     }
 
+    public boolean updateState(DatabaseConnection connection, Order order) {
+        String sql = "UPDATE \"Order\" SET State = ? WHERE OrderID = ?";
+
+        try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
+            statement.setString(1, order.getState().toString());
+            statement.setInt(2, order.getId());
+
+            int rowsUpdated = statement.executeUpdate();
+            return rowsUpdated > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public List<Order> getAll(DatabaseConnection connection) {
         List<Order> orders = new ArrayList<>();
         String sql = """

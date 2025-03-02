@@ -9,6 +9,7 @@ import org.project.exceptions.ProductException;
 import org.project.service.ClientService;
 import org.project.service.OrderService;
 import org.project.service.ProductService;
+import org.project.service.ProductionTreeService;
 
 import java.util.Date;
 import java.util.List;
@@ -19,11 +20,13 @@ public class OrderController {
     private OrderService orderService;
     private ClientService clientService;
     private ProductService productService;
+    private ProductionTreeService productionTreeService;
 
     public OrderController() {
         this.orderService = new OrderService();
         this.clientService = new ClientService();
         this.productService = new ProductService();
+        this.productionTreeService = new ProductionTreeService();
     }
 
     public List<Client> getClients() {
@@ -56,5 +59,11 @@ public class OrderController {
 
     public List<Order> consultActiveOrders () {
         return orderService.activeOrders();
+    }
+
+    public Order completeOrder(int orderID) throws OrderException, ProductException {
+        Order order = orderService.getOrderByID(orderID);
+        productionTreeService.discountRawMaterialStock(order);
+        return orderService.completeOrder(order);
     }
 }
