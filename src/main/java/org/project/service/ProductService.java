@@ -214,4 +214,36 @@ public class ProductService {
         return rawMaterials;
     }
 
+    public RawMaterial changeMinimumRawMaterialStock (String id, int newRawMaterial) throws ProductException {
+        if (!productRepository.getRawMaterialExists(connection, id)) {
+            throw new ProductException("RawMaterial with ID " + id + " not exists.");
+        }
+
+        RawMaterial rawMaterial = productRepository.getRawMaterialByID(connection, id);
+
+        if (rawMaterial.getMinimumStock() == newRawMaterial) {
+            throw new ProductException("The minimum stock remains the same");
+        }
+
+        rawMaterial.setMinimumStock(newRawMaterial);
+
+        boolean success = productRepository.updateRawMaterial(connection, rawMaterial);
+        if (!success) {
+            return null;
+        }
+        return rawMaterial;
+    }
+
+    public List<RawMaterial> consultRawMaterialsStockAlert () {
+        List<RawMaterial> rawMaterialsStockAlert = new ArrayList<>();
+
+        for (RawMaterial rawMaterial : getRawMaterials()) {
+            if (rawMaterial.getMinimumStock() > rawMaterial.getCurrentStock()) {
+                rawMaterialsStockAlert.add(rawMaterial);
+            }
+        }
+
+        return rawMaterialsStockAlert;
+    }
+
 }

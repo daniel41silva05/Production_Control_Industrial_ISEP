@@ -74,4 +74,12 @@ public class ProductController {
         return productService.registerRawMaterialsFromCSV(filePath);
     }
 
+    public RawMaterial changeMinimumRawMaterialStock (String id, int newRawMaterial) throws ProductException {
+        return productService.changeMinimumRawMaterialStock(id, newRawMaterial);
+    }
+
+    public List<RawMaterial> consultRawMaterialsStockAlert () {
+        return productService.consultRawMaterialsStockAlert();
+    }
+
 }
