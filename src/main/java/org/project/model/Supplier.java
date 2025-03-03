@@ -1,5 +1,6 @@
 package org.project.model;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -27,7 +28,7 @@ public class Supplier {
         this.phoneNumber = phoneNumber;
         this.email = email;
         this.state = state;
-        this.supplyOffers = null;
+        this.supplyOffers = new ArrayList<>();
     }
 
     public Supplier(int id, String name, int phoneNumber, String email, EntityState state, List<SupplyOffer> supplyOffers) {

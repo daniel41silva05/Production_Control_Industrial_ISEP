@@ -70,13 +70,12 @@ public class SupplierRepository {
     }
 
     public boolean update(DatabaseConnection connection, Supplier supplier) {
-        String sql = "UPDATE Supplier SET Name = ?, PhoneNumber = ?, EmailAddress = ? WHERE SupplierID = ?";
+        String sql = "UPDATE Supplier SET PhoneNumber = ?, EmailAddress = ? WHERE SupplierID = ?";
 
         try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
-            statement.setString(1, supplier.getName());
-            statement.setInt(2, supplier.getPhoneNumber());
-            statement.setString(3, supplier.getEmail());
-            statement.setInt(4, supplier.getId());
+            statement.setInt(1, supplier.getPhoneNumber());
+            statement.setString(2, supplier.getEmail());
+            statement.setInt(3, supplier.getId());
 
             int rowsUpdated = statement.executeUpdate();
             return rowsUpdated > 0;

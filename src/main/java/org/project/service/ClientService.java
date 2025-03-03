@@ -8,7 +8,6 @@ import org.project.repository.AddressRepository;
 import org.project.repository.ClientRepository;
 import org.project.repository.Repositories;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -27,6 +26,14 @@ public class ClientService {
 
     public List<Client> getClients() {
         return clientRepository.getAll(connection);
+    }
+
+    public Client getClientByID(int id) throws ClientException {
+        if (!clientRepository.getClientExists(connection, id)) {
+            throw new ClientException("Client with ID " + id + " not exists.");
+        }
+
+        return clientRepository.getById(connection, id);
     }
 
     public Client registerClient(int clientID, String street, String zipCode, String town, String country, String name, String vatin, int phoneNumber, String email, CompanyType type) throws ClientException {
@@ -50,11 +57,8 @@ public class ClientService {
     }
 
     public Client deleteClient (int id) throws ClientException {
-        if (!clientRepository.getClientExists(connection, id)) {
-            throw new ClientException("Client with ID " + id + " not exists.");
-        }
 
-        Client client = clientRepository.getById(connection, id);
+        Client client = getClientByID(id);
 
         boolean success = clientRepository.delete(connection, client);
         if (!success) {
@@ -62,14 +66,6 @@ public class ClientService {
         }
 
         return client;
-    }
-
-    public Client getClientByID(int id) throws ClientException {
-        if (!clientRepository.getClientExists(connection, id)) {
-            throw new ClientException("Client with ID " + id + " not exists.");
-        }
-
-        return clientRepository.getById(connection, id);
     }
 
     public Client updateClient (Client client, String street, String zipCode, String town, String country, String name, String vatin, int phoneNumber, String email, CompanyType type) {
@@ -99,24 +95,25 @@ public class ClientService {
     }
 
     public List<Client> updateClientStatus () throws ClientException {
-        List<Client> clients = clientRepository.getAll(connection);
+        List<Client> clients = getClients();
 
         for (Client client : clients) {
 
-            List<Order> activeOrders = new ArrayList<>();
+            boolean containsActiveOrders = false;
             for (Order order : client.getOrders()) {
                 if (order.getDeliveryDate().after(new Date())) {
-                    activeOrders.add(order);
+                    containsActiveOrders = true;
+                    break;
                 }
             }
 
-            if (client.getState().equals(EntityState.INACTIVE) && !activeOrders.isEmpty()) {
+            if (client.getState().equals(EntityState.INACTIVE) && containsActiveOrders) {
                 client.setState(EntityState.ACTIVE);
                 boolean success = clientRepository.updateStatus(connection, client);
                 if (!success) {
                     throw new ClientException("Problems updating client status.");
                 }
-            } else if (client.getState().equals(EntityState.ACTIVE) && activeOrders.isEmpty()) {
+            } else if (client.getState().equals(EntityState.ACTIVE) && !containsActiveOrders) {
                 client.setState(EntityState.INACTIVE);
                 boolean success = clientRepository.updateStatus(connection, client);
                 if (!success) {
