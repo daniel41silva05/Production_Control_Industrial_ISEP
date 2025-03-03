@@ -31,6 +31,15 @@ public class SupplyOffer {
         this.rawMaterialsQuantityCost = rawMaterialsQuantityCost;
     }
 
+    public SupplyOffer(int id, Address deliveryAddress, Date startDate, Date endDate, ProcessState state) {
+        this.id = id;
+        this.deliveryAddress = deliveryAddress;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.state = state;
+        this.rawMaterialsQuantityCost = null;
+    }
+
     public int getId() {
         return id;
     }

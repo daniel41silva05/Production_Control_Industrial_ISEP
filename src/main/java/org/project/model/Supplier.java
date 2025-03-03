@@ -30,6 +30,15 @@ public class Supplier {
         this.supplyOffers = null;
     }
 
+    public Supplier(int id, String name, int phoneNumber, String email, EntityState state, List<SupplyOffer> supplyOffers) {
+        this.id = id;
+        this.name = name;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+        this.state = state;
+        this.supplyOffers = supplyOffers;
+    }
+
     public int getId() {
         return id;
     }
