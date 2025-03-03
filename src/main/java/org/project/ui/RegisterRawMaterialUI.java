@@ -1,8 +1,7 @@
 package org.project.ui;
 
-import org.project.controller.ProductController;
+import org.project.controller.RawMaterialController;
 import org.project.exceptions.ProductException;
-import org.project.model.Component;
 import org.project.model.RawMaterial;
 import org.project.ui.utils.Utils;
 
@@ -11,10 +10,10 @@ import java.util.List;
 
 public class RegisterRawMaterialUI implements Runnable {
 
-    private final ProductController controller;
+    private final RawMaterialController controller;
 
     public RegisterRawMaterialUI() {
-        this.controller = new ProductController();
+        this.controller = new RawMaterialController();
     }
 
     public void run() {

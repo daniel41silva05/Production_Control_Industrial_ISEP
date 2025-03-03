@@ -12,11 +12,15 @@ public class Repositories {
     private OrderRepository orderRepository;
     private ProductRepository productRepository;
     private ProductCategoryRepository productCategoryRepository;
+    private ComponentRepository componentRepository;
+    private RawMaterialRepository rawMaterialRepository;
     private ProductionTreeRepository productionTreeRepository;
     private OperationRepository operationRepository;
     private OperationTypeRepository operationTypeRepository;
     private WorkstationRepository workstationRepository;
     private WorkstationTypeRepository workstationTypeRepository;
+    private SupplyOfferRepository supplyOfferRepository;
+    private SupplierRepository SupplierRepository;
 
     /**
      * Constructs a new Repositories object, initializing all repositories.
@@ -27,11 +31,15 @@ public class Repositories {
         orderRepository = new OrderRepository();
         productRepository = new ProductRepository();
         productCategoryRepository = new ProductCategoryRepository();
+        componentRepository = new ComponentRepository();
+        rawMaterialRepository = new RawMaterialRepository();
         productionTreeRepository = new ProductionTreeRepository();
         operationRepository = new OperationRepository();
         operationTypeRepository = new OperationTypeRepository();
         workstationRepository = new WorkstationRepository();
         workstationTypeRepository = new WorkstationTypeRepository();
+        supplyOfferRepository = new SupplyOfferRepository();
+        SupplierRepository = new SupplierRepository();
     }
 
     /**
@@ -69,6 +77,14 @@ public class Repositories {
         return productCategoryRepository;
     }
 
+    public ComponentRepository getComponentRepository() {
+        return componentRepository;
+    }
+
+    public RawMaterialRepository getRawMaterialRepository() {
+        return rawMaterialRepository;
+    }
+
     public ProductionTreeRepository getProductionTreeRepository() {
         return productionTreeRepository;
     }
@@ -87,6 +103,14 @@ public class Repositories {
 
     public WorkstationTypeRepository getWorkstationTypeRepository() {
         return workstationTypeRepository;
+    }
+
+    public SupplyOfferRepository getSupplyOfferRepository() {
+        return supplyOfferRepository;
+    }
+
+    public org.project.repository.SupplierRepository getSupplierRepository() {
+        return SupplierRepository;
     }
 }
 

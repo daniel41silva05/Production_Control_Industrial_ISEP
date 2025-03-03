@@ -1,6 +1,6 @@
 package org.project.ui;
 
-import org.project.controller.ProductController;
+import org.project.controller.ComponentController;
 import org.project.exceptions.ProductException;
 import org.project.model.Component;
 import org.project.ui.utils.Utils;
@@ -10,10 +10,10 @@ import java.util.List;
 
 public class RegisterComponentUI implements Runnable {
 
-    private final ProductController controller;
+    private final ComponentController controller;
 
     public RegisterComponentUI() {
-        this.controller = new ProductController();
+        this.controller = new ComponentController();
     }
 
     public void run() {

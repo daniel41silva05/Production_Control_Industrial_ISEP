@@ -1,16 +1,16 @@
 package org.project.ui;
 
-import org.project.controller.ProductController;
+import org.project.controller.RawMaterialController;
 import org.project.model.RawMaterial;
 
 import java.util.List;
 
 public class ConsultRawMaterialsStockAlertUI implements Runnable {
 
-    private final ProductController controller;
+    private final RawMaterialController controller;
 
     public ConsultRawMaterialsStockAlertUI() {
-        this.controller = new ProductController();
+        this.controller = new RawMaterialController();
     }
 
     public void run() {

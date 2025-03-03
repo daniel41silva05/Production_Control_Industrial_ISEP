@@ -8,10 +8,7 @@ import org.project.dto.ProductionElementDTO;
 import org.project.exceptions.OperationException;
 import org.project.model.*;
 import org.project.exceptions.ProductException;
-import org.project.repository.OperationRepository;
-import org.project.repository.ProductRepository;
-import org.project.repository.ProductionTreeRepository;
-import org.project.repository.Repositories;
+import org.project.repository.*;
 
 import java.util.*;
 
@@ -19,6 +16,8 @@ public class ProductionTreeService {
 
     private DatabaseConnection connection;
     private ProductRepository productRepository;
+    private ComponentRepository componentRepository;
+    private RawMaterialRepository rawMaterialRepository;
     private ProductionTreeRepository productionTreeRepository;
     private OperationRepository operationRepository;
 
@@ -26,6 +25,8 @@ public class ProductionTreeService {
         connection = ConnectionFactory.getInstance().getDatabaseConnection();
         Repositories repositories = Repositories.getInstance();
         productRepository = repositories.getProductRepository();
+        componentRepository = repositories.getComponentRepository();
+        rawMaterialRepository = repositories.getRawMaterialRepository();
         productionTreeRepository = repositories.getProductionTreeRepository();
         operationRepository = repositories.getOperationRepository();
     }
@@ -54,14 +55,14 @@ public class ProductionTreeService {
             }
             ProductionElement element;
             if (entry.getValue().isEmpty()) {
-                if (!productRepository.getRawMaterialExists(connection, partID)) {
+                if (!rawMaterialRepository.getRawMaterialExists(connection, partID)) {
                     throw new ProductException("Part ID " + partID + " - Only the raw materials have nothing to form them in the production tree.");
                 }
-                RawMaterial rawMaterial = productRepository.getRawMaterialByID(connection, partID);
+                RawMaterial rawMaterial = rawMaterialRepository.getRawMaterialByID(connection, partID);
                 element = new ProductionElement(rawMaterial, operation, quantity);
             } else {
-                if (productRepository.getComponentExists(connection, partID)) {
-                    Component component = productRepository.getComponentByID(connection, partID);
+                if (componentRepository.getComponentExists(connection, partID)) {
+                    Component component = componentRepository.getComponentByID(connection, partID);
                     element = new ProductionElement(component, operation, quantity);
                 } else if (productRepository.getProductExists(connection, partID)) {
                     if (partID.equals(productID)) {
@@ -220,7 +221,7 @@ public class ProductionTreeService {
                 throw new ProductException("There is not enough stock of the raw material id: " + part.getId());
             }
             ((RawMaterial) part).setCurrentStock(newCurrentStock);
-            boolean success = productRepository.updateRawMaterial(connection, (RawMaterial) part);
+            boolean success = rawMaterialRepository.updateRawMaterial(connection, (RawMaterial) part);
             if (!success) {
                 throw new ProductException("Unable to update stock.");
             }

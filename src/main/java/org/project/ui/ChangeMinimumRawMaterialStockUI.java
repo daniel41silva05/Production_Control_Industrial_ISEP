@@ -1,6 +1,6 @@
 package org.project.ui;
 
-import org.project.controller.ProductController;
+import org.project.controller.RawMaterialController;
 import org.project.exceptions.ProductException;
 import org.project.model.RawMaterial;
 import org.project.ui.utils.Utils;
@@ -9,10 +9,10 @@ import java.util.List;
 
 public class ChangeMinimumRawMaterialStockUI implements Runnable {
 
-    private final ProductController controller;
+    private final RawMaterialController controller;
 
     public ChangeMinimumRawMaterialStockUI() {
-        this.controller = new ProductController();
+        this.controller = new RawMaterialController();
     }
 
     public void run() {

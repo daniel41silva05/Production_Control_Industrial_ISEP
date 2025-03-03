@@ -1,10 +1,8 @@
 package org.project.controller;
 
-import org.project.model.Component;
 import org.project.model.Product;
 import org.project.model.ProductCategory;
 import org.project.exceptions.ProductException;
-import org.project.model.RawMaterial;
 import org.project.service.ProductService;
 
 import java.util.List;
@@ -48,38 +46,6 @@ public class ProductController {
 
     public ProductCategory deleteCategory(int id, Map<Product,Integer> productNewCategory) throws ProductException {
         return productService.deleteCategory(id, productNewCategory);
-    }
-
-    public List<Component> getComponents() {
-        return productService.getComponents();
-    }
-
-    public List<RawMaterial> getRawMaterials() {
-        return productService.getRawMaterials();
-    }
-
-    public Component registerComponent(String id, String name, String description) throws ProductException {
-        return productService.registerComponent(id, name, description);
-    }
-
-    public RawMaterial registerRawMaterial(String id, String name, String description, int currentStock, int minimumStock) throws ProductException {
-        return productService.registerRawMaterial(id, name, description, currentStock, minimumStock);
-    }
-
-    public List<Component> registerComponentsFromCSV(String filePath) {
-        return productService.registerComponentsFromCSV(filePath);
-    }
-
-    public List<RawMaterial> registerRawMaterialsFromCSV(String filePath) {
-        return productService.registerRawMaterialsFromCSV(filePath);
-    }
-
-    public RawMaterial changeMinimumRawMaterialStock (String id, int newRawMaterial) throws ProductException {
-        return productService.changeMinimumRawMaterialStock(id, newRawMaterial);
-    }
-
-    public List<RawMaterial> consultRawMaterialsStockAlert () {
-        return productService.consultRawMaterialsStockAlert();
     }
 
 }
