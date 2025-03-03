@@ -2,12 +2,13 @@ package org.project.service;
 
 import org.project.data.ConnectionFactory;
 import org.project.data.DatabaseConnection;
-import org.project.model.Product;
-import org.project.model.ProductCategory;
+import org.project.io.CsvReader;
+import org.project.model.*;
 import org.project.exceptions.ProductException;
 import org.project.repository.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -133,6 +134,84 @@ public class ProductService {
         }
 
         return productCategory;
+    }
+
+    public List<Component> getComponents() {
+        return productRepository.getAllComponents(connection);
+    }
+
+    public Component registerComponent(String id, String name, String description) throws ProductException {
+        if (productRepository.getComponentExists(connection, id)) {
+            throw new ProductException("Component with ID " + id + " already exists.");
+        }
+
+        Component component = new Component(id, name, description);
+        boolean success = productRepository.saveComponent(connection, component);
+        if (!success) {
+            return null;
+        }
+        return component;
+    }
+
+    public List<Component> registerComponentsFromCSV(String filePath) {
+        List<Component> components = CsvReader.loadComponents(filePath);
+
+        for (Component component : components) {
+
+            if (!productRepository.getComponentExists(connection, component.getId())) {
+
+                boolean success = productRepository.saveComponent(connection, component);
+                if (!success) {
+                    return null;
+                }
+            }
+        }
+        return components;
+    }
+
+    public List<RawMaterial> getRawMaterials() { return productRepository.getAllRawMaterials(connection); }
+
+    public RawMaterial registerRawMaterial(String id, String name, String description, int currentStock, int minimumStock) throws ProductException {
+        if (productRepository.getRawMaterialExists(connection, id)) {
+            throw new ProductException("RawMaterial with ID " + id + " already exists.");
+        }
+
+        RawMaterial rawMaterial = new RawMaterial(id, name, description, currentStock, minimumStock);
+        boolean success = productRepository.saveRawMaterial(connection, rawMaterial);
+        if (!success) {
+            return null;
+        }
+        return rawMaterial;
+    }
+
+    public List<RawMaterial> registerRawMaterialsFromCSV(String filePath) {
+        List<RawMaterial> rawMaterials = CsvReader.loadRawMaterials(filePath);
+
+        for (RawMaterial rawMaterial : rawMaterials) {
+
+            boolean success;
+
+            if (!productRepository.getRawMaterialExists(connection, rawMaterial.getId())) {
+
+                success = productRepository.saveRawMaterial(connection, rawMaterial);
+
+            } else {
+                int currentStock = rawMaterial.getCurrentStock();
+                int minimumStock = rawMaterial.getMinimumStock();
+
+                rawMaterial = productRepository.getRawMaterialByID(connection, rawMaterial.getId());
+                rawMaterial.setCurrentStock(currentStock);
+                rawMaterial.setMinimumStock(minimumStock);
+
+                success = productRepository.updateRawMaterial(connection, rawMaterial);
+            }
+
+            if (!success) {
+                return null;
+            }
+
+        }
+        return rawMaterials;
     }
 
 }

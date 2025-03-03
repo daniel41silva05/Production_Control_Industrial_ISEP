@@ -220,7 +220,7 @@ public class ProductionTreeService {
                 throw new ProductException("There is not enough stock of the raw material id: " + part.getId());
             }
             ((RawMaterial) part).setCurrentStock(newCurrentStock);
-            boolean success = productRepository.updateStock(connection, (RawMaterial) part);
+            boolean success = productRepository.updateRawMaterial(connection, (RawMaterial) part);
             if (!success) {
                 throw new ProductException("Unable to update stock.");
             }

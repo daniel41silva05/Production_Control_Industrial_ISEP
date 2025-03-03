@@ -27,7 +27,6 @@ public class RegisterOperationUI implements Runnable {
             List<String> optionOperation = new ArrayList<>();
             optionOperation.add("Register the operation in a new type.");
             optionOperation.add("Register the operation in an existing type.");
-            optionOperation.add("Cancel registration of the operation.");
             int option = Utils.showAndSelectIndex(optionOperation, "\nOperation Type:");
 
             int typeID = Utils.readIntegerFromConsole("Enter Operation Type ID: ");

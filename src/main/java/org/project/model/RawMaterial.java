@@ -1,5 +1,6 @@
 package org.project.model;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class RawMaterial extends Part {
@@ -15,18 +16,18 @@ public class RawMaterial extends Part {
         this.rawMaterialCost = rawMaterialCost;
     }
 
-    public RawMaterial(String id, String name, String description, int currentStock, Map<Supplier, Double> rawMaterialCost) {
+    public RawMaterial(String id, String name, String description, int currentStock, int minimumStock) {
         super(id, name, description);
         this.currentStock = currentStock;
-        this.minimumStock = 0;
-        this.rawMaterialCost = rawMaterialCost;
+        this.minimumStock = minimumStock;
+        this.rawMaterialCost = new HashMap<>();
     }
 
     public RawMaterial(String id, String name, String description) {
         super(id, name, description);
         this.currentStock = 0;
         this.minimumStock = 0;
-        this.rawMaterialCost = null;
+        this.rawMaterialCost = new HashMap<>();
     }
 
     public int getCurrentStock() {

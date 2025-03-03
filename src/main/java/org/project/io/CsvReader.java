@@ -1,9 +1,7 @@
 package org.project.io;
 
 import org.project.dto.OperationDTO;
-import org.project.model.OperationType;
-import org.project.model.Workstation;
-import org.project.model.WorkstationType;
+import org.project.model.*;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -140,6 +138,64 @@ public class CsvReader {
             System.err.println("Error loading workstations: " + e.getMessage());
         }
         return workstationTypeMap;
+    }
+
+    public static List<Component> loadComponents(String componentsFile) {
+        List<Component> components = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(componentsFile))) {
+            String line;
+            br.readLine();
+
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(";");
+
+                if (values.length < 3) {
+                    continue;
+                }
+
+                String id = values[0].trim();
+                String name = values[1].trim();
+                String description = values[1].trim();
+
+                components.add(new Component(id, name, description));
+
+            }
+        } catch (IOException e) {
+            System.err.println("Error loading components: " + e.getMessage());
+        }
+        return components;
+    }
+
+    public static List<RawMaterial> loadRawMaterials(String rawMaterialsFile) {
+        List<RawMaterial> rawMaterials = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(rawMaterialsFile))) {
+            String line;
+            br.readLine();
+
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(";");
+
+                if (values.length < 5) {
+                    continue;
+                }
+
+                try {
+                    String id = values[0].trim();
+                    String name = values[1].trim();
+                    String description = values[2].trim();
+                    int currentStock = Integer.parseInt(values[3].trim());
+                    int minimumStock = Integer.parseInt(values[4].trim());
+
+                    rawMaterials.add(new RawMaterial(id, name, description, currentStock, minimumStock));
+
+                } catch (NumberFormatException e) {
+                    continue;
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Error loading raw materials: " + e.getMessage());
+        }
+        return rawMaterials;
     }
 
 }

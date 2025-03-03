@@ -24,7 +24,6 @@ public class RegisterWorkstationUI implements Runnable {
             List<String> optionWorkstation = new ArrayList<>();
             optionWorkstation.add("Register the workstation in a new type.");
             optionWorkstation.add("Register the workstation in an existing type.");
-            optionWorkstation.add("Cancel registration of the workstation.");
             int option = Utils.showAndSelectIndex(optionWorkstation, "\nWorkstation Type:");
 
             int typeID = Utils.readIntegerFromConsole("Enter Workstation Type ID: ");
