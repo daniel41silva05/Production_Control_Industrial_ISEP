@@ -199,4 +199,51 @@ public class RawMaterialRepository {
         }
     }
 
+    public boolean saveRawMaterialSupplier(DatabaseConnection connection, Supplier supplier, RawMaterial rawMaterial, double expectedUnitCost) {
+        String sql = "INSERT INTO RawMaterialSupplier (SupplierID, RawMaterialID, ExpectedUnitCost) VALUES (?, ?, ?)";
+
+        try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
+            statement.setInt(1, supplier.getId());
+            statement.setString(2, rawMaterial.getId());
+            statement.setDouble(3, expectedUnitCost);
+
+            int rowsInserted = statement.executeUpdate();
+            return rowsInserted > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean deleteRawMaterialSupplier(DatabaseConnection connection, Supplier supplier, RawMaterial rawMaterial) {
+        String sql = "DELETE FROM RawMaterialSupplier WHERE SupplierID = ? AND RawMaterialID = ?";
+
+        try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
+            statement.setInt(1, supplier.getId());
+            statement.setString(2, rawMaterial.getId());
+
+            int rowsDeleted = statement.executeUpdate();
+            return rowsDeleted > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean updateRawMaterialSupplier(DatabaseConnection connection, Supplier supplier, RawMaterial rawMaterial, double newExpectedUnitCost) {
+        String sql = "UPDATE RawMaterialSupplier SET ExpectedUnitCost = ? WHERE SupplierID = ? AND RawMaterialID = ?";
+
+        try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
+            statement.setDouble(1, newExpectedUnitCost);
+            statement.setInt(2, supplier.getId());
+            statement.setString(3, rawMaterial.getId());
+
+            int rowsUpdated = statement.executeUpdate();
+            return rowsUpdated > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }

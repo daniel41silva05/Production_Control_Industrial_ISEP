@@ -44,7 +44,6 @@ public class SupplierRepository {
                  PreparedStatement stmtSupplyOffers = conn.prepareStatement(deleteSupplyOffersSQL);
                  PreparedStatement stmtSupplier = conn.prepareStatement(deleteSupplierSQL)) {
 
-                // Exclui os RawMaterialSupply associados aos SupplyOffers do Supplier
                 for (SupplyOffer offer : supplier.getSupplyOffers()) {
                     stmtRawMaterialSupply.setInt(1, offer.getId());
                     stmtRawMaterialSupply.executeUpdate();
