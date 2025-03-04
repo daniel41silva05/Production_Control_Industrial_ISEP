@@ -12,7 +12,9 @@ import org.project.repository.Repositories;
 import org.project.repository.SupplierRepository;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 public class RawMaterialService {
 
@@ -173,6 +175,12 @@ public class RawMaterialService {
         }
 
         return rawMaterial;
+    }
+
+    public List<Map.Entry<Supplier, Double>> getSuppliersByCost(RawMaterial rawMaterial) {
+        List<Map.Entry<Supplier, Double>> sortedList = new ArrayList<>(rawMaterial.getRawMaterialCost().entrySet());
+        sortedList.sort(Comparator.comparingDouble(Map.Entry::getValue));
+        return sortedList;
     }
 
 }

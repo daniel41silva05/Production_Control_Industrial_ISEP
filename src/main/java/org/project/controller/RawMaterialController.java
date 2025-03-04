@@ -3,9 +3,11 @@ package org.project.controller;
 import org.project.exceptions.ProductException;
 import org.project.exceptions.SupplierException;
 import org.project.model.RawMaterial;
+import org.project.model.Supplier;
 import org.project.service.RawMaterialService;
 
 import java.util.List;
+import java.util.Map;
 
 public class RawMaterialController {
 
@@ -49,6 +51,10 @@ public class RawMaterialController {
 
     public RawMaterial changeUnitCostRawMaterialSupplier(String rawMaterialID, int supplierID, double unitCost) throws ProductException, SupplierException {
         return rawMaterialService.changeUnitCostRawMaterialSupplier(rawMaterialID, supplierID, unitCost);
+    }
+
+    public List<Map.Entry<Supplier, Double>> getSuppliersByCost(RawMaterial rawMaterial) {
+        return rawMaterialService.getSuppliersByCost(rawMaterial);
     }
 
 }
