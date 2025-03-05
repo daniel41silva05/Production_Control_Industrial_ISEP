@@ -1,5 +1,7 @@
 package org.project.ui.utils;
 
+import org.project.common.Validator;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.text.ParseException;
@@ -110,4 +112,38 @@ public class Utils {
         } while (value < 0 || value > list.size());
         return value - 1;
     }
+
+    static public String readZipCodeFromConsole(String prompt) {
+        while (true) {
+            String zipCode = readLineFromConsole(prompt);
+            if (Validator.isValidZipCode(zipCode)) {
+                return zipCode;
+            } else {
+                System.out.println("Invalid zip code. It must follow the format xxxx-xxx.");
+            }
+        }
+    }
+
+    static public int readPhoneNumberFromConsole(String prompt) {
+        while (true) {
+            int phoneNumber = readIntegerFromConsole(prompt);
+            if (Validator.isValidPhoneNumber(phoneNumber)) {
+                return phoneNumber;
+            } else {
+                System.out.println("Invalid phone number. It must have 9 digits.");
+            }
+        }
+    }
+
+    static public String readEmailFromConsole(String prompt) {
+        while (true) {
+            String email = readLineFromConsole(prompt);
+            if (Validator.isValidEmail(email)) {
+                return email;
+            } else {
+                System.out.println("Invalid email format. It should contain something before and after @.");
+            }
+        }
+    }
+
 }

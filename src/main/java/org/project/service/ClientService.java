@@ -1,5 +1,6 @@
 package org.project.service;
 
+import org.project.common.Validator;
 import org.project.data.ConnectionFactory;
 import org.project.data.DatabaseConnection;
 import org.project.model.*;
@@ -37,6 +38,18 @@ public class ClientService {
             throw ClientException.clientAlreadyExists(clientID);
         }
 
+        if (!Validator.isValidPhoneNumber(phoneNumber)) {
+            throw ClientException.invalidPhoneNumber();
+        }
+
+        if (!Validator.isValidZipCode(zipCode)) {
+            throw ClientException.invalidZipCode();
+        }
+
+        if (!Validator.isValidEmail(email)) {
+            throw ClientException.invalidEmailFormat();
+        }
+
         Address address = addressRepository.findAddress(connection, street, zipCode, town, country);
         if (address == null) {
             int id = addressRepository.getAddressCount(connection);
@@ -63,8 +76,20 @@ public class ClientService {
     }
 
     public Client updateClient (Client client, String street, String zipCode, String town, String country, String name, String vatin, int phoneNumber, String email, CompanyType type) {
+        if (!Validator.isValidPhoneNumber(phoneNumber)) {
+            throw ClientException.invalidPhoneNumber();
+        }
+
+        if (!Validator.isValidEmail(email)) {
+            throw ClientException.invalidEmailFormat();
+        }
+
         Address address = client.getAddress();
         if (!address.getStreet().equals(street) || !address.getZipCode().equals(zipCode) || !address.getTown().equals(town) || !address.getCountry().equals(country)) {
+            if (!Validator.isValidZipCode(zipCode)) {
+                throw ClientException.invalidZipCode();
+            }
+
             address = addressRepository.findAddress(connection, street, zipCode, town, country);
             if (address == null) {
                 int id = addressRepository.getAddressCount(connection);

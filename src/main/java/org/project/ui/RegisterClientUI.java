@@ -29,10 +29,10 @@ public class RegisterClientUI implements Runnable {
             int clientID = Utils.readIntegerFromConsole("Enter Client ID: ");
             String name = Utils.readLineFromConsole("Enter Name: ");
             String vatin = Utils.readLineFromConsole("Enter VATIN: ");
-            int phoneNumber = Utils.readIntegerFromConsole("Enter Phone Number: ");
-            String email = Utils.readLineFromConsole("Enter Email: ");
+            int phoneNumber = Utils.readPhoneNumberFromConsole("Enter Phone Number: ");
+            String email = Utils.readEmailFromConsole("Enter Email: ");
             String street = Utils.readLineFromConsole("Enter Street: ");
-            String zipCode = Utils.readLineFromConsole("Enter Zip Code: ");
+            String zipCode = Utils.readZipCodeFromConsole("Enter Zip Code: ");
             String town = Utils.readLineFromConsole("Enter Town: ");
             String country = Utils.readLineFromConsole("Enter Country: ");
             List<CompanyType> options = Arrays.asList(CompanyType.values());
