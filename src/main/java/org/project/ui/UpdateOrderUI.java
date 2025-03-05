@@ -1,6 +1,7 @@
 package org.project.ui;
 
 import org.project.controller.OrderController;
+import org.project.exceptions.DatabaseException;
 import org.project.model.Client;
 import org.project.model.Order;
 import org.project.exceptions.ClientException;
@@ -95,7 +96,7 @@ public class UpdateOrderUI implements Runnable {
             } else {
                 System.out.println("\nOrder update failed.");
             }
-        } catch (ClientException | OrderException e) {
+        } catch (ClientException | OrderException | DatabaseException e) {
             System.out.println("\nError: " + e.getMessage());
         }
     }

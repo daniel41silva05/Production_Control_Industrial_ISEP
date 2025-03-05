@@ -1,6 +1,7 @@
 package org.project.ui;
 
 import org.project.controller.ClientController;
+import org.project.exceptions.DatabaseException;
 import org.project.model.Client;
 import org.project.exceptions.ClientException;
 import org.project.ui.utils.Utils;
@@ -16,15 +17,7 @@ public class DeleteClientUI implements Runnable {
 
     public void run() {
         try {
-            List<Client> clients = controller.getAllClients();
-            System.out.println("\nClients:");
-            if (clients.isEmpty()) {
-                System.out.println("No clients registered.");
-                return;
-            }
-            for (Client client : clients) {
-                System.out.println(" - Client ID: " + client.getId() + " | Name: " + client.getName() + " | VATIN: " + client.getVatin());
-            }
+            showClients(controller.getAllClients());
 
             boolean delete = Utils.confirm("Do you want to delete a client?");
             if (!delete) {
@@ -40,10 +33,19 @@ public class DeleteClientUI implements Runnable {
                 System.out.println("\nClient deleted successfully.");
             }
 
-        } catch (ClientException e) {
+        } catch (ClientException | DatabaseException e) {
             System.out.println("\nError: " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("\nFailed to delete client.");
+        }
+    }
+
+    private void showClients(List<Client> clients) {
+        System.out.println("\nClients:");
+        if (clients.isEmpty()) {
+            System.out.println("No clients registered.");
+        } else {
+            for (Client client : clients) {
+                System.out.println(" - Client ID: " + client.getId() + " | Name: " + client.getName() + " | VATIN: " + client.getVatin());
+            }
         }
     }
 

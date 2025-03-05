@@ -1,9 +1,9 @@
 package org.project.ui;
 
 import org.project.controller.ClientController;
+import org.project.exceptions.DatabaseException;
 import org.project.model.Client;
 import org.project.model.CompanyType;
-import org.project.exceptions.ClientException;
 import org.project.ui.utils.Utils;
 
 import java.util.Arrays;
@@ -18,15 +18,7 @@ public class UpdateClientUI implements Runnable {
 
     public void run() {
         try {
-            List<Client> clients = controller.getAllClients();
-            System.out.println("\nClients:");
-            if (clients.isEmpty()) {
-                System.out.println("No clients registered.");
-                return;
-            }
-            for (Client client : clients) {
-                System.out.println(" - Client ID: " + client.getId() + " | Name: " + client.getName() + " | VATIN: " + client.getVatin());
-            }
+            showClients(controller.getAllClients());
 
             boolean update = Utils.confirm("Do you want to update a client's information?");
             if (!update) {
@@ -94,8 +86,20 @@ public class UpdateClientUI implements Runnable {
             } else {
                 System.out.println("\nClient update failed.");
             }
-        } catch (ClientException e) {
+
+        } catch (DatabaseException e) {
             System.out.println("\nError: " + e.getMessage());
+        }
+    }
+
+    private void showClients(List<Client> clients) {
+        System.out.println("\nClients:");
+        if (clients.isEmpty()) {
+            System.out.println("No clients registered.");
+        } else {
+            for (Client client : clients) {
+                System.out.println(" - Client ID: " + client.getId() + " | Name: " + client.getName() + " | VATIN: " + client.getVatin());
+            }
         }
     }
 

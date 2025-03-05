@@ -2,6 +2,7 @@ package org.project.service;
 
 import org.project.data.ConnectionFactory;
 import org.project.data.DatabaseConnection;
+import org.project.exceptions.DatabaseException;
 import org.project.model.*;
 import org.project.exceptions.ClientException;
 import org.project.repository.AddressRepository;
@@ -24,21 +25,17 @@ public class ClientService {
         addressRepository = repositories.getAddressRepository();
     }
 
-    public List<Client> getClients() {
+    public List<Client> getClients() throws DatabaseException {
         return clientRepository.getAll(connection);
     }
 
-    public Client getClientByID(int id) throws ClientException {
-        if (!clientRepository.getClientExists(connection, id)) {
-            throw new ClientException("Client with ID " + id + " not exists.");
-        }
-
+    public Client getClientByID(int id) throws DatabaseException {
         return clientRepository.getById(connection, id);
     }
 
-    public Client registerClient(int clientID, String street, String zipCode, String town, String country, String name, String vatin, int phoneNumber, String email, CompanyType type) throws ClientException {
+    public Client registerClient(int clientID, String name, String vatin, String street, String zipCode, String town, String country, int phoneNumber, String email, CompanyType type) throws ClientException, DatabaseException {
         if (clientRepository.getClientExists(connection, clientID)) {
-            throw new ClientException("Client with ID " + clientID + " already exists.");
+            throw ClientException.clientAlreadyExists(clientID);
         }
 
         Address address = addressRepository.findAddress(connection, street, zipCode, town, country);
@@ -49,26 +46,24 @@ public class ClientService {
         }
 
         Client client = new Client(clientID, address, name, vatin, phoneNumber, email, type);
-        boolean success = clientRepository.save(connection, client);
-        if (!success) {
-            return null;
-        }
+
+        clientRepository.save(connection, client);
+
         return client;
     }
 
-    public Client deleteClient (int id) throws ClientException {
-
+    public Client deleteClient (int id) throws ClientException, DatabaseException {
         Client client = getClientByID(id);
-
-        boolean success = clientRepository.delete(connection, client);
-        if (!success) {
-            return null;
+        if (client == null) {
+            throw ClientException.clientNotFound(id);
         }
+
+        clientRepository.delete(connection, client);
 
         return client;
     }
 
-    public Client updateClient (Client client, String street, String zipCode, String town, String country, String name, String vatin, int phoneNumber, String email, CompanyType type) {
+    public Client updateClient (Client client, String street, String zipCode, String town, String country, String name, String vatin, int phoneNumber, String email, CompanyType type) throws DatabaseException {
         Address address = client.getAddress();
         if (!address.getStreet().equals(street) || !address.getZipCode().equals(zipCode) || !address.getTown().equals(town) || !address.getCountry().equals(country)) {
             address = addressRepository.findAddress(connection, street, zipCode, town, country);
@@ -86,15 +81,12 @@ public class ClientService {
         client.setEmail(email);
         client.setType(type);
 
-        boolean success = clientRepository.update(connection, client);
-        if (!success) {
-            return null;
-        }
+        clientRepository.update(connection, client);
 
         return client;
     }
 
-    public List<Client> updateClientStatus () throws ClientException {
+    public List<Client> updateClientStatus () throws DatabaseException {
         List<Client> clients = getClients();
 
         for (Client client : clients) {
@@ -109,19 +101,15 @@ public class ClientService {
 
             if (client.getState().equals(EntityState.INACTIVE) && containsActiveOrders) {
                 client.setState(EntityState.ACTIVE);
-                boolean success = clientRepository.updateStatus(connection, client);
-                if (!success) {
-                    throw new ClientException("Problems updating client status.");
-                }
+                clientRepository.updateStatus(connection, client);
+
             } else if (client.getState().equals(EntityState.ACTIVE) && !containsActiveOrders) {
                 client.setState(EntityState.INACTIVE);
-                boolean success = clientRepository.updateStatus(connection, client);
-                if (!success) {
-                    throw new ClientException("Problems updating client status.");
-                }
+                clientRepository.updateStatus(connection, client);
             }
         }
 
         return clients;
     }
+
 }

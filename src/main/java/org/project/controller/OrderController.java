@@ -1,5 +1,6 @@
 package org.project.controller;
 
+import org.project.exceptions.DatabaseException;
 import org.project.model.Client;
 import org.project.model.Order;
 import org.project.model.Product;
@@ -29,11 +30,11 @@ public class OrderController {
         this.productionTreeService = new ProductionTreeService();
     }
 
-    public List<Client> getClients() {
+    public List<Client> getClients() throws ClientException, DatabaseException {
         return clientService.getClients();
     }
 
-    public Client getClient(int id) throws ClientException {
+    public Client getClient(int id) throws ClientException, DatabaseException {
         return clientService.getClientByID(id);
     }
 
@@ -45,7 +46,7 @@ public class OrderController {
         return orderService.getOrderByID(orderID);
     }
 
-    public Order registerOrder(int clientID, int orderID, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date orderDate, Date deliveryDate, int price, Map<String, Integer> productIDQuantity) throws ClientException, OrderException, ProductException {
+    public Order registerOrder(int clientID, int orderID, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date orderDate, Date deliveryDate, int price, Map<String, Integer> productIDQuantity) throws ClientException, OrderException, ProductException, DatabaseException {
         return orderService.registerOrder(clientID, orderID, deliveryStreet, deliveryZipCode, deliveryTown, deliveryCountry, orderDate, deliveryDate, price, productIDQuantity);
     }
 
@@ -53,7 +54,7 @@ public class OrderController {
         return orderService.deleteOrder(orderID);
     }
 
-    public Order updateOrder (Order order, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date orderDate, Date deliveryDate, double price) throws OrderException {
+    public Order updateOrder (Order order, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date orderDate, Date deliveryDate, double price) throws OrderException, DatabaseException {
         return orderService.updateOrder(order, deliveryStreet, deliveryZipCode, deliveryTown, deliveryCountry, orderDate, deliveryDate, price);
     }
 

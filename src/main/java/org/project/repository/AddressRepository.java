@@ -1,6 +1,7 @@
 package org.project.repository;
 
 import org.project.data.DatabaseConnection;
+import org.project.exceptions.DatabaseException;
 import org.project.model.Address;
 
 import java.sql.PreparedStatement;
@@ -9,7 +10,7 @@ import java.sql.SQLException;
 
 public class AddressRepository {
 
-    public boolean save(DatabaseConnection connection, Address address) {
+    public boolean save(DatabaseConnection connection, Address address) throws DatabaseException {
         String sql = "INSERT INTO Address (AddressID, Street, ZipCode, Town, Country) VALUES (?, ?, ?, ?, ?)";
 
         try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
@@ -22,12 +23,11 @@ public class AddressRepository {
             int rowsInserted = statement.executeUpdate();
             return rowsInserted > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            throw DatabaseException.databaseError();
         }
     }
 
-    public int getAddressCount(DatabaseConnection connection) {
+    public int getAddressCount(DatabaseConnection connection) throws DatabaseException {
         String sql = "SELECT COUNT(*) FROM Address";
         int count = 0;
 
@@ -38,13 +38,13 @@ public class AddressRepository {
                 count = resultSet.getInt(1);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw DatabaseException.databaseError();
         }
 
         return count;
     }
 
-    public Address findAddress(DatabaseConnection connection, String street, String zipCode, String town, String country) {
+    public Address findAddress(DatabaseConnection connection, String street, String zipCode, String town, String country) throws DatabaseException {
         String sql = "SELECT * FROM Address WHERE Street = ? AND ZipCode = ? AND Town = ? AND Country = ?";
         Address address = null;
 
@@ -63,7 +63,7 @@ public class AddressRepository {
                         resultSet.getString("Country"));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw DatabaseException.databaseError();
         }
 
         return address;

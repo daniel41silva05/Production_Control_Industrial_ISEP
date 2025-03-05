@@ -33,7 +33,7 @@ public class SupplyOfferService {
         return supplyOfferRepository.getByID(connection, id);
     }
 
-    public SupplyOffer registerSupplyOffer(int supplierID, int supplyOfferID, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date startDate, Date endDate, ProcessState state, Map<String, Map<Integer, Double>> rawMaterialIDsQuantityCost) throws SupplierException, SupplyOfferException, ProductException {
+    public SupplyOffer registerSupplyOffer(int supplierID, int supplyOfferID, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date startDate, Date endDate, ProcessState state, Map<String, Map<Integer, Double>> rawMaterialIDsQuantityCost) throws SupplierException, SupplyOfferException, ProductException, DatabaseException {
         if (endDate.before(startDate)) {
             throw new SupplyOfferException("End date cannot be before Start date.");
         }
@@ -99,7 +99,7 @@ public class SupplyOfferService {
         return supplyOffer;
     }
 
-    public SupplyOffer updateSupplyOffer (SupplyOffer supplyOffer, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date startDate, Date endDate) throws SupplyOfferException {
+    public SupplyOffer updateSupplyOffer (SupplyOffer supplyOffer, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date startDate, Date endDate) throws SupplyOfferException, DatabaseException {
         if (endDate.before(startDate)) {
             throw new SupplyOfferException("End date cannot be before Start date.");
         }

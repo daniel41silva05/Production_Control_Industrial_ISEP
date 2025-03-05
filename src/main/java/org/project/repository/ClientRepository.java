@@ -1,6 +1,7 @@
 package org.project.repository;
 
 import org.project.data.DatabaseConnection;
+import org.project.exceptions.DatabaseException;
 import org.project.model.*;
 
 import java.sql.Connection;
@@ -14,7 +15,7 @@ import java.util.Map;
 
 public class ClientRepository {
 
-    public boolean save(DatabaseConnection connection, Client client) {
+    public boolean save(DatabaseConnection connection, Client client) throws DatabaseException {
 
         String sql = "INSERT INTO Client (ClientID, AddressID, Name, Vatin, PhoneNumber, EmailAddress, Type, State) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
@@ -31,12 +32,11 @@ public class ClientRepository {
             int rowsInserted = statement.executeUpdate();
             return rowsInserted > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            throw DatabaseException.databaseError();
         }
     }
 
-    public boolean delete(DatabaseConnection connection, Client client) {
+    public boolean delete(DatabaseConnection connection, Client client) throws DatabaseException {
         String deleteProductOrdersSQL = "DELETE FROM ProductOrder WHERE OrderID = ?;";
         String deleteOrdersSQL = "DELETE FROM \"Order\" WHERE OrderID = ?;";
         String deleteClientSQL = "DELETE FROM Client WHERE ClientID = ?;";
@@ -64,15 +64,14 @@ public class ClientRepository {
                 return rowsDeleted > 0;
             } catch (SQLException e) {
                 conn.rollback();
-                e.printStackTrace();
+                throw DatabaseException.databaseError();
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (SQLException | DatabaseException e) {
+            throw DatabaseException.databaseError();
         }
-        return false;
     }
 
-    public boolean update(DatabaseConnection connection, Client client) {
+    public boolean update(DatabaseConnection connection, Client client) throws DatabaseException {
         String sql = "UPDATE Client SET Name = ?, Vatin = ?, PhoneNumber = ?, EmailAddress = ?, Type = ?, AddressID = ? WHERE ClientID = ?";
 
         try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
@@ -87,12 +86,11 @@ public class ClientRepository {
             int rowsUpdated = statement.executeUpdate();
             return rowsUpdated > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            throw DatabaseException.databaseError();
         }
     }
 
-    public boolean updateStatus(DatabaseConnection connection, Client client) {
+    public boolean updateStatus(DatabaseConnection connection, Client client) throws DatabaseException {
         String sql = "UPDATE Client SET State = ? WHERE ClientID = ?";
 
         try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
@@ -102,12 +100,11 @@ public class ClientRepository {
             int rowsUpdated = statement.executeUpdate();
             return rowsUpdated > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            throw DatabaseException.databaseError();
         }
     }
 
-    public List<Client> getAll(DatabaseConnection connection) {
+    public List<Client> getAll(DatabaseConnection connection) throws DatabaseException {
         List<Client> clients = new ArrayList<>();
         String sql = """
     SELECT c.clientid, c.name, c.vatin, c.phonenumber, c.emailaddress, c.type, c.state AS client_state,
@@ -173,13 +170,13 @@ public class ClientRepository {
             }
             clients.addAll(clientMap.values());
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw DatabaseException.databaseError();
         }
 
         return clients;
     }
 
-    public Client getById(DatabaseConnection connection, Integer id) {
+    public Client getById(DatabaseConnection connection, Integer id) throws DatabaseException {
         Client client = null;
         String sql = """
     SELECT c.clientid, c.name, c.vatin, c.phonenumber, c.emailaddress, c.type, c.state AS client_state,
@@ -239,13 +236,13 @@ public class ClientRepository {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw DatabaseException.databaseError();
         }
 
         return client;
     }
 
-    public boolean getClientExists(DatabaseConnection connection, int id) {
+    public boolean getClientExists(DatabaseConnection connection, int id) throws  DatabaseException {
         String sql = "SELECT COUNT(*) FROM Client WHERE clientid = ?";
         int count = 0;
 
@@ -258,7 +255,7 @@ public class ClientRepository {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw DatabaseException.databaseError();
         }
 
         return count > 0;

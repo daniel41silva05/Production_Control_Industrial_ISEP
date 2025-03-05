@@ -1,6 +1,7 @@
 package org.project.ui;
 
 import org.project.controller.OrderController;
+import org.project.exceptions.DatabaseException;
 import org.project.model.Client;
 import org.project.model.Order;
 import org.project.model.Product;
@@ -63,14 +64,12 @@ public class RegisterOrderUI implements Runnable {
                 System.out.println("\nOrder registered successfully.");
                 showOrder(order);
             }
-        } catch (ClientException | OrderException | ProductException e) {
+        } catch (ClientException | OrderException | ProductException | DatabaseException e) {
             System.out.println("\nError: " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("\nOrder registration failed.");
         }
     }
 
-    private void showClients() {
+    private void showClients() throws ClientException, DatabaseException {
         List<Client> clients = controller.getClients();
         System.out.println("\nClients:");
         if (clients.isEmpty()) {

@@ -1,8 +1,8 @@
 package org.project.ui;
 
 import org.project.controller.ClientController;
+import org.project.exceptions.DatabaseException;
 import org.project.model.Client;
-import org.project.exceptions.ClientException;
 import java.util.List;
 
 public class StatusClientUI implements Runnable {
@@ -15,7 +15,6 @@ public class StatusClientUI implements Runnable {
 
     public void run() {
         try {
-
             List<Client> clients = controller.updateClientStatus();
 
             System.out.println("\nClients:");
@@ -27,10 +26,8 @@ public class StatusClientUI implements Runnable {
                 }
             }
 
-        } catch (ClientException e) {
+        } catch (DatabaseException e) {
             System.out.println("\nError: " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("\nConsult Client failed.");
         }
     }
 

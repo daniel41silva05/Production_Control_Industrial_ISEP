@@ -2,6 +2,7 @@ package org.project.service;
 
 import org.project.data.ConnectionFactory;
 import org.project.data.DatabaseConnection;
+import org.project.exceptions.DatabaseException;
 import org.project.model.*;
 import org.project.exceptions.ClientException;
 import org.project.exceptions.OrderException;
@@ -35,7 +36,7 @@ public class OrderService {
         return orderRepository.getByID(connection, orderID);
     }
 
-    public Order registerOrder(int clientID, int orderID, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date orderDate, Date deliveryDate, int price, Map<String, Integer> productIDQuantity) throws ClientException, OrderException, ProductException {
+    public Order registerOrder(int clientID, int orderID, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date orderDate, Date deliveryDate, int price, Map<String, Integer> productIDQuantity) throws ClientException, OrderException, ProductException, DatabaseException {
         if (deliveryDate.before(orderDate)) {
             throw new OrderException("Delivery date cannot be before Order date.");
         }
@@ -109,7 +110,7 @@ public class OrderService {
         return order;
     }
 
-    public Order updateOrder (Order order, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date orderDate, Date deliveryDate, double price) throws OrderException {
+    public Order updateOrder (Order order, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date orderDate, Date deliveryDate, double price) throws OrderException, DatabaseException {
         if (deliveryDate.before(orderDate)) {
             throw new OrderException("Delivery date cannot be before Order date.");
         }

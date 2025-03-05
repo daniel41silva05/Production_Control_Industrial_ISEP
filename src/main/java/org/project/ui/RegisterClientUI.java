@@ -1,6 +1,7 @@
 package org.project.ui;
 
 import org.project.controller.ClientController;
+import org.project.exceptions.DatabaseException;
 import org.project.model.Client;
 import org.project.exceptions.ClientException;
 import org.project.model.CompanyType;
@@ -18,7 +19,8 @@ public class RegisterClientUI implements Runnable {
 
     public void run() {
         try {
-            showClients();
+            showClients(controller.getAllClients());
+
             boolean register = Utils.confirm("Do you want to register a new client?");
             if (!register) {
                 return;
@@ -33,26 +35,22 @@ public class RegisterClientUI implements Runnable {
             String zipCode = Utils.readLineFromConsole("Enter Zip Code: ");
             String town = Utils.readLineFromConsole("Enter Town: ");
             String country = Utils.readLineFromConsole("Enter Country: ");
-            System.out.println();
             List<CompanyType> options = Arrays.asList(CompanyType.values());
-            CompanyType type = (CompanyType) Utils.showAndSelectOne(options, "Select Company Type:");
+            CompanyType type = (CompanyType) Utils.showAndSelectOne(options, "\nSelect Company Type:");
 
-            Client client = controller.registerClient(clientID, street, zipCode, town, country, name, vatin, phoneNumber, email, type);
+            Client client = controller.registerClient(clientID, name, vatin, street, zipCode, town, country, phoneNumber, email, type);
             if (client == null) {
                 System.out.println("\nClient registration failed.");
             } else {
-                System.out.println("\nClient registered successfully.");
+                System.out.println("\nClient registered successfully:");
                 showClient(client);
             }
-        } catch (ClientException e) {
+        } catch (ClientException | DatabaseException e) {
             System.out.println("\nError: " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("\nClient registration failed.");
         }
     }
 
-    private void showClients() {
-        List<Client> clients = controller.getAllClients();
+    private void showClients(List<Client> clients) {
         System.out.println("\nClients:");
         if (clients.isEmpty()) {
             System.out.println("No clients registered.");
