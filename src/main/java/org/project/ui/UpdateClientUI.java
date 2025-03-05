@@ -51,11 +51,11 @@ public class UpdateClientUI implements Runnable {
             }
 
             if (Utils.confirm("Do you want to update the Email?")) {
-                email = Utils.readLineFromConsole("Enter new Email: ");
+                email = Utils.readEmailFromConsole("Enter new Email: ");
             }
 
             if (Utils.confirm("Do you want to update the Phone Number?")) {
-                phoneNumber = Utils.readIntegerFromConsole("Enter new Phone Number: ");
+                phoneNumber = Utils.readPhoneNumberFromConsole("Enter new Phone Number: ");
             }
 
             if (Utils.confirm("Do you want to update the Type?")) {
@@ -70,7 +70,7 @@ public class UpdateClientUI implements Runnable {
                     street = Utils.readLineFromConsole("Enter new Street: ");
                 }
                 if (Utils.confirm("Do you want to update the Zip Code?")) {
-                    zipCode = Utils.readLineFromConsole("Enter new Zip Code: ");
+                    zipCode = Utils.readZipCodeFromConsole("Enter new Zip Code: ");
                 }
                 if (Utils.confirm("Do you want to update the Town?")) {
                     town = Utils.readLineFromConsole("Enter new Town: ");
