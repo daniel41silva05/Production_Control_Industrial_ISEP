@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class ClientRepository {
 
-    public boolean save(DatabaseConnection connection, Client client) throws DatabaseException {
+    public boolean save(DatabaseConnection connection, Client client) {
 
         String sql = "INSERT INTO Client (ClientID, AddressID, Name, Vatin, PhoneNumber, EmailAddress, Type, State) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
@@ -36,7 +36,7 @@ public class ClientRepository {
         }
     }
 
-    public boolean delete(DatabaseConnection connection, Client client) throws DatabaseException {
+    public boolean delete(DatabaseConnection connection, Client client) {
         String deleteProductOrdersSQL = "DELETE FROM ProductOrder WHERE OrderID = ?;";
         String deleteOrdersSQL = "DELETE FROM \"Order\" WHERE OrderID = ?;";
         String deleteClientSQL = "DELETE FROM Client WHERE ClientID = ?;";
@@ -71,7 +71,7 @@ public class ClientRepository {
         }
     }
 
-    public boolean update(DatabaseConnection connection, Client client) throws DatabaseException {
+    public boolean update(DatabaseConnection connection, Client client) {
         String sql = "UPDATE Client SET Name = ?, Vatin = ?, PhoneNumber = ?, EmailAddress = ?, Type = ?, AddressID = ? WHERE ClientID = ?";
 
         try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
@@ -90,7 +90,7 @@ public class ClientRepository {
         }
     }
 
-    public boolean updateStatus(DatabaseConnection connection, Client client) throws DatabaseException {
+    public boolean updateStatus(DatabaseConnection connection, Client client) {
         String sql = "UPDATE Client SET State = ? WHERE ClientID = ?";
 
         try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
@@ -104,7 +104,7 @@ public class ClientRepository {
         }
     }
 
-    public List<Client> getAll(DatabaseConnection connection) throws DatabaseException {
+    public List<Client> getAll(DatabaseConnection connection) {
         List<Client> clients = new ArrayList<>();
         String sql = """
     SELECT c.clientid, c.name, c.vatin, c.phonenumber, c.emailaddress, c.type, c.state AS client_state,
@@ -176,7 +176,7 @@ public class ClientRepository {
         return clients;
     }
 
-    public Client getById(DatabaseConnection connection, Integer id) throws DatabaseException {
+    public Client getById(DatabaseConnection connection, Integer id) {
         Client client = null;
         String sql = """
     SELECT c.clientid, c.name, c.vatin, c.phonenumber, c.emailaddress, c.type, c.state AS client_state,
@@ -242,7 +242,7 @@ public class ClientRepository {
         return client;
     }
 
-    public boolean getClientExists(DatabaseConnection connection, int id) throws  DatabaseException {
+    public boolean getClientExists(DatabaseConnection connection, int id) {
         String sql = "SELECT COUNT(*) FROM Client WHERE clientid = ?";
         int count = 0;
 

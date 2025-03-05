@@ -1,6 +1,7 @@
 package org.project.ui;
 
 import org.project.controller.ClientController;
+import org.project.exceptions.ClientException;
 import org.project.exceptions.DatabaseException;
 import org.project.model.Client;
 import org.project.model.CompanyType;
@@ -87,7 +88,7 @@ public class UpdateClientUI implements Runnable {
                 System.out.println("\nClient update failed.");
             }
 
-        } catch (DatabaseException e) {
+        } catch (ClientException | DatabaseException e) {
             System.out.println("\nError: " + e.getMessage());
         }
     }

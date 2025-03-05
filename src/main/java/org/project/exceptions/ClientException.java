@@ -1,6 +1,6 @@
 package org.project.exceptions;
 
-public class ClientException extends Exception {
+public class ClientException extends RuntimeException {
 
     public static final String CLIENT_ALREADY_EXISTS = "Client with ID %d already exists.";
     public static final String CLIENT_NOT_FOUND = "Client with ID %d does not exist.";

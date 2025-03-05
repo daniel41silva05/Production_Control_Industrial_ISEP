@@ -2,7 +2,6 @@ package org.project.service;
 
 import org.project.data.ConnectionFactory;
 import org.project.data.DatabaseConnection;
-import org.project.exceptions.DatabaseException;
 import org.project.model.*;
 import org.project.exceptions.ClientException;
 import org.project.repository.AddressRepository;
@@ -25,15 +24,15 @@ public class ClientService {
         addressRepository = repositories.getAddressRepository();
     }
 
-    public List<Client> getClients() throws DatabaseException {
+    public List<Client> getClients() {
         return clientRepository.getAll(connection);
     }
 
-    public Client getClientByID(int id) throws DatabaseException {
+    public Client getClientByID(int id) {
         return clientRepository.getById(connection, id);
     }
 
-    public Client registerClient(int clientID, String name, String vatin, String street, String zipCode, String town, String country, int phoneNumber, String email, CompanyType type) throws ClientException, DatabaseException {
+    public Client registerClient(int clientID, String name, String vatin, String street, String zipCode, String town, String country, int phoneNumber, String email, CompanyType type) {
         if (clientRepository.getClientExists(connection, clientID)) {
             throw ClientException.clientAlreadyExists(clientID);
         }
@@ -52,7 +51,7 @@ public class ClientService {
         return client;
     }
 
-    public Client deleteClient (int id) throws ClientException, DatabaseException {
+    public Client deleteClient (int id) {
         Client client = getClientByID(id);
         if (client == null) {
             throw ClientException.clientNotFound(id);
@@ -63,7 +62,7 @@ public class ClientService {
         return client;
     }
 
-    public Client updateClient (Client client, String street, String zipCode, String town, String country, String name, String vatin, int phoneNumber, String email, CompanyType type) throws DatabaseException {
+    public Client updateClient (Client client, String street, String zipCode, String town, String country, String name, String vatin, int phoneNumber, String email, CompanyType type) {
         Address address = client.getAddress();
         if (!address.getStreet().equals(street) || !address.getZipCode().equals(zipCode) || !address.getTown().equals(town) || !address.getCountry().equals(country)) {
             address = addressRepository.findAddress(connection, street, zipCode, town, country);
@@ -86,7 +85,7 @@ public class ClientService {
         return client;
     }
 
-    public List<Client> updateClientStatus () throws DatabaseException {
+    public List<Client> updateClientStatus () {
         List<Client> clients = getClients();
 
         for (Client client : clients) {

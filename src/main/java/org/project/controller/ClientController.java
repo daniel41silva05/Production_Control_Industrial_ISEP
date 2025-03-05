@@ -1,8 +1,6 @@
 package org.project.controller;
 
-import org.project.exceptions.DatabaseException;
 import org.project.model.Client;
-import org.project.exceptions.ClientException;
 import org.project.model.CompanyType;
 import org.project.service.ClientService;
 
@@ -16,27 +14,27 @@ public class ClientController {
         clientService = new ClientService();
     }
 
-    public List<Client> getAllClients() throws DatabaseException {
+    public List<Client> getAllClients() {
         return clientService.getClients();
     }
 
-    public Client getClientById(int clientID) throws DatabaseException {
+    public Client getClientById(int clientID) {
         return clientService.getClientByID(clientID);
     }
 
-    public Client registerClient (int clientID, String name, String vatin, String street, String zipCode, String town, String country, int phoneNumber, String email, CompanyType type) throws ClientException, DatabaseException {
+    public Client registerClient (int clientID, String name, String vatin, String street, String zipCode, String town, String country, int phoneNumber, String email, CompanyType type) {
         return clientService.registerClient(clientID, name, vatin, street, zipCode, town, country, phoneNumber, email, type);
     }
 
-    public Client deleteClient (int clientID) throws ClientException, DatabaseException {
+    public Client deleteClient (int clientID) {
         return clientService.deleteClient(clientID);
     }
 
-    public Client updateClient (Client newClient, String street, String zipCode, String town, String country, String name, String vatin, int phoneNumber, String email, CompanyType type) throws DatabaseException {
+    public Client updateClient (Client newClient, String street, String zipCode, String town, String country, String name, String vatin, int phoneNumber, String email, CompanyType type) {
         return clientService.updateClient(newClient, street, zipCode, town, country, name, vatin, phoneNumber, email, type);
     }
 
-    public List<Client> updateClientStatus () throws DatabaseException {
+    public List<Client> updateClientStatus () {
         return clientService.updateClientStatus();
     }
 

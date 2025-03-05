@@ -1,6 +1,6 @@
 package org.project.exceptions;
 
-public class DatabaseException extends Exception {
+public class DatabaseException extends RuntimeException {
 
     public static final String DATABASE_ERROR = "Database issues, please try again later.";
 

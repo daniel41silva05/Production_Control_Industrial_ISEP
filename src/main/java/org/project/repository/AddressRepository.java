@@ -10,7 +10,7 @@ import java.sql.SQLException;
 
 public class AddressRepository {
 
-    public boolean save(DatabaseConnection connection, Address address) throws DatabaseException {
+    public boolean save(DatabaseConnection connection, Address address) {
         String sql = "INSERT INTO Address (AddressID, Street, ZipCode, Town, Country) VALUES (?, ?, ?, ?, ?)";
 
         try (PreparedStatement statement = connection.getConnection().prepareStatement(sql)) {
@@ -27,7 +27,7 @@ public class AddressRepository {
         }
     }
 
-    public int getAddressCount(DatabaseConnection connection) throws DatabaseException {
+    public int getAddressCount(DatabaseConnection connection) {
         String sql = "SELECT COUNT(*) FROM Address";
         int count = 0;
 
@@ -44,7 +44,7 @@ public class AddressRepository {
         return count;
     }
 
-    public Address findAddress(DatabaseConnection connection, String street, String zipCode, String town, String country) throws DatabaseException {
+    public Address findAddress(DatabaseConnection connection, String street, String zipCode, String town, String country) {
         String sql = "SELECT * FROM Address WHERE Street = ? AND ZipCode = ? AND Town = ? AND Country = ?";
         Address address = null;
 
