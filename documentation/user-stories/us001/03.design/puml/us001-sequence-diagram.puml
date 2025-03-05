@@ -1,0 +1,126 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title System Sequence Diagram (SSD)
+
+autonumber
+
+actor "Administrator" as ADM
+participant ":RegisterClientUI" as UI
+participant ":ClientController" as CTRL
+participant ":ClientService" as SRV
+participant ":Repositories" as REPS
+participant "repositories\n:Repositories" as REP
+participant "clientRepository:\nClientRepository" as clientRepository
+participant "addressRepository:\nAddressRepository" as addressRepository
+participant "client:\nClient" as CLIENT
+participant "address:\nAddress" as ADDRESS
+
+title Register Client Sequence
+
+activate ADM
+    ADM -> UI : asks to register a new client
+    activate UI
+
+        UI -> CTRL** : create
+
+        UI -> CTRL : getAllClients()
+        activate CTRL
+            CTRL -> SRV : getClients()
+            activate SRV
+
+                SRV -> REPS : getInstance()
+                activate REPS
+                REPS --> SRV: repositories
+                deactivate REPS
+                SRV -> REP : getClientRepository()
+                activate REP
+                REP --> SRV : clientRepository
+                deactivate REP
+
+                SRV -> clientRepository : getAll()
+                activate clientRepository
+                clientRepository --> SRV : clients
+                deactivate clientRepository
+            SRV --> CTRL : clients
+            deactivate SRV
+        CTRL --> UI : clients
+        deactivate CTRL
+    UI --> ADM : shows the list of clients and requests confirmation
+    deactivate UI
+
+    ADM -> UI : confirms that he wants to register a new client
+    activate UI
+        UI --> ADM : requests data (i.e. Name, Vatin, Address, Contact Info (Phone Number, Email), Type)
+    deactivate UI
+
+    ADM -> UI : types/selects requested data
+    activate UI
+        UI -> CTRL: registerClient(clientID, name, vatin, street, zipCode, town, country, phoneNumber, email, type)
+        activate CTRL
+            CTRL -> SRV: registerClient(clientID, name, vatin, street, zipCode, town, country, phoneNumber, email, type)
+            activate SRV
+                SRV -> REP: getClientRepository()
+                activate REP
+                REP --> SRV: clientRepository
+                deactivate REP
+
+                SRV -> clientRepository: getClientExists(clientID)
+                activate clientRepository
+                alt client exists
+                    clientRepository --> SRV: true
+                    SRV --> CTRL: show error message (Client already registered)
+                    deactivate SRV
+                    CTRL --> UI: show error message (Client already registered)
+                    deactivate CTRL
+                else
+                    clientRepository --> SRV: false
+                    deactivate clientRepository
+
+                    SRV -> REP: getAddressRepository()
+                    activate REP
+                    REP --> SRV: addressRepository
+                    deactivate REP
+
+                    SRV -> addressRepository: findAddress(street, zipCode, town, country)
+                    activate addressRepository
+                    alt address exists
+                        addressRepository --> SRV: address
+                    else
+                        addressRepository --> SRV: null
+                        deactivate addressRepository
+
+                        SRV -> ADDRESS** : create(street, zipCode, town, country)
+                        SRV -> addressRepository: save(address)
+                        activate addressRepository
+                        addressRepository --> SRV: address
+                        deactivate addressRepository
+                    end
+
+                    SRV -> CLIENT** : create(clientID, name, vatin, address, phoneNumber, email, type)
+
+                    SRV -> clientRepository: save(client)
+                    activate clientRepository
+                    alt system error
+                        clientRepository --> SRV: Database error
+
+                        SRV --> CTRL: show error message (Database error)
+                        deactivate SRV
+                        CTRL --> UI: show error message (Database error)
+                        deactivate CTRL
+                    else
+                        clientRepository --> SRV: client
+                        deactivate clientRepository
+                        SRV --> CTRL: client
+                        deactivate SRV
+                        CTRL --> UI: client
+                        deactivate CTRL
+                    end
+                end
+    UI --> ADM: shows all data and displays operation success or error message
+    deactivate UI
+
+deactivate ADM
+@enduml

@@ -1,0 +1,50 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title System Sequence Diagram (SSD)
+
+autonumber
+
+actor "Administrator" as ADM
+participant ":System" as System
+
+activate ADM
+
+    ADM -> System : asks to register a new client
+    activate System
+
+        System --> ADM : shows the list of clients and requests confirmation
+    deactivate System
+
+    ADM -> System : confirms that he wants to register a new client
+    activate System
+
+        System --> ADM : requests data (i.e. Name, Vatin, Address, Contact Info (Phone Number, Email), Type)
+    deactivate System
+
+    ADM -> System : types/selects requested data
+    activate System
+
+        System -> System : validates the data
+        alt invalid data
+            System --> ADM : shows error message (Invalid data)
+            deactivate System
+        else valid data
+            System -> System : checks if client already exists
+            alt client exists
+                System --> ADM : shows error message (Client already registered)
+                deactivate System
+            else client does not exist
+                System -> System : saves client data
+                alt system error
+                    System --> ADM : shows error message (Database error)
+                    deactivate System
+                else success
+                    System --> ADM : shows all data and displays operation success
+                    deactivate System
+                end
+            end
+        end
+@enduml

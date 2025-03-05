@@ -1,0 +1,40 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+skinparam classAttributeIconSize 0
+
+hide circle
+hide methods
+
+title Domain Model - US001
+
+class Administrator {
+}
+
+class Client {
+    id
+    name
+    vatin
+    phoneNumber
+    email
+}
+
+class Address {
+    id
+    street
+    zipCode
+    town
+    country
+}
+
+enum CompanyType {
+    type
+}
+
+Administrator "1" -- "1..*" Client : register >
+Client "*" -- "1" Address : has >
+Client "*" -- "1" CompanyType : has >
+
+@enduml

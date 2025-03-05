@@ -1,0 +1,89 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype polyline
+skinparam classAttributeIconSize 0
+
+package "UI" {
+    class RegisterClientUI {
+    }
+}
+
+package "Controller" {
+    class ClientController {
+        +getAllClients() : List<Client>
+        +registerClient(clientID, name, vatin, street, zipCode, town, country, phoneNumber, email, type) : Client
+    }
+}
+
+package "Service" {
+    class ClientService {
+        +getClients() : List<Client>
+        +registerClient(clientID, name, vatin, street, zipCode, town, country, phoneNumber, email, type) : Client
+    }
+}
+
+package "Repository" {
+    class Repositories {
+        -Repositories()
+        +getInstance() : Repositories
+        +getClientRepository() : ClientRepository
+        +getAddressRepository() : AddressRepository
+    }
+
+    class ClientRepository {
+        +getAll(connection) : List<Client>
+        +getClientExists(connection, clientID) : boolean
+        +save(connection, client) : boolean
+    }
+
+    class AddressRepository {
+        +findAddress(connection, street, zipCode, town, country) : Address
+        +getAddressCount(connection) : int
+        +save(connection, address) : boolean
+    }
+}
+
+package "Model" {
+    class Client {
+        -clientID : int
+        -address : Address
+        -name : String
+        -vatin : String
+        -phoneNumber : int
+        -email : String
+        -type : CompanyType
+        +Client(clientID, name, address, vatin, phoneNumber, email, type)
+    }
+
+    class Address {
+        -id : int
+        -street : String
+        -zipCode : String
+        -town : String
+        -country : String
+        +Address(id, street, zipCode, town, country)
+    }
+
+    enum CompanyType {
+        INDIVIDUAL
+        COMPANY
+    }
+}
+
+RegisterClientUI ..> ClientController
+ClientController ..> ClientService
+ClientService ..> Repositories : repositories
+ClientService ..> ClientRepository : clientRepository
+ClientService ..> AddressRepository : addressRepository
+ClientService ..> Client : client
+ClientService ..> Address : address
+Repositories --> Repositories : instance
+Repositories "1" --> "1" ClientRepository : clientRepository
+Repositories "1" --> "1" AddressRepository : addressRepository
+ClientRepository "1" --> "*" Client : categories
+AddressRepository "1" --> "*" Address : categories
+Client "*" --> "1" Address : has
+Client "*" --> "1" CompanyType : has
+
+@enduml
