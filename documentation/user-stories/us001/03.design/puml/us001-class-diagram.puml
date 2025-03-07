@@ -32,15 +32,15 @@ package "Repository" {
     }
 
     class ClientRepository {
-        +getAll(connection) : List<Client>
-        +getClientExists(connection, clientID) : boolean
-        +save(connection, client) : boolean
+        +getAll() : List<Client>
+        +getClientExists(clientID) : boolean
+        +save(client) : boolean
     }
 
     class AddressRepository {
-        +findAddress(connection, street, zipCode, town, country) : Address
-        +getAddressCount(connection) : int
-        +save(connection, address) : boolean
+        +findAddress(street, zipCode, town, country) : Address
+        +getAddressCount() : int
+        +save(address) : boolean
     }
 }
 

@@ -23,7 +23,7 @@ participant "Validator" as VAL
 title Register Client Sequence
 
 activate ADM
-    ADM -> UI : asks to register a new client
+    ADM -> UI : asks to update a client
     activate UI
 
         UI -> CTRL** : create
@@ -53,16 +53,50 @@ activate ADM
     UI --> ADM : shows the list of clients and requests confirmation
     deactivate UI
 
-    ADM -> UI : confirms that he wants to register a new client
+    ADM -> UI : confirms that he wants to update a client
     activate UI
-        UI --> ADM : requests data (i.e. Name, Vatin, Address, Contact Info (Phone Number, Email), Type)
+
+        UI --> ADM : requests Client ID
+    deactivate UI
+
+    ADM -> UI : provides requested ID
+    activate UI
+
+        UI -> CTRL : getClientByID(clientID)
+        activate CTRL
+            CTRL -> SRV : getClientByID(clientID)
+            activate SRV
+
+                SRV -> REP : getClientRepository()
+                activate REP
+                REP --> SRV : clientRepository
+                deactivate REP
+                SRV -> clientRepository : getById(clientID))
+                activate clientRepository
+                clientRepository --> SRV : client
+                deactivate clientRepository
+                alt client == null
+                    SRV -> EXC: throw clientNotFound(clientID)
+                    activate EXC
+                    EXC --> SRV: Exception Thrown
+                    deactivate EXC
+                    SRV --> CTRL: show error message (Client does not exist)
+                    CTRL --> UI: show error message (Client does not exist)
+                else
+            SRV --> CTRL : client
+            deactivate SRV
+        CTRL --> UI : client
+        deactivate CTRL
+        end
+
+        UI --> ADM : shows all data of client and requests data to be update or error message
     deactivate UI
 
     ADM -> UI : types/selects requested data
     activate UI
-        UI -> CTRL: registerClient(clientID, name, vatin, street, zipCode, town, country, phoneNumber, email, type)
+        UI -> CTRL: updateClient(client, name, vatin, street, zipCode, town, country, phoneNumber, email, type)
         activate CTRL
-            CTRL -> SRV: registerClient(clientID, name, vatin, street, zipCode, town, country, phoneNumber, email, type)
+            CTRL -> SRV: updateClient(client, name, vatin, street, zipCode, town, country, phoneNumber, email, type)
             activate SRV
 
                 SRV -> VAL: isValidData(phoneNumber, email, zipCode)
@@ -82,27 +116,6 @@ activate ADM
                     deactivate VAL
                 else
 
-                SRV -> REP: getClientRepository()
-                activate REP
-                REP --> SRV: clientRepository
-                deactivate REP
-
-                SRV -> clientRepository: getClientExists(clientID)
-                activate clientRepository
-                clientRepository --> SRV: true/false
-                deactivate clientRepository
-
-                alt true
-
-                    SRV -> EXC: throw clientAlreadyExists(clientID)
-                    activate EXC
-                    EXC --> SRV: Exception Thrown
-                    deactivate EXC
-                    SRV --> CTRL: show error message (Client already registered)
-
-                    CTRL --> UI: show error message (Client already registered)
-                else
-
                     SRV -> REP: getAddressRepository()
                     activate REP
                     REP --> SRV: addressRepository
@@ -120,9 +133,36 @@ activate ADM
                         deactivate addressRepository
                     end
 
-                    SRV -> CLIENT** : create(clientID, name, vatin, address, phoneNumber, email, type)
+                    SRV -> CLIENT: setAddress(address)
+                    activate CLIENT
+                    CLIENT --> SRV :
+                    deactivate CLIENT
+                    SRV -> CLIENT: setName(name)
+                    activate CLIENT
+                    CLIENT --> SRV :
+                    deactivate CLIENT
+                    SRV -> CLIENT: setVatin(vatin)
+                    activate CLIENT
+                    CLIENT --> SRV :
+                    deactivate CLIENT
+                    SRV -> CLIENT: setPhoneNumber(phoneNumber)
+                    activate CLIENT
+                    CLIENT --> SRV :
+                    deactivate CLIENT
+                    SRV -> CLIENT: setEmail(email)
+                    activate CLIENT
+                    CLIENT --> SRV :
+                    deactivate CLIENT
+                    SRV -> CLIENT: setType(type)
+                    activate CLIENT
+                    CLIENT --> SRV :
+                    deactivate CLIENT
 
-                    SRV -> clientRepository: save(client)
+                    SRV -> REP: getClientRepository()
+                    activate REP
+                    REP --> SRV: clientRepository
+                    deactivate REP
+                    SRV -> clientRepository: update(client)
                     activate clientRepository
                     alt system error
                         clientRepository --> SRV: Database error
@@ -139,7 +179,7 @@ activate ADM
                         deactivate CTRL
                     end
                 end
-            end
+
     UI --> ADM: shows all data and displays operation success or error message
     deactivate UI
 

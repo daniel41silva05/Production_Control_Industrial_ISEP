@@ -32,9 +32,9 @@ package "Repository" {
     }
 
     class ClientRepository {
-        +getAll(connection) : List<Client>
-        +getById(connection, clientID) : boolean
-        +delete(connection, client) : boolean
+        +getAll() : List<Client>
+        +getById(clientID) : boolean
+        +delete(client) : boolean
     }
 }
 
