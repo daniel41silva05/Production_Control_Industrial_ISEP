@@ -122,7 +122,7 @@
 ### Class ClientService 
 
 ```java
-    public Client registerClient(int clientID, String name, String vatin, String street, String zipCode, String town, String country, int phoneNumber, String email, CompanyType type) {
+public Client registerClient(int clientID, String name, String vatin, String street, String zipCode, String town, String country, int phoneNumber, String email, CompanyType type) {
     if (!Validator.isValidPhoneNumber(phoneNumber)) {
         throw ClientException.invalidPhoneNumber();
     }
