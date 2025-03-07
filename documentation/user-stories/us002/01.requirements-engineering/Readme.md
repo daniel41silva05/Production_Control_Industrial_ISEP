@@ -21,7 +21,7 @@ As an Administrator, I want to delete a client, so that outdated or incorrect cl
 
 ### 1.4. Found out Dependencies
 
-* There is a dependency on "US001 - Register a Client" as the client must be registered before he can be deleted.
+* There is a dependency on "US001 - Register a Client" as the client must be registered before it can be deleted.
 
 ### 1.5 Input and Output Data
 

@@ -30,7 +30,7 @@ public class ClientController {
         return clientService.deleteClient(clientID);
     }
 
-    public Client updateClient (Client newClient, String street, String zipCode, String town, String country, String name, String vatin, int phoneNumber, String email, CompanyType type) {
+    public Client updateClient (Client newClient, String name, String vatin, String street, String zipCode, String town, String country, int phoneNumber, String email, CompanyType type) {
         return clientService.updateClient(newClient, street, zipCode, town, country, name, vatin, phoneNumber, email, type);
     }
 

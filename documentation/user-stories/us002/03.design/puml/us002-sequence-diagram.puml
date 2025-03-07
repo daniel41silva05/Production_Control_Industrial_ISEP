@@ -73,10 +73,6 @@ activate ADM
                 activate clientRepository
                 clientRepository --> SRV: client
                 deactivate clientRepository
-
-                SRV --> SRV: client
-                deactivate SRV
-
                 alt client == null
 
                     SRV -> EXC: throw clientNotFound(clientID)
@@ -87,6 +83,8 @@ activate ADM
 
                     CTRL --> UI: show error message (Client does not exist)
                 else
+                SRV --> SRV: client
+                deactivate SRV
 
                     SRV -> clientRepository: delete(client)
                     activate clientRepository
