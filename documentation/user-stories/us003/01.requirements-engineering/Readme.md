@@ -16,12 +16,13 @@ As an Administrator, I want to update client data, so that their information rem
 
 ### 1.3. Acceptance Criteria
 
-* **AC01:** Client ID cannot be modified.
-* **AC02:** Administrator must be able to update Name, Address, Contact Info (Phone Number and Email), VATIN, and Company Type.
-* **AC03:** Phone number must contain exactly 9 digits.
-* **AC04:** Email must contain a prefix before the "@" symbol and a domain after it.
-* **AC05:** Address must include a street, zip code (in the format "xxxx-xxx"), town, and country.
-* **AC06:** Company type must be selected from a predefined list (Individual or Company).
+* **AC01:** The system must ensure that the client ID is valid before attempting to update it.
+* **AC02:** Client ID cannot be modified.
+* **AC03:** Administrator must be able to update Name, Address, Contact Info (Phone Number and Email), VATIN, and Company Type.
+* **AC04:** Phone number must contain exactly 9 digits.
+* **AC05:** Email must contain a prefix before the "@" symbol and a domain after it.
+* **AC06:** Address must include a street, zip code (in the format "xxxx-xxx"), town, and country.
+* **AC07:** Company type must be selected from a predefined list (Individual or Company).
 
 ### 1.4. Found out Dependencies
 

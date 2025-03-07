@@ -79,6 +79,10 @@ public class ClientService {
     }
 
     public Client updateClient (Client client, String name, String vatin, String street, String zipCode, String town, String country, int phoneNumber, String email, CompanyType type) {
+        if (client == null) {
+            return null;
+        }
+
         if (!Validator.isValidPhoneNumber(phoneNumber)) {
             throw ClientException.invalidPhoneNumber();
         }

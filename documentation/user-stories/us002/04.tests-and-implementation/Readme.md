@@ -2,7 +2,7 @@
 
 ## 4. Tests 
 
-**Test 1:** Check if the client is being deleted correctly and removed from the repository - AC01.
+**Test 1:** Check if the client is being deleted correctly and removed from the repository - AC02.
 
     @Test
     public void testDeleteClient_Success() {
@@ -20,7 +20,7 @@
     }
 	
 
-**Test 2:** Check that it's not possible to delete a client that doesn't exist - AC02.
+**Test 2:** Check that it's not possible to delete a client that doesn't exist - AC01.
 
     @Test
     public void testDeleteClient_ClientNotFound() {
@@ -40,9 +40,6 @@
 ```java
 public Client deleteClient (int id) {
     Client client = getClientByID(id);
-    if (client == null) {
-        throw ClientException.clientNotFound(id);
-    }
 
     clientRepository.delete(connection, client);
 
@@ -51,7 +48,13 @@ public Client deleteClient (int id) {
 ```
 ```java
 public Client getClientByID(int id) {
-    return clientRepository.getById(connection, id);
+    Client client = clientRepository.getById(connection, id);
+
+    if (client == null) {
+        throw ClientException.clientNotFound(id);
+    }
+
+    return client;
 }
 ```
 
