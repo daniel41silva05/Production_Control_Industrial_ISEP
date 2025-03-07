@@ -34,20 +34,20 @@ public class ClientService {
     }
 
     public Client registerClient(int clientID, String name, String vatin, String street, String zipCode, String town, String country, int phoneNumber, String email, CompanyType type) {
-        if (clientRepository.getClientExists(connection, clientID)) {
-            throw ClientException.clientAlreadyExists(clientID);
-        }
-
         if (!Validator.isValidPhoneNumber(phoneNumber)) {
             throw ClientException.invalidPhoneNumber();
+        }
+
+        if (!Validator.isValidEmail(email)) {
+            throw ClientException.invalidEmailFormat();
         }
 
         if (!Validator.isValidZipCode(zipCode)) {
             throw ClientException.invalidZipCode();
         }
 
-        if (!Validator.isValidEmail(email)) {
-            throw ClientException.invalidEmailFormat();
+        if (clientRepository.getClientExists(connection, clientID)) {
+            throw ClientException.clientAlreadyExists(clientID);
         }
 
         Address address = addressRepository.findAddress(connection, street, zipCode, town, country);

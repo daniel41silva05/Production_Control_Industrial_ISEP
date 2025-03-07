@@ -71,6 +71,26 @@ package "Model" {
     }
 }
 
+package "Exception" {
+    class ClientException {
+        +clientAlreadyExists(clientID) : ClientException
+        +invalidPhoneNumber() : ClientException
+        +invalidZipCode() : ClientException
+        +invalidEmailFormat() : ClientException
+    }
+
+    class RuntimeException
+}
+
+package "Commom" {
+    class Validator {
+        +isValidPhoneNumber(phoneNumber) : boolean
+        +isValidZipCode(zipCode) : boolean
+        +isValidEmail(email) : boolean
+    }
+}
+
+
 RegisterClientUI ..> ClientController
 ClientController ..> ClientService
 ClientService ..> Repositories : repositories
@@ -85,5 +105,8 @@ ClientRepository "1" --> "*" Client : categories
 AddressRepository "1" --> "*" Address : categories
 Client "*" --> "1" Address : has
 Client "*" --> "1" CompanyType : has
+ClientService ..> ClientException : throws
+ClientException --|> RuntimeException
+ClientService ..> Validator : uses
 
 @enduml

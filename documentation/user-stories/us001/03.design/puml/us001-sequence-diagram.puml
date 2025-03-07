@@ -11,12 +11,14 @@ actor "Administrator" as ADM
 participant ":RegisterClientUI" as UI
 participant ":ClientController" as CTRL
 participant ":ClientService" as SRV
-participant ":Repositories" as REPS
+participant "ClientException" as EXC
+participant "Repositories" as REPS
 participant "repositories\n:Repositories" as REP
 participant "clientRepository:\nClientRepository" as clientRepository
 participant "addressRepository:\nAddressRepository" as addressRepository
 participant "client:\nClient" as CLIENT
 participant "address:\nAddress" as ADDRESS
+participant "Validator" as VAL
 
 title Register Client Sequence
 
@@ -62,6 +64,25 @@ activate ADM
         activate CTRL
             CTRL -> SRV: registerClient(clientID, name, vatin, street, zipCode, town, country, phoneNumber, email, type)
             activate SRV
+
+                SRV -> VAL: isValidData(phoneNumber, email, zipCode)
+                activate VAL
+                alt data invalid
+                    VAL --> SRV: false
+
+                    SRV -> EXC: throw invalidData()
+                    activate EXC
+                    EXC --> SRV: Exception Thrown
+                    deactivate EXC
+                    SRV --> CTRL: show error message (Invalid data)
+
+                    CTRL --> UI: show error message (Invalid data)
+                    deactivate VAL
+                else
+                    VAL --> SRV: true
+                    deactivate VAL
+                end
+
                 SRV -> REP: getClientRepository()
                 activate REP
                 REP --> SRV: clientRepository
@@ -71,20 +92,25 @@ activate ADM
                 activate clientRepository
                 alt client exists
                     clientRepository --> SRV: true
+
+                    SRV -> EXC: throw clientAlreadyExists(clientID)
+                    activate EXC
+                    EXC --> SRV: Exception Thrown
+                    deactivate EXC
                     SRV --> CTRL: show error message (Client already registered)
-                    deactivate SRV
+
                     CTRL --> UI: show error message (Client already registered)
-                    deactivate CTRL
                 else
                     clientRepository --> SRV: false
                     deactivate clientRepository
+                end
 
                     SRV -> REP: getAddressRepository()
                     activate REP
                     REP --> SRV: addressRepository
                     deactivate REP
 
-                    SRV -> addressRepository: findAddress(street, zipCode, town, country)
+                    SRV -> addressRepository: findAddress(address)
                     activate addressRepository
                     alt address exists
                         addressRepository --> SRV: address
@@ -92,7 +118,7 @@ activate ADM
                         addressRepository --> SRV: null
                         deactivate addressRepository
 
-                        SRV -> ADDRESS** : create(street, zipCode, town, country)
+                        SRV -> ADDRESS** : create(address)
                         SRV -> addressRepository: save(address)
                         activate addressRepository
                         addressRepository --> SRV: address
@@ -107,9 +133,8 @@ activate ADM
                         clientRepository --> SRV: Database error
 
                         SRV --> CTRL: show error message (Database error)
-                        deactivate SRV
+
                         CTRL --> UI: show error message (Database error)
-                        deactivate CTRL
                     else
                         clientRepository --> SRV: client
                         deactivate clientRepository
@@ -118,7 +143,7 @@ activate ADM
                         CTRL --> UI: client
                         deactivate CTRL
                     end
-                end
+
     UI --> ADM: shows all data and displays operation success or error message
     deactivate UI
 
