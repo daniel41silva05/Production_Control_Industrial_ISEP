@@ -25,7 +25,6 @@ As an Administrator, I want to register a client, so that they can place orders 
 * **AC05:** Email must contain a prefix before the "@" symbol and a domain after it.
 * **AC06:** Address must include a street, zip code (in the format "xxxx-xxx"), town, and country.
 * **AC07:** Company type must be selected from a predefined list (Individual or Company).
-* **AC08:** System should ensure only authorized administrators can register clients.
 
 ### 1.4. Found out Dependencies
 
@@ -51,8 +50,9 @@ As an Administrator, I want to register a client, so that they can place orders 
 
 **Output Data:**
 
-* All data of the new registered collaborator
+* List of clients
 * (In)Success of the operation
+* All data of the new registered client
 
 ### 1.6. System Sequence Diagram (SSD)
 

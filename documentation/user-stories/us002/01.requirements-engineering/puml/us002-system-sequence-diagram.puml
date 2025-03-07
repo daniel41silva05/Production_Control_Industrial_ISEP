@@ -1,0 +1,45 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title System Sequence Diagram (SSD)
+
+autonumber
+
+actor "Administrator" as ADM
+participant ":System" as System
+
+activate ADM
+
+    ADM -> System : asks to delete a client
+    activate System
+
+        System --> ADM : shows the list of clients and requests confirmation
+    deactivate System
+
+    ADM -> System : confirms that he wants to delete a client
+    activate System
+
+        System --> ADM : requests ID
+    deactivate System
+
+    ADM -> System : provides requested ID
+    activate System
+
+            System -> System : checks if client already exists
+            alt client does not exist
+                System --> ADM : shows error message (Client does not exist)
+                deactivate System
+            else client exists
+                System -> System : delete client
+                alt system error
+                    System --> ADM : shows error message (Database error)
+                    deactivate System
+                else success
+                    System --> ADM : shows all data of client and displays operation success
+                    deactivate System
+                end
+
+        end
+@enduml

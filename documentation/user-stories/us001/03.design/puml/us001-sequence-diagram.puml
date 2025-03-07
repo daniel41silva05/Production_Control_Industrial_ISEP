@@ -67,8 +67,10 @@ activate ADM
 
                 SRV -> VAL: isValidData(phoneNumber, email, zipCode)
                 activate VAL
-                alt data invalid
-                    VAL --> SRV: false
+                VAL --> SRV: true/false
+                deactivate VAL
+
+                alt false
 
                     SRV -> EXC: throw invalidData()
                     activate EXC
@@ -79,9 +81,6 @@ activate ADM
                     CTRL --> UI: show error message (Invalid data)
                     deactivate VAL
                 else
-                    VAL --> SRV: true
-                    deactivate VAL
-                end
 
                 SRV -> REP: getClientRepository()
                 activate REP
@@ -90,8 +89,10 @@ activate ADM
 
                 SRV -> clientRepository: getClientExists(clientID)
                 activate clientRepository
-                alt client exists
-                    clientRepository --> SRV: true
+                clientRepository --> SRV: true/false
+                deactivate clientRepository
+
+                alt true
 
                     SRV -> EXC: throw clientAlreadyExists(clientID)
                     activate EXC
@@ -101,9 +102,6 @@ activate ADM
 
                     CTRL --> UI: show error message (Client already registered)
                 else
-                    clientRepository --> SRV: false
-                    deactivate clientRepository
-                end
 
                     SRV -> REP: getAddressRepository()
                     activate REP
@@ -112,12 +110,9 @@ activate ADM
 
                     SRV -> addressRepository: findAddress(address)
                     activate addressRepository
-                    alt address exists
-                        addressRepository --> SRV: address
-                    else
-                        addressRepository --> SRV: null
-                        deactivate addressRepository
-
+                    addressRepository --> SRV: address
+                    deactivate addressRepository
+                    alt address == null
                         SRV -> ADDRESS** : create(address)
                         SRV -> addressRepository: save(address)
                         activate addressRepository
@@ -143,7 +138,8 @@ activate ADM
                         CTRL --> UI: client
                         deactivate CTRL
                     end
-
+                end
+            end
     UI --> ADM: shows all data and displays operation success or error message
     deactivate UI
 

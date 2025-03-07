@@ -1,4 +1,4 @@
-# US001 - Register a Client
+# US002 - Delete a Client
 
 ## 4. Tests 
 

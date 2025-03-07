@@ -1,0 +1,112 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title System Sequence Diagram (SSD)
+
+autonumber
+
+actor "Administrator" as ADM
+participant ":DeleteClientUI" as UI
+participant ":ClientController" as CTRL
+participant ":ClientService" as SRV
+participant "ClientException" as EXC
+participant "Repositories" as REPS
+participant "repositories\n:Repositories" as REP
+participant "clientRepository:\nClientRepository" as clientRepository
+
+title Delete Client Sequence
+
+activate ADM
+    ADM -> UI : asks to delete a client
+    activate UI
+
+        UI -> CTRL** : create
+
+        UI -> CTRL : getAllClients()
+        activate CTRL
+            CTRL -> SRV : getClients()
+            activate SRV
+
+                SRV -> REPS : getInstance()
+                activate REPS
+                REPS --> SRV: repositories
+                deactivate REPS
+                SRV -> REP : getClientRepository()
+                activate REP
+                REP --> SRV : clientRepository
+                deactivate REP
+
+                SRV -> clientRepository : getAll()
+                activate clientRepository
+                clientRepository --> SRV : clients
+                deactivate clientRepository
+            SRV --> CTRL : clients
+            deactivate SRV
+        CTRL --> UI : clients
+        deactivate CTRL
+    UI --> ADM : shows the list of clients and requests confirmation
+    deactivate UI
+
+    ADM -> UI : confirms that he wants to delete a client
+    activate UI
+        UI --> ADM : requests ID
+    deactivate UI
+
+    ADM -> UI : provides requested ID
+    activate UI
+        UI -> CTRL: deleteClient(clientID)
+        activate CTRL
+            CTRL -> SRV: deleteClient(clientID)
+            activate SRV
+
+                SRV -> SRV: getClientByID(clientID))
+                activate SRV
+
+                SRV -> REP: getClientRepository()
+                activate REP
+                REP --> SRV: clientRepository
+                deactivate REP
+
+                SRV -> clientRepository: getById(clientID)
+                activate clientRepository
+                clientRepository --> SRV: client
+                deactivate clientRepository
+
+                SRV --> SRV: client
+                deactivate SRV
+
+                alt client == null
+
+                    SRV -> EXC: throw clientNotFound(clientID)
+                    activate EXC
+                    EXC --> SRV: Exception Thrown
+                    deactivate EXC
+                    SRV --> CTRL: show error message (Client does not exist)
+
+                    CTRL --> UI: show error message (Client does not exist)
+                else
+
+                    SRV -> clientRepository: delete(client)
+                    activate clientRepository
+                    alt system error
+                        clientRepository --> SRV: Database error
+
+                        SRV --> CTRL: show error message (Database error)
+
+                        CTRL --> UI: show error message (Database error)
+                    else
+                        clientRepository --> SRV: client
+                        deactivate clientRepository
+                        SRV --> CTRL: client
+                        deactivate SRV
+                        CTRL --> UI: client
+                        deactivate CTRL
+                    end
+                end
+    UI --> ADM: shows all data of client and displays operation success
+    deactivate UI
+
+deactivate ADM
+@enduml
