@@ -1,8 +1,44 @@
-# US004 - Consult Client Status
+package org.project.service;
 
-## 4. Tests 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.project.data.DatabaseConnection;
+import org.project.model.*;
+import org.project.repository.ClientRepository;
 
-**Test 1:** Check if the client with the inactive status but containing active orders has its status changed - AC03.
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+public class UpdateClientStatusTest {
+
+    private ClientService clientService;
+
+    @Mock
+    private DatabaseConnection connection;
+
+    @Mock
+    private ClientRepository clientRepository;
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this);
+
+        clientService = new ClientService();
+        injectMock(clientService, "connection", connection);
+        injectMock(clientService, "clientRepository", clientRepository);
+    }
+
+    private void injectMock(Object target, String fieldName, Object mock) throws Exception {
+        var field = target.getClass().getDeclaredField(fieldName);
+        field.setAccessible(true);
+        field.set(target, mock);
+    }
 
     @Test
     public void testUpdateClientStatus_ActivateClient() {
@@ -21,8 +57,6 @@
         assertEquals(EntityState.ACTIVE, client.getState());
         verify(clientRepository, times(1)).updateStatus(eq(connection), eq(client));
     }
-
-**Test 2:** Check if the client with the activated status but without active orders has its status changed - AC03.
 
     @Test
     public void testUpdateClientStatus_DeactivateClient() {
@@ -43,8 +77,6 @@
         verify(clientRepository, times(1)).updateStatus(eq(connection), eq(client));
     }
 
-**Test 3:** Check if the client without orders has the inactive status.
-
     @Test
     public void testUpdateClientStatus_NoOrders() {
         Address address = new Address(1, "Main St", "1111-111", "Springfield", "USA");
@@ -60,8 +92,6 @@
         assertEquals(EntityState.INACTIVE, client.getState());
         verify(clientRepository, never()).updateStatus(eq(connection), eq(client));
     }
-
-**Test 4:** Check if the client with the active status and containing active orders has not had its status changed - AC03.
 
     @Test
     public void testUpdateClientStatus_ClientAlreadyActiveWithActiveOrders() {
@@ -82,8 +112,6 @@
         verify(clientRepository, never()).updateStatus(eq(connection), eq(client));
     }
 
-**Test 5:** Check if the customer with inactive status and does not contain active orders has not had its status changed - AC03.
-
     @Test
     public void testUpdateClientStatus_ClientAlreadyInactiveWithNoActiveOrders() {
         Address address = new Address(1, "Main St", "1111-111", "Springfield", "USA");
@@ -103,43 +131,4 @@
         verify(clientRepository, never()).updateStatus(eq(connection), eq(client));
     }
 
-## 5. Construction (Implementation)
-
-### Class ClientService 
-
-```java
-public List<Client> updateClientStatus () {
-    List<Client> clients = getClients();
-
-    for (Client client : clients) {
-
-        boolean containsActiveOrders = false;
-        for (Order order : client.getOrders()) {
-            if (order.getDeliveryDate().after(new Date())) {
-                containsActiveOrders = true;
-                break;
-            }
-        }
-
-        if (client.getState().equals(EntityState.INACTIVE) && containsActiveOrders) {
-            client.setState(EntityState.ACTIVE);
-            clientRepository.updateStatus(connection, client);
-
-        } else if (client.getState().equals(EntityState.ACTIVE) && !containsActiveOrders) {
-            client.setState(EntityState.INACTIVE);
-            clientRepository.updateStatus(connection, client);
-        }
-    }
-
-    return clients;
 }
-```
-```java
-public List<Client> getClients() {
-    return clientRepository.getAll(connection);
-}
-```
-
-## 6. Observations
-
-n/a
