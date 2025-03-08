@@ -11,16 +11,14 @@ package "UI" {
 
 package "Controller" {
     class ClientController {
-        +getAllClients() : List<Client>
-        +deleteClient(clientID) : Client
+        +updateClientStatus() : List<Client>
     }
 }
 
 package "Service" {
     class ClientService {
         +getClients() : List<Client>
-        -getClientByID((clientID) : Client
-        +deleteClient(clientID) : Client
+        +updateClientStatus() : List<Client>
     }
 }
 
@@ -33,9 +31,9 @@ package "Repository" {
 
     class ClientRepository {
         +getAll() : List<Client>
-        +getById(clientID) : boolean
-        +delete(client) : boolean
+        +updateStatus(client) : boolean
     }
+
 }
 
 package "Model" {
@@ -51,14 +49,23 @@ package "Model" {
         -orders : List<Order>
         +Client(clientID, name, address, vatin, phoneNumber, email, type)
     }
-}
 
-package "Exception" {
-    class ClientException {
-        +clientNotFound(clientID) : ClientException
+    class Order {
+        -orderID : int
+        -deliveryAddress : Address
+        -orderDate : Date
+        -deliveryDate : Date
+        -price : double
+        -state : ProcessState
+        -productQuantity : Map<Product, Integer>
+        +Order(orderID, deliveryAddress, orderID, deliveryDate, price, productQuantity)
     }
 
-    class RuntimeException
+    enum EntityState {
+        ACTIVE
+        INACTIVE
+    }
+
 }
 
 
@@ -70,7 +77,7 @@ ClientService ..> Client : client
 Repositories --> Repositories : instance
 Repositories "1" --> "1" ClientRepository : clientRepository
 ClientRepository "1" --> "*" Client : categories
-ClientService ..> ClientException : throws
-ClientException --|> RuntimeException
+Client "1" --> "*" Order : has
+Client "*" --> "1" EntityState : has
 
 @enduml

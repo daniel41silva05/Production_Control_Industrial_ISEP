@@ -33,8 +33,13 @@ enum CompanyType {
     type
 }
 
+enum EntityState {
+    state
+}
+
 Administrator "1" -- "1..*" Client : register >
 Client "*" -- "1" Address : has >
 Client "*" -- "1" CompanyType : has >
+Client "*" -- "1" EntityState : has >
 
 @enduml

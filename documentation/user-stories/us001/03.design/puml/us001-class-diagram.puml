@@ -53,6 +53,8 @@ package "Model" {
         -phoneNumber : int
         -email : String
         -type : CompanyType
+        -state : EntityState
+        -orders : List<Order>
         +Client(clientID, name, address, vatin, phoneNumber, email, type)
     }
 
@@ -68,6 +70,11 @@ package "Model" {
     enum CompanyType {
         INDIVIDUAL
         COMPANY
+    }
+
+    enum EntityState {
+        ACTIVE
+        INACTIVE
     }
 }
 
@@ -105,6 +112,7 @@ ClientRepository "1" --> "*" Client : categories
 AddressRepository "1" --> "*" Address : categories
 Client "*" --> "1" Address : has
 Client "*" --> "1" CompanyType : has
+Client "*" --> "1" EntityState : has
 ClientService ..> ClientException : throws
 ClientException --|> RuntimeException
 ClientService ..> Validator : uses

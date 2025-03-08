@@ -55,6 +55,8 @@ package "Model" {
         -phoneNumber : int
         -email : String
         -type : CompanyType
+        -state : EntityState
+        -orders : List<Order>
         +Client(clientID, name, address, vatin, phoneNumber, email, type)
     }
 

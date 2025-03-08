@@ -1,0 +1,98 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title System Sequence Diagram (SSD)
+
+autonumber
+
+actor "Administrator" as ADM
+participant ":RegisterClientUI" as UI
+participant ":ClientController" as CTRL
+participant ":ClientService" as SRV
+participant "Repositories" as REPS
+participant "repositories\n:Repositories" as REP
+participant "clientRepository:\nClientRepository" as clientRepository
+participant "client:\nClient" as CLIENT
+
+title Register Client Sequence
+
+activate ADM
+    ADM -> UI : asks to update a client
+    activate UI
+
+        UI -> CTRL** : create
+
+        UI -> CTRL : updateClientStatus()
+        activate CTRL
+            CTRL -> SRV : updateClientStatus()
+            activate SRV
+
+                SRV -> SRV: getClients())
+                activate SRV
+
+                SRV -> REPS : getInstance()
+                activate REPS
+                REPS --> SRV: repositories
+                deactivate REPS
+                SRV -> REP : getClientRepository()
+                activate REP
+                REP --> SRV : clientRepository
+                deactivate REP
+
+                SRV -> clientRepository : getAll()
+                activate clientRepository
+        alt system error
+                        clientRepository --> SRV: Database error
+
+                        SRV --> CTRL: show error message (Database error)
+
+                        CTRL --> UI: show error message (Database error)
+        else
+                        clientRepository --> SRV: clients
+                        deactivate clientRepository
+            SRV --> SRV: clients
+            deactivate SRV
+
+            loop For each client in clients
+
+            SRV -> CLIENT : getOrders()
+            activate CLIENT
+
+            CLIENT --> SRV : orders
+            deactivate CLIENT
+
+            alt client inactive with active orders
+                SRV -> CLIENT : setState(ACTIVE)
+                activate CLIENT
+                CLIENT --> SRV :
+                deactivate CLIENT
+                SRV -> clientRepository : updateStatus()
+                activate clientRepository
+                clientRepository --> SRV :
+                deactivate clientRepository
+            else client active without active orders
+                SRV -> CLIENT : setState(INACTIVE)
+                activate CLIENT
+                CLIENT --> SRV :
+                deactivate CLIENT
+                SRV -> clientRepository : updateStatus()
+                activate clientRepository
+                clientRepository --> SRV :
+                deactivate clientRepository
+            end alt
+            end loop
+
+            SRV --> CTRL : clients
+            deactivate SRV
+
+        CTRL --> UI : clients
+        deactivate CTRL
+
+        end
+    UI --> ADM : shows the list of clients including status or error message
+    deactivate UI
+
+deactivate ADM
+@enduml

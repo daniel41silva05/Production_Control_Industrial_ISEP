@@ -8,7 +8,7 @@ skinparam classAttributeIconSize 0
 hide circle
 hide methods
 
-title Domain Model - US001
+title Domain Model - US003
 
 class Administrator {
 }
@@ -33,8 +33,13 @@ enum CompanyType {
     type
 }
 
+enum EntityState {
+    state
+}
+
 Administrator "1" -- "1..*" Client : update >
 Client "*" -- "1" Address : has >
 Client "*" -- "1" CompanyType : has >
+Client "*" -- "1" EntityState : has >
 
 @enduml
