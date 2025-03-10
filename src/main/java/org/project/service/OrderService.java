@@ -3,7 +3,6 @@ package org.project.service;
 import org.project.common.Validator;
 import org.project.data.ConnectionFactory;
 import org.project.data.DatabaseConnection;
-import org.project.exceptions.DatabaseException;
 import org.project.model.*;
 import org.project.exceptions.OrderException;
 import org.project.repository.*;
@@ -23,12 +22,14 @@ public class OrderService {
         addressRepository = repositories.getAddressRepository();
     }
 
-    public Order getOrderByID (int orderID) throws OrderException {
-        if (!orderRepository.getOrderExists(connection, orderID)) {
-            throw new OrderException("Order with ID " + orderID + " not exists.");
+    public Order getOrderByID (int orderID) {
+        Order order = orderRepository.getByID(connection, orderID);
+
+        if (order == null) {
+            throw OrderException.orderNotFound(orderID);
         }
 
-        return orderRepository.getByID(connection, orderID);
+        return order;
     }
 
     public Order registerOrder(Client client, int orderID, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date orderDate, Date deliveryDate, int price, Map<Product, Integer> productQuantity) {
@@ -78,24 +79,29 @@ public class OrderService {
         return (int) result;
     }
 
-    public Order deleteOrder (int id) throws OrderException {
+    public Order deleteOrder (int id) {
         Order order = getOrderByID(id);
 
-        boolean success = orderRepository.delete(connection, order);
-        if (!success) {
-            return null;
-        }
+        orderRepository.delete(connection, order);
 
         return order;
     }
 
-    public Order updateOrder (Order order, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date orderDate, Date deliveryDate, double price) throws OrderException, DatabaseException {
+    public Order updateOrder (Order order, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date orderDate, Date deliveryDate, double price) {
         if (deliveryDate.before(orderDate)) {
-            throw new OrderException("Delivery date cannot be before Order date.");
+            throw OrderException.invalidDeliveryDate();
+        }
+
+        if (order == null) {
+            return null;
         }
 
         Address address = order.getDeliveryAddress();
         if (!address.getStreet().equals(deliveryStreet) || !address.getZipCode().equals(deliveryZipCode) || !address.getTown().equals(deliveryTown) || !address.getCountry().equals(deliveryCountry)) {
+            if (!Validator.isValidZipCode(deliveryZipCode)) {
+                throw OrderException.invalidZipCode();
+            }
+
             address = addressRepository.findAddress(connection, deliveryStreet, deliveryZipCode, deliveryTown, deliveryCountry);
             if (address == null) {
                 int id = addressRepository.getAddressCount(connection);
@@ -109,10 +115,7 @@ public class OrderService {
         order.setDeliveryDate(deliveryDate);
         order.setPrice(price);
 
-        boolean success = orderRepository.update(connection, order);
-        if (!success) {
-            return null;
-        }
+        orderRepository.update(connection, order);
 
         return order;
     }
@@ -138,10 +141,7 @@ public class OrderService {
 
         order.setState(ProcessState.CONFIRMED);
 
-        boolean success = orderRepository.updateState(connection, order);
-        if (!success) {
-            return null;
-        }
+        orderRepository.updateState(connection, order);
 
         return order;
     }

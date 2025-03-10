@@ -1,6 +1,7 @@
 package org.project.repository;
 
 import org.project.data.DatabaseConnection;
+import org.project.exceptions.DatabaseException;
 import org.project.model.*;
 
 import java.sql.*;
@@ -45,15 +46,13 @@ public class ProductRepository {
                 }
 
                 conn.rollback();
-                return false;
+                throw DatabaseException.databaseError();
             } catch (SQLException e) {
                 conn.rollback();
-                e.printStackTrace();
-                return false;
+                throw DatabaseException.databaseError();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            throw DatabaseException.databaseError();
         }
     }
 
@@ -92,7 +91,7 @@ public class ProductRepository {
                 products.add(product);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw DatabaseException.databaseError();
         }
         return products;
     }
@@ -133,7 +132,7 @@ public class ProductRepository {
 
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw DatabaseException.databaseError();
         }
         return product;
     }
@@ -151,7 +150,7 @@ public class ProductRepository {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw DatabaseException.databaseError();
         }
 
         return count > 0;
@@ -170,7 +169,7 @@ public class ProductRepository {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw DatabaseException.databaseError();
         }
 
         return count > 0;
@@ -186,8 +185,7 @@ public class ProductRepository {
             int rowsUpdated = statement.executeUpdate();
             return rowsUpdated > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            throw DatabaseException.databaseError();
         }
     }
 

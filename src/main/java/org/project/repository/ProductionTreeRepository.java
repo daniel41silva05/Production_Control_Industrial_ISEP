@@ -1,6 +1,7 @@
 package org.project.repository;
 
 import org.project.data.DatabaseConnection;
+import org.project.exceptions.DatabaseException;
 import org.project.model.*;
 
 import java.sql.*;
@@ -47,15 +48,13 @@ public class ProductionTreeRepository {
                 }
 
                 conn.rollback();
-                return false;
+                throw DatabaseException.databaseError();
             } catch (SQLException e) {
                 conn.rollback();
-                e.printStackTrace();
-                return false;
+                throw DatabaseException.databaseError();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            throw DatabaseException.databaseError();
         }
     }
 
@@ -165,7 +164,7 @@ public class ProductionTreeRepository {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw DatabaseException.databaseError();
         }
 
         return hierarchy;
@@ -184,7 +183,7 @@ public class ProductionTreeRepository {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw DatabaseException.databaseError();
         }
 
         return count > 0;

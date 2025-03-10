@@ -1,6 +1,8 @@
 package org.project.ui;
 
+import org.project.controller.ClientController;
 import org.project.controller.OrderController;
+import org.project.exceptions.DatabaseException;
 import org.project.model.Client;
 import org.project.model.Order;
 import org.project.exceptions.ClientException;
@@ -11,34 +13,22 @@ import java.util.List;
 
 public class CancelOrderUI implements Runnable {
 
-    private final OrderController controller;
+    private final OrderController orderController;
+    private final ClientController clientController;
 
     public CancelOrderUI() {
-        this.controller = new OrderController();
+        this.orderController = new OrderController();
+        this.clientController = new ClientController();
     }
 
     public void run() {
         try {
-            List<Client> clients = controller.getClients();
-            System.out.println("\nClients:");
-            if (clients.isEmpty()) {
-                System.out.println("No clients registered.");
-                return;
-            }
-            for (Client client : clients) {
-                System.out.println(" - Client ID: " + client.getId() + " | Name: " + client.getName() + " | VATIN: " + client.getVatin());
-            }
+            showClients(clientController.getAllClients());
 
             int clientID = Utils.readIntegerFromConsole("Enter Client ID: ");
-
-            Client client = controller.getClient(clientID);
-            if (client == null) {
-                System.out.println("\nClient acquisition failed.");
-                return;
-            }
+            Client client = clientController.getClientById(clientID);
 
             showOrdersClient(client);
-
             boolean delete = Utils.confirm("Do you want to cancel an order?");
             if (!delete) {
                 return;
@@ -46,27 +36,36 @@ public class CancelOrderUI implements Runnable {
 
             int orderID = Utils.readIntegerFromConsole("Enter Order ID: ");
 
-            Order order = controller.cancelOrder(orderID);
+            Order order = orderController.cancelOrder(orderID);
             if (order == null) {
                 System.out.println("\nFailed to cancel order.");
             } else {
                 System.out.println("\nOrder canceled successfully.");
             }
 
-        } catch (ClientException | OrderException e) {
+        } catch (ClientException | OrderException | DatabaseException e) {
             System.out.println("\nError: " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("\nFailed to cancel order.");
+        }
+    }
+
+    private void showClients(List<Client> clients) {
+        System.out.println("\nClients:");
+        if (clients.isEmpty()) {
+            System.out.println("No clients registered.");
+        } else {
+            for (Client client : clients) {
+                System.out.println(" - Client ID: " + client.getId() + " | Name: " + client.getName() + " | VATIN: " + client.getVatin());
+            }
         }
     }
 
     private void showOrdersClient (Client client) {
-        System.out.println(" - Client ID: " + client.getId() + " | Name: " + client.getName() + " | VATIN: " + client.getVatin());
+        System.out.println("\nClient ID: " + client.getId() + " | Name: " + client.getName() + " | VATIN: " + client.getVatin());
         List<Order> orders = client.getOrders();
         if (!orders.isEmpty()) {
-            System.out.println(" - Orders: ");
+            System.out.println("Orders: ");
             for (Order order : orders) {
-                System.out.println(" -- Order ID: " + order.getId());
+                System.out.println(" - Order ID: " + order.getId());
             }
         }
     }

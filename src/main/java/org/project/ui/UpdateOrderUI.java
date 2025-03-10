@@ -1,5 +1,6 @@
 package org.project.ui;
 
+import org.project.controller.ClientController;
 import org.project.controller.OrderController;
 import org.project.exceptions.DatabaseException;
 import org.project.model.Client;
@@ -13,35 +14,24 @@ import java.util.Date;
 import java.util.List;
 
 public class UpdateOrderUI implements Runnable {
-    private final OrderController controller;
+
+    private final OrderController orderController;
+    private final ClientController clientController;
 
     public UpdateOrderUI() {
-        this.controller = new OrderController();
+        this.orderController = new OrderController();
+        this.clientController = new ClientController();
     }
 
     public void run() {
         try {
-            List<Client> clients = controller.getClients();
-            System.out.println("\nClients:");
-            if (clients.isEmpty()) {
-                System.out.println("No clients registered.");
-                return;
-            }
-            for (Client client : clients) {
-                System.out.println(" - Client ID: " + client.getId() + " | Name: " + client.getName() + " | VATIN: " + client.getVatin());
-            }
+            showClients(clientController.getAllClients());
 
             int clientID = Utils.readIntegerFromConsole("Enter Client ID: ");
+            Client client = clientController.getClientById(clientID);
 
-            Client client = controller.getClient(clientID);
-            if (client == null) {
-                System.out.println("\nClient acquisition failed.");
-                return;
-            }
-
-            System.out.println("Client ID: " + client.getId() + " | Name: " + client.getName() + " | VATIN: " + client.getVatin());
-            List<Order> orders = client.getOrders();
-            for (Order order : orders) {
+            System.out.println("\nClient ID: " + client.getId() + " | Name: " + client.getName() + " | VATIN: " + client.getVatin());
+            for (Order order : client.getOrders()) {
                 showOrder(order);
             }
 
@@ -51,7 +41,7 @@ public class UpdateOrderUI implements Runnable {
             }
 
             int orderID = Utils.readIntegerFromConsole("Enter Order ID: ");
-            Order order = controller.getOrderByID(orderID);
+            Order order = orderController.getOrderByID(orderID);
 
             String street = order.getDeliveryAddress().getStreet();
             String zipCode = order.getDeliveryAddress().getZipCode();
@@ -89,15 +79,27 @@ public class UpdateOrderUI implements Runnable {
                 }
             }
 
-            Order newOrder = controller.updateOrder(order, street, zipCode, town, country, orderDate, deliveryDate, price);
+            Order newOrder = orderController.updateOrder(order, street, zipCode, town, country, orderDate, deliveryDate, price);
             if (newOrder != null) {
                 System.out.println("\nOrder updated successfully.");
                 showOrder(newOrder);
             } else {
                 System.out.println("\nOrder update failed.");
             }
+
         } catch (ClientException | OrderException | DatabaseException e) {
             System.out.println("\nError: " + e.getMessage());
+        }
+    }
+
+    private void showClients(List<Client> clients) {
+        System.out.println("\nClients:");
+        if (clients.isEmpty()) {
+            System.out.println("No clients registered.");
+        } else {
+            for (Client client : clients) {
+                System.out.println(" - Client ID: " + client.getId() + " | Name: " + client.getName() + " | VATIN: " + client.getVatin());
+            }
         }
     }
 
@@ -111,7 +113,7 @@ public class UpdateOrderUI implements Runnable {
         System.out.println(" - Delivery Zip Code: " + order.getDeliveryAddress().getZipCode());
         System.out.println(" - Delivery Town: " + order.getDeliveryAddress().getTown());
         System.out.println(" - Delivery Country: " + order.getDeliveryAddress().getCountry());
-        System.out.println(" - Price: " + order.getPrice());
+        System.out.println(" - Price: " + order.getPrice() + "$");
     }
 
 }

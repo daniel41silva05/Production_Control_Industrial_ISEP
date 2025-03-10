@@ -31,9 +31,9 @@ public class ProductionTreeService {
         operationRepository = repositories.getOperationRepository();
     }
 
-    public void addTree (String productID, HashMap<ProductionElementDTO, List<Integer>> elementNextOperationsDto) throws ProductException, OperationException {
+    public void createProductionTree (String productID, HashMap<ProductionElementDTO, List<Integer>> elementNextOperationsDto) throws ProductException, OperationException {
         if (!productRepository.getProductExists(connection, productID)) {
-            throw new ProductException("Product with ID " + productID + " does not exist.");
+            throw ProductException.productNotFound(productID);
         }
 
         HashMap<ProductionElement, List<Integer>> elementNextOperations = new HashMap<>();
@@ -85,10 +85,7 @@ public class ProductionTreeService {
 
         HashMap<ProductionElement, Integer> map = buildTree(productID, elementNextOperations);
 
-        boolean success = productionTreeRepository.saveProductionTree(connection, productID, map);
-        if (!success) {
-            throw new ProductException("Product with ID " + productID + " could not be saved.");
-        }
+        productionTreeRepository.saveProductionTree(connection, productID, map);
 
     }
 
@@ -125,15 +122,14 @@ public class ProductionTreeService {
         return null;
     }
 
-
-    public NaryTree<ProductionElement> getTree (String productID) throws ProductException {
+    public NaryTree<ProductionElement> getProductionTree (String productID) {
         if (!productRepository.getProductExists(connection, productID)) {
-            throw new ProductException("Product with ID " + productID + " does not exist.");
+            throw ProductException.productNotFound(productID);
         }
 
         LinkedHashMap<ProductionElement, Integer> elementParentOperationMap = productionTreeRepository.getProductionHierarchy(connection, productID);
 
-        LinkedHashMap<ProductionElement, List<Integer>> map = buildReverseTree(elementParentOperationMap);
+        LinkedHashMap<ProductionElement, List<Integer>> map = invertParentChildRelationships(elementParentOperationMap);
 
         ProductionElement elementRoot = null;
         for (ProductionElement element : map.keySet()) {
@@ -153,12 +149,12 @@ public class ProductionTreeService {
             }
         }
 
-        buildSubTree2(map, operationElementMap, tree.getRoot());
+        constructSubTree(map, operationElementMap, tree.getRoot());
 
         return tree;
     }
 
-    private void buildSubTree2(HashMap<ProductionElement, List<Integer>> map, Map<Integer, ProductionElement> operationElementMap, NaryTreeNode<ProductionElement> node) {
+    private void constructSubTree(HashMap<ProductionElement, List<Integer>> map, Map<Integer, ProductionElement> operationElementMap, NaryTreeNode<ProductionElement> node) {
         ProductionElement element = node.getElement();
         List<Integer> children = map.get(element);
 
@@ -166,12 +162,12 @@ public class ProductionTreeService {
             for (Integer childOperation : children) {
                 ProductionElement childElement = operationElementMap.get(childOperation);
                 NaryTreeNode<ProductionElement> childNode = node.addChild(childElement);
-                buildSubTree2(map, operationElementMap, childNode);
+                constructSubTree(map, operationElementMap, childNode);
             }
         }
     }
 
-    public LinkedHashMap<ProductionElement, List<Integer>> buildReverseTree(LinkedHashMap<ProductionElement, Integer> elementParentOperationMap) {
+    public LinkedHashMap<ProductionElement, List<Integer>> invertParentChildRelationships(LinkedHashMap<ProductionElement, Integer> elementParentOperationMap) {
         LinkedHashMap<ProductionElement, List<Integer>> elementNextOperations = new LinkedHashMap<>();
 
         for (Map.Entry<ProductionElement, Integer> entry : elementParentOperationMap.entrySet()) {
@@ -188,7 +184,7 @@ public class ProductionTreeService {
         return elementNextOperations;
     }
 
-    public void discountRawMaterialStock (Order order) throws ProductException {
+    public void discountRawMaterialStock (Order order) {
         if (order == null) {
             return;
         }
@@ -199,16 +195,16 @@ public class ProductionTreeService {
             int quantity = productEntry.getValue();
 
             if (!productionTreeRepository.getProductionTreeExists(connection, product.getId())) {
-                throw new ProductException("Product with ID " + product.getId() + " does not have any production tree in the system.");
+                throw ProductException.productionTreeNotFound(product.getId());
             }
-            NaryTree<ProductionElement> tree = getTree(product.getId());
+            NaryTree<ProductionElement> tree = getProductionTree(product.getId());
 
-            discountRecursive(tree.getRoot(), quantity);
+            applyStockDeduction(tree.getRoot(), quantity);
         }
 
     }
 
-    public void discountRecursive(NaryTreeNode<ProductionElement> node, int quantity) throws ProductException{
+    public void applyStockDeduction(NaryTreeNode<ProductionElement> node, int quantity) {
         if (node == null) {
             return;
         }
@@ -218,17 +214,14 @@ public class ProductionTreeService {
             int currentStock = ((RawMaterial) part).getCurrentStock();
             int newCurrentStock = (int) (currentStock - node.getElement().getQuantity() * quantity);
             if (newCurrentStock < 0) {
-                throw new ProductException("There is not enough stock of the raw material id: " + part.getId());
+                throw ProductException.notEnoughStock(part.getId());
             }
             ((RawMaterial) part).setCurrentStock(newCurrentStock);
-            boolean success = rawMaterialRepository.updateRawMaterial(connection, (RawMaterial) part);
-            if (!success) {
-                throw new ProductException("Unable to update stock.");
-            }
+            rawMaterialRepository.updateRawMaterial(connection, (RawMaterial) part);
         }
 
         for (NaryTreeNode<ProductionElement> child : node.getChildren()) {
-            discountRecursive(child, quantity);
+            applyStockDeduction(child, quantity);
         }
     }
 

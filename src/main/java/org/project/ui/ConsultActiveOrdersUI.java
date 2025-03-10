@@ -1,6 +1,7 @@
 package org.project.ui;
 
 import org.project.controller.OrderController;
+import org.project.exceptions.DatabaseException;
 import org.project.model.Order;
 import org.project.model.Product;
 
@@ -30,8 +31,8 @@ public class ConsultActiveOrdersUI implements Runnable {
                 }
             }
 
-        } catch (Exception e) {
-            System.out.println("\nConsult Order failed.");
+        } catch (DatabaseException e) {
+            System.out.println("\nError: " + e.getMessage());
         }
     }
 

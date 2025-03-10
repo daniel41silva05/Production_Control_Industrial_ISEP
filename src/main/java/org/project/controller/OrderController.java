@@ -3,7 +3,6 @@ package org.project.controller;
 import org.project.model.Client;
 import org.project.model.Order;
 import org.project.model.Product;
-import org.project.service.ClientService;
 import org.project.service.OrderService;
 import org.project.service.ProductService;
 import org.project.service.ProductionTreeService;
@@ -16,23 +15,13 @@ import java.util.Map;
 public class OrderController {
 
     private OrderService orderService;
-    private ClientService clientService;
     private ProductService productService;
     private ProductionTreeService productionTreeService;
 
     public OrderController() {
         this.orderService = new OrderService();
-        this.clientService = new ClientService();
         this.productService = new ProductService();
         this.productionTreeService = new ProductionTreeService();
-    }
-
-    public List<Client> getClients() {
-        return clientService.getClients();
-    }
-
-    public Client getClient(int id) {
-        return clientService.getClientByID(id);
     }
 
     public Order getOrderByID (int orderID) {
