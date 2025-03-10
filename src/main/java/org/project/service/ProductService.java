@@ -41,6 +41,16 @@ public class ProductService {
         return productRepository.getAllProducts(connection);
     }
 
+    public Product getProductByID(String id) {
+        Product product = productRepository.getProductByID(connection, id);
+
+        if (product == null) {
+            throw ProductException.productNotFound(id);
+        }
+
+        return product;
+    }
+
     public ProductCategory registerCategory(int id, String name) throws ProductException {
         if (productCategoryRepository.getCategoryExists(connection, id)) {
             throw new ProductException("Product Category with ID " + id + " already exists.");

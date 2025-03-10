@@ -1,12 +1,11 @@
 package org.project.service;
 
+import org.project.common.Validator;
 import org.project.data.ConnectionFactory;
 import org.project.data.DatabaseConnection;
 import org.project.exceptions.DatabaseException;
 import org.project.model.*;
-import org.project.exceptions.ClientException;
 import org.project.exceptions.OrderException;
-import org.project.exceptions.ProductException;
 import org.project.repository.*;
 
 import java.util.*;
@@ -15,16 +14,12 @@ public class OrderService {
 
     private DatabaseConnection connection;
     private OrderRepository orderRepository;
-    private ProductRepository productRepository;
-    private ClientRepository clientRepository;
     private AddressRepository addressRepository;
 
     public OrderService() {
         connection = ConnectionFactory.getInstance().getDatabaseConnection();
         Repositories repositories = Repositories.getInstance();
         orderRepository = repositories.getOrderRepository();
-        productRepository = repositories.getProductRepository();
-        clientRepository = repositories.getClientRepository();
         addressRepository = repositories.getAddressRepository();
     }
 
@@ -36,21 +31,21 @@ public class OrderService {
         return orderRepository.getByID(connection, orderID);
     }
 
-    public Order registerOrder(int clientID, int orderID, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date orderDate, Date deliveryDate, int price, Map<String, Integer> productIDQuantity) throws ClientException, OrderException, ProductException, DatabaseException {
+    public Order registerOrder(Client client, int orderID, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date orderDate, Date deliveryDate, int price, Map<Product, Integer> productQuantity) {
         if (deliveryDate.before(orderDate)) {
-            throw new OrderException("Delivery date cannot be before Order date.");
+            throw OrderException.invalidDeliveryDate();
+        }
+
+        if (client == null) {
+            return null;
         }
 
         if (orderRepository.getOrderExists(connection, orderID)) {
-            throw new OrderException("Order with ID " + orderID + " already exists.");
+            throw OrderException.orderAlreadyExists(orderID);
         }
 
-        if (!clientRepository.getClientExists(connection, clientID)) {
-            throw new ClientException("Client with ID " + clientID + " not exists.");
-        }
-        Client client = clientRepository.getById(connection, clientID);
-        if (client == null) {
-            return null;
+        if (!Validator.isValidZipCode(deliveryZipCode)) {
+            throw OrderException.invalidZipCode();
         }
 
         Address address = addressRepository.findAddress(connection, deliveryStreet, deliveryZipCode, deliveryTown, deliveryCountry);
@@ -60,30 +55,14 @@ public class OrderService {
             addressRepository.save(connection, address);
         }
 
-        Map<Product, Integer> productQuantity = new HashMap<>();
-        for (Map.Entry<String, Integer> productEntry : productIDQuantity.entrySet()) {
-            if (!productRepository.getProductExists(connection, productEntry.getKey())) {
-                throw new ProductException("Product with ID " + productEntry.getKey() + " not exists.");
-            }
-            Product product = productRepository.getProductByID(connection, productEntry.getKey());
-            if (product == null) {
-                return null;
-            }
-            productQuantity.put(product, productEntry.getValue());
-        }
-
         if (price == 0) {
             price = calculatePrice(productQuantity);
         }
 
         Order order = new Order(orderID, address, orderDate, deliveryDate, price, productQuantity);
 
-        boolean success = orderRepository.save(connection, order, client);
-        if (!success) {
-            return null;
-        }
+        orderRepository.save(connection, order, client);
 
-        client.getOrders().add(order);
         return order;
     }
 

@@ -1,6 +1,8 @@
 package org.project.ui;
 
+import org.project.controller.ClientController;
 import org.project.controller.OrderController;
+import org.project.controller.ProductController;
 import org.project.exceptions.DatabaseException;
 import org.project.model.Client;
 import org.project.model.Order;
@@ -15,28 +17,22 @@ import java.util.*;
 
 public class RegisterOrderUI implements Runnable {
 
-    private final OrderController controller;
+    private final OrderController orderController;
+    private final ClientController clientController;
+    private final ProductController productController;
 
     public RegisterOrderUI() {
-        this.controller = new OrderController();
+        this.orderController = new OrderController();
+        this.clientController = new ClientController();
+        this.productController = new ProductController();
     }
 
     public void run() {
         try {
-            showClients();
-
-            List<Product> products = controller.getProducts();
-            if (products.isEmpty()) {
-                System.out.println("\nNo products available to order.");
-            }
+            showClients(clientController.getAllClients());
 
             int clientID = Utils.readIntegerFromConsole("Enter Client ID: ");
-
-            Client client = controller.getClient(clientID);
-            if (client == null) {
-                System.out.println("\nClient acquisition failed.");
-                return;
-            }
+            Client client = clientController.getClientById(clientID);
 
             showOrdersClient(client);
             boolean register = Utils.confirm("Do you want to register a new order?");
@@ -48,29 +44,44 @@ public class RegisterOrderUI implements Runnable {
             Date orderDate = Utils.readDateFromConsole("Enter Order Date: ");
             Date deliveryDate = Utils.readDateFromConsole("Enter Delivery Date: ");
             String street = Utils.readLineFromConsole("Enter Delivery Street: ");
-            String zipCode = Utils.readLineFromConsole("Enter Delivery Zip Code: ");
+            String zipCode = Utils.readZipCodeFromConsole("Enter Delivery Zip Code: ");
             String town = Utils.readLineFromConsole("Enter Delivery Town: ");
             String country = Utils.readLineFromConsole("Enter Delivery Country: ");
+
+            showProducts(productController.getProducts());
+
+            Map<String, Integer> products = new HashMap<>();
+            boolean addMoreProducts = true;
+
+            while (addMoreProducts) {
+                String productID = Utils.readLineFromConsole("Enter Product ID: ");
+                int quantity = Utils.readIntegerFromConsole("Enter Quantity: ");
+
+                products.put(productID, quantity);
+
+                addMoreProducts = Utils.confirm("Do you want to add another product?");
+            }
+
             boolean setPrice = Utils.confirm("Do you want to set the order price? (otherwise it will be calculated automatically)");
             int price = 0;
             if (setPrice) {
                 price = Utils.readIntegerFromConsole("Enter Price: ");
             }
 
-            Order order = controller.registerOrder(clientID, orderID, street, zipCode, town, country, orderDate, deliveryDate, price, orderProducts(products));
+            Order order = orderController.registerOrder(client, orderID, street, zipCode, town, country, orderDate, deliveryDate, price, products);
             if (order == null) {
                 System.out.println("\nOrder registration failed.");
             } else {
                 System.out.println("\nOrder registered successfully.");
                 showOrder(order);
             }
+
         } catch (ClientException | OrderException | ProductException | DatabaseException e) {
             System.out.println("\nError: " + e.getMessage());
         }
     }
 
-    private void showClients() throws ClientException, DatabaseException {
-        List<Client> clients = controller.getClients();
+    private void showClients(List<Client> clients) {
         System.out.println("\nClients:");
         if (clients.isEmpty()) {
             System.out.println("No clients registered.");
@@ -82,38 +93,28 @@ public class RegisterOrderUI implements Runnable {
     }
 
     private void showOrdersClient (Client client) {
-        System.out.println(" - Client ID: " + client.getId() + " | Name: " + client.getName() + " | VATIN: " + client.getVatin());
+        System.out.println("\nClient ID: " + client.getId() + " | Name: " + client.getName() + " | VATIN: " + client.getVatin());
         List<Order> orders = client.getOrders();
         if (!orders.isEmpty()) {
-            System.out.println(" - Orders: ");
+            System.out.println("Orders: ");
             for (Order order : orders) {
-                System.out.println(" -- Order ID: " + order.getId());
+                System.out.println(" - Order ID: " + order.getId());
                 for (Map.Entry<Product, Integer> entry : order.getProductQuantity().entrySet()) {
-                    System.out.println(" --- Product ID: " + entry.getKey().getId() + " | Product Name: " + entry.getKey().getName() + " | Quantity: " + entry.getValue());
+                    System.out.println(" -- Product ID: " + entry.getKey().getId() + " | Product Name: " + entry.getKey().getName() + " | Quantity: " + entry.getValue());
                 }
             }
         }
     }
 
-    private Map<String, Integer> orderProducts(List<Product> productList) {
+    private void showProducts(List<Product> products) {
         System.out.println("\nProducts:");
-        for (Product product : productList) {
-            System.out.println(" - Product ID: " + product.getId() + " | Name: " + product.getName());
+        if (products.isEmpty()) {
+            System.out.println("No products registered.");
+        } else {
+            for (Product product : products) {
+                System.out.println(" - Product ID: " + product.getId() + " | Name: " + product.getName());
+            }
         }
-
-        Map<String, Integer> products = new HashMap<>();
-        boolean addMoreProducts = true;
-
-        while (addMoreProducts) {
-            String productID = Utils.readLineFromConsole("Enter Product ID: ");
-            int quantity = Utils.readIntegerFromConsole("Enter Quantity: ");
-
-            products.put(productID, quantity);
-
-            addMoreProducts = Utils.confirm("Do you want to add another product?");
-        }
-
-        return products;
     }
 
     private void showOrder(Order order) {
@@ -126,7 +127,7 @@ public class RegisterOrderUI implements Runnable {
         System.out.println(" - Delivery Zip Code: " + order.getDeliveryAddress().getZipCode());
         System.out.println(" - Delivery Town: " + order.getDeliveryAddress().getTown());
         System.out.println(" - Delivery Country: " + order.getDeliveryAddress().getCountry());
-        System.out.println(" - Price: " + order.getPrice());
+        System.out.println(" - Price: " + order.getPrice() + "$");
         System.out.println(" - Products: ");
         for (Map.Entry<Product, Integer> entry : order.getProductQuantity().entrySet()) {
             System.out.println(" --- Product ID: " + entry.getKey().getId() + " | Product Name: " + entry.getKey().getName() + " | Quantity: " + entry.getValue());

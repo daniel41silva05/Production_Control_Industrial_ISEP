@@ -1,6 +1,7 @@
 package org.project.repository;
 
 import org.project.data.DatabaseConnection;
+import org.project.exceptions.DatabaseException;
 import org.project.model.*;
 
 import java.sql.*;
@@ -33,8 +34,7 @@ public class OrderRepository {
             }
             return rowsInserted > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            throw DatabaseException.databaseError();
         }
     }
 
@@ -58,12 +58,11 @@ public class OrderRepository {
                 return rowsDeleted > 0;
             } catch (SQLException e) {
                 conn.rollback();
-                e.printStackTrace();
+                throw DatabaseException.databaseError();
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (SQLException | DatabaseException e) {
+            throw DatabaseException.databaseError();
         }
-        return false;
     }
 
     public boolean update(DatabaseConnection connection, Order order) {
@@ -79,8 +78,7 @@ public class OrderRepository {
             int rowsUpdated = statement.executeUpdate();
             return rowsUpdated > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            throw DatabaseException.databaseError();
         }
     }
 
@@ -94,8 +92,7 @@ public class OrderRepository {
             int rowsUpdated = statement.executeUpdate();
             return rowsUpdated > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            throw DatabaseException.databaseError();
         }
     }
 
@@ -166,7 +163,7 @@ public class OrderRepository {
             }
             orders.addAll(orderMap.values());
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw DatabaseException.databaseError();
         }
         return orders;
     }
@@ -233,9 +230,8 @@ public class OrderRepository {
                 return order;
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw DatabaseException.databaseError();
         }
-        return null;
     }
 
     public boolean getOrderExists(DatabaseConnection connection, int id) {
@@ -251,7 +247,7 @@ public class OrderRepository {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw DatabaseException.databaseError();
         }
 
         return count > 0;
