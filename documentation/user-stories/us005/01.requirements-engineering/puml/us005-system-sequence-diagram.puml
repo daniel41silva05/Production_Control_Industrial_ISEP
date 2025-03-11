@@ -7,69 +7,69 @@ title System Sequence Diagram (SSD)
 
 autonumber
 
-actor "Administrator" as ADM
+actor "Production Manager" as PM
 participant ":System" as System
 
-activate ADM
+activate PM
 
-    ADM -> System : asks to register a new order
+    PM -> System : asks to register a new order
     activate System
 
-        System --> ADM : shows the list of clients and requests client id
+        System --> PM : shows the list of clients and requests client id
     deactivate System
 
-    ADM -> System : provides requested id
+    PM -> System : provides requested id
     activate System
 
     System -> System : checks if client already exists
         alt client does not exist
-                System --> ADM : shows error message (Client does not exist)
+                System --> PM : shows error message (Client does not exist)
             deactivate System
         else client exists
 
-        System --> ADM : shows the client's order list and asks for confirmation
+        System --> PM : shows the client's order list and asks for confirmation
     deactivate System
 
-    ADM -> System : confirms that he wants to register a new order
+    PM -> System : confirms that he wants to register a new order
     activate System
 
-        System --> ADM : requests data (i.e. Order Date, Delivery Date, Delivery Address)
+        System --> PM : requests data (i.e. Order Date, Delivery Date, Delivery Address)
     deactivate System
 
-    ADM -> System : types requested data
+    PM -> System : types requested data
     activate System
 
-        System --> ADM : shows the list of products and requests product ids and quantities
+        System --> PM : shows the list of products and requests product ids and quantities
     deactivate System
 
-    ADM -> System : provides product ids and quantities
+    PM -> System : provides product ids and quantities
     activate System
 
-        System --> ADM : asks if price should be calculated automatically or entered manually
+        System --> PM : asks if price should be calculated automatically or entered manually
     deactivate System
 
-    ADM -> System : select the desired option
+    PM -> System : select the desired option
     activate System
 
     alt manual entry was selected
-            System --> ADM : requests price
+            System --> PM : requests price
         deactivate System
 
-        ADM -> System : provides price
+        PM -> System : provides price
         activate System
     end
 
         System -> System : validates the data
         alt invalid data
-            System --> ADM : shows error message (Invalid data)
+            System --> PM : shows error message (Invalid data)
             deactivate System
         else valid data
                 System -> System : saves order data
                 alt system error
-                    System --> ADM : shows error message (Database error)
+                    System --> PM : shows error message (Database error)
                     deactivate System
                 else success
-                    System --> ADM : shows all data and displays operation success
+                    System --> PM : shows all data and displays operation success
                     deactivate System
                 end
             end

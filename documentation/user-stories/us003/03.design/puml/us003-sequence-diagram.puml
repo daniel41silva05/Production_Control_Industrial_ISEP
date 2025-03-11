@@ -20,7 +20,7 @@ participant "client:\nClient" as CLIENT
 participant "address:\nAddress" as ADDRESS
 participant "Validator" as VAL
 
-title Register Client Sequence
+title Update Client Sequence
 
 activate ADM
     ADM -> UI : asks to update a client

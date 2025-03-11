@@ -7,141 +7,281 @@ title System Sequence Diagram (SSD)
 
 autonumber
 
-actor "Administrator" as ADM
-participant ":RegisterClientUI" as UI
-participant ":ClientController" as CTRL
-participant ":ClientService" as SRV
-participant "ClientException" as EXC
+actor "Production Manager" as PM
+participant ":RegisterOrderUI" as UI
+participant ":ClientController" as clientCTRL
+participant ":ProductController" as productCTRL
+participant ":OrderController" as orderCTRL
+participant ":ClientService" as clientSRV
+participant ":ProductService" as productSRV
+participant ":OrderService" as orderSRV
+participant "ClientException" as clientEXC
+participant "ProductException" as productEXC
+participant "OrderException" as orderEXC
 participant "Repositories" as REPS
 participant "repositories\n:Repositories" as REP
 participant "clientRepository:\nClientRepository" as clientRepository
 participant "addressRepository:\nAddressRepository" as addressRepository
-participant "client:\nClient" as CLIENT
+participant "productRepository:\nProductRepository" as productRepository
+participant "orderRepository:\nOrderRepository" as orderRepository
+participant "order:\nOrder" as ORDER
 participant "address:\nAddress" as ADDRESS
+participant "product:\nProduct" as PRODUCT
 participant "Validator" as VAL
 
-title Register Client Sequence
+title Register Order Sequence
 
-activate ADM
-    ADM -> UI : asks to register a new client
+activate PM
+    PM -> UI : asks to register a new order
     activate UI
 
-        UI -> CTRL** : create
+        UI -> clientCTRL** : create
+        UI -> productCTRL** : create
+        UI -> orderCTRL** : create
 
-        UI -> CTRL : getAllClients()
-        activate CTRL
-            CTRL -> SRV : getClients()
-            activate SRV
+        UI -> clientCTRL : getAllClients()
+        activate clientCTRL
+            clientCTRL -> clientSRV : getClients()
+            activate clientSRV
 
-                SRV -> REPS : getInstance()
+                clientSRV -> REPS : getInstance()
                 activate REPS
-                REPS --> SRV: repositories
+                REPS --> clientSRV: repositories
                 deactivate REPS
-                SRV -> REP : getClientRepository()
+                clientSRV -> REP : getClientRepository()
                 activate REP
-                REP --> SRV : clientRepository
+                REP --> clientSRV : clientRepository
                 deactivate REP
 
-                SRV -> clientRepository : getAll()
+                clientSRV -> clientRepository : getAll()
                 activate clientRepository
-                clientRepository --> SRV : clients
+                clientRepository --> clientSRV : clients
                 deactivate clientRepository
-            SRV --> CTRL : clients
-            deactivate SRV
-        CTRL --> UI : clients
-        deactivate CTRL
-    UI --> ADM : shows the list of clients and requests confirmation
+            clientSRV --> clientCTRL : clients
+            deactivate clientSRV
+        clientCTRL --> UI : clients
+        deactivate clientCTRL
+    UI --> PM : shows the list of clients and requests client id
     deactivate UI
 
-    ADM -> UI : confirms that he wants to register a new client
+    PM -> UI : provides requested id
     activate UI
-        UI --> ADM : requests data (i.e. Name, Vatin, Address, Contact Info (Phone Number, Email), Type)
+        UI -> clientCTRL : getClientById(clientID)
+        activate clientCTRL
+            clientCTRL -> clientSRV : getClientById(clientID)
+            activate clientSRV
+
+                clientSRV -> REP : getClientRepository()
+                activate REP
+                REP --> clientSRV : clientRepository
+                deactivate REP
+
+                clientSRV -> clientRepository : getById(clientID)
+                activate clientRepository
+                clientRepository --> clientSRV : client
+                deactivate clientRepository
+
+                    alt client == null
+                        clientSRV -> clientEXC: throw clientNotFound(clientID)
+                        activate clientEXC
+                        clientEXC --> clientSRV: Exception Thrown
+                        deactivate clientEXC
+                        clientSRV --> clientCTRL: show error message (Client does not exist)
+                        clientCTRL --> UI: show error message (Client does not exist)
+                    else
+
+            clientSRV --> clientCTRL : client
+            deactivate clientSRV
+        clientCTRL --> UI : client
+        deactivate clientCTRL
+        UI --> PM : shows the client's order list and asks for confirmation
     deactivate UI
 
-    ADM -> UI : types/selects requested data
+    PM -> UI : confirms that he wants to register a new order
     activate UI
-        UI -> CTRL: registerClient(clientID, name, vatin, street, zipCode, town, country, phoneNumber, email, type)
-        activate CTRL
-            CTRL -> SRV: registerClient(clientID, name, vatin, street, zipCode, town, country, phoneNumber, email, type)
-            activate SRV
 
-                SRV -> VAL: isValidData(phoneNumber, email, zipCode)
+    UI --> PM: requests data (i.e. Order Date, Delivery Date, Delivery Address)
+    deactivate UI
+
+    PM -> UI : types requested data
+    activate UI
+
+        UI -> productCTRL : getProducts()
+        activate productCTRL
+            productCTRL -> productSRV : getProducts()
+            activate productSRV
+
+                productSRV -> REPS : getInstance()
+                activate REPS
+                REPS --> productSRV: repositories
+                deactivate REPS
+                productSRV -> REP : getProductRepository()
+                activate REP
+                REP --> productSRV : productRepository
+                deactivate REP
+
+                productSRV -> productRepository : getAll()
+                activate productRepository
+                productRepository --> productSRV : products
+                deactivate productRepository
+            productSRV --> productCTRL : products
+            deactivate productSRV
+        productCTRL --> UI : products
+        deactivate productCTRL
+
+        UI --> PM : shows the list of products and requests product ids and quantities
+    deactivate UI
+
+    PM -> UI : provides product ids and quantities
+    activate UI
+        UI --> PM : asks if price should be calculated automatically or entered manually
+    deactivate UI
+
+    PM -> UI : select the desired option
+    activate UI
+
+    alt manual entry was selected
+            UI --> PM : requests price
+        deactivate UI
+
+        PM -> UI : provides price
+        activate UI
+    end
+
+        UI -> orderCTRL: registerOrder(client, orderID, deliveryStreet, deliveryZipCode, deliveryTown, deliveryCountry, orderDate, deliveryDate, price, productIdQuantityMap)
+        activate orderCTRL
+            loop For each productId in productIdQuantityMap
+                            orderCTRL -> orderCTRL : Initialize productQuantityMap
+
+                            orderCTRL -> productSRV : getProductByID(productId)
+                            activate productSRV
+
+                                productSRV -> REP : getProductRepository()
+                                activate REP
+                                REP --> productSRV : productRepository
+                                deactivate REP
+
+                                productSRV -> productRepository : getProductByID(productId)
+                                activate productRepository
+                                productRepository --> productSRV : product
+                                deactivate productRepository
+                                alt product == null
+                                    productSRV -> productEXC: throw productNotFound(productId)
+                                    activate productEXC
+                                    productEXC --> productSRV: Exception Thrown
+                                    deactivate productEXC
+                                    productSRV --> orderCTRL: show error message (Product does not exist)
+                                    orderCTRL --> UI: show error message (Product does not exist)
+                                else
+
+                            productSRV --> orderCTRL : product
+                            deactivate productSRV
+
+                            orderCTRL -> orderCTRL : Add product to productQuantityMap
+            end loop
+
+            orderCTRL -> orderSRV: registerOrder(client, orderID, deliveryStreet, deliveryZipCode, deliveryTown, deliveryCountry, orderDate, deliveryDate, price, productQuantityMap)
+            activate orderSRV
+
+                orderSRV -> VAL: isValidData(orderDate, deliveryDate, deliveryZipCode)
                 activate VAL
-                VAL --> SRV: true/false
+                VAL --> orderSRV: true/false
                 deactivate VAL
 
                 alt false
 
-                    SRV -> EXC: throw invalidData()
-                    activate EXC
-                    EXC --> SRV: Exception Thrown
-                    deactivate EXC
-                    SRV --> CTRL: show error message (Invalid data)
+                    orderSRV -> orderEXC: throw invalidData()
+                    activate orderEXC
+                    orderEXC --> orderSRV: Exception Thrown
+                    deactivate orderEXC
+                    orderSRV --> orderCTRL: show error message (Invalid data)
 
-                    CTRL --> UI: show error message (Invalid data)
+                    orderCTRL --> UI: show error message (Invalid data)
                     deactivate VAL
                 else
 
-                SRV -> REP: getClientRepository()
+                orderSRV -> REP: getOrderRepository()
                 activate REP
-                REP --> SRV: clientRepository
+                REP --> orderSRV: orderRepository
                 deactivate REP
 
-                SRV -> clientRepository: getClientExists(clientID)
-                activate clientRepository
-                clientRepository --> SRV: true/false
-                deactivate clientRepository
+                orderSRV -> orderRepository: getOrderExists(orderID)
+                activate orderRepository
+                orderRepository --> orderSRV: true/false
+                deactivate orderRepository
 
                 alt true
 
-                    SRV -> EXC: throw clientAlreadyExists(clientID)
-                    activate EXC
-                    EXC --> SRV: Exception Thrown
-                    deactivate EXC
-                    SRV --> CTRL: show error message (Client already registered)
+                    orderSRV -> orderEXC: throw orderAlreadyExists(orderID)
+                    activate orderEXC
+                    orderEXC --> orderSRV: Exception Thrown
+                    deactivate orderEXC
+                    orderSRV --> orderCTRL: show error message (Order already registered)
 
-                    CTRL --> UI: show error message (Client already registered)
+                    orderCTRL --> UI: show error message (Order already registered)
                 else
 
-                    SRV -> REP: getAddressRepository()
+                    orderSRV -> REP: getAddressRepository()
                     activate REP
-                    REP --> SRV: addressRepository
+                    REP --> orderSRV: addressRepository
                     deactivate REP
 
-                    SRV -> addressRepository: findAddress(address)
+                    orderSRV -> addressRepository: findAddress(deliveryStreet, deliveryZipCode, deliveryTown, deliveryCountry)
                     activate addressRepository
-                    addressRepository --> SRV: address
+                    addressRepository --> orderSRV: deliveryAddress
                     deactivate addressRepository
                     alt address == null
-                        SRV -> ADDRESS** : create(address)
-                        SRV -> addressRepository: save(address)
+                        orderSRV -> ADDRESS** : create(address)
+                        orderSRV -> addressRepository: save(address)
                         activate addressRepository
-                        addressRepository --> SRV: address
+                        addressRepository --> orderSRV: deliveryAddress
                         deactivate addressRepository
                     end
 
-                    SRV -> CLIENT** : create(clientID, name, vatin, address, phoneNumber, email, type)
+                    alt price == 0
 
-                    SRV -> clientRepository: save(client)
-                    activate clientRepository
+                    orderSRV -> orderSRV: calculatePrice(productQuantityMap))
+                    activate orderSRV
+
+                            loop for each entry in productQuantityMap
+                                orderSRV -> PRODUCT: getPrice()
+                                activate PRODUCT
+                                PRODUCT --> orderSRV: productPrice
+                                deactivate PRODUCT
+
+                                orderSRV -> orderSRV: price += productPrice * quantity
+                            end loop
+
+                    orderSRV --> orderSRV: price
+                    deactivate orderSRV
+
+                    end
+
+                    orderSRV -> ORDER** : create(orderID, deliveryAddress, orderDate, deliveryDate, price, productQuantityMap)
+
+                    orderSRV -> orderRepository: save(order, client)
+                    activate orderRepository
                     alt system error
-                        clientRepository --> SRV: Database error
+                        orderRepository --> orderSRV: Database error
 
-                        SRV --> CTRL: show error message (Database error)
+                        orderSRV --> orderCTRL: show error message (Database error)
 
-                        CTRL --> UI: show error message (Database error)
+                        orderSRV --> UI: show error message (Database error)
                     else
-                        clientRepository --> SRV: client
-                        deactivate clientRepository
-                        SRV --> CTRL: client
-                        deactivate SRV
-                        CTRL --> UI: client
-                        deactivate CTRL
+                        orderRepository --> orderSRV: order
+                        deactivate orderRepository
+                        orderSRV --> orderCTRL: order
+                        deactivate orderSRV
+                        orderCTRL --> UI: order
+                        deactivate orderCTRL
                     end
                 end
             end
-    UI --> ADM: shows all data and displays operation success or error message
+            end
+            end
+
+        UI --> PM : shows all data and displays operation success or error message
     deactivate UI
 
-deactivate ADM
+deactivate PM
 @enduml

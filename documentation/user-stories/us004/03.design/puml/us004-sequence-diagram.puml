@@ -16,7 +16,7 @@ participant "repositories\n:Repositories" as REP
 participant "clientRepository:\nClientRepository" as clientRepository
 participant "client:\nClient" as CLIENT
 
-title Register Client Sequence
+title Client Status Sequence
 
 activate ADM
     ADM -> UI : asks to update a client

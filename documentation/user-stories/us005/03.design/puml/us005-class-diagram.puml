@@ -5,21 +5,39 @@ skinparam linetype polyline
 skinparam classAttributeIconSize 0
 
 package "UI" {
-    class RegisterClientUI {
+    class RegisterOrderUI {
     }
 }
 
 package "Controller" {
     class ClientController {
         +getAllClients() : List<Client>
-        +registerClient(clientID, name, vatin, street, zipCode, town, country, phoneNumber, email, type) : Client
+        +getClientById(clientID) : Client
+    }
+
+    class OrderController {
+        +registerOrder(client, orderID, deliveryStreet, deliveryZipCode, deliveryTown, deliveryCountry, orderDate, deliveryDate, price, productIdQuantityMap) : Order
+    }
+
+    class ProductController {
+        +getProducts() : List<Product>
     }
 }
 
 package "Service" {
     class ClientService {
         +getClients() : List<Client>
-        +registerClient(clientID, name, vatin, street, zipCode, town, country, phoneNumber, email, type) : Client
+        +getClientById(clientID) : Client
+    }
+
+    class OrderService {
+        +registerOrder(client, orderID, deliveryStreet, deliveryZipCode, deliveryTown, deliveryCountry, orderDate, deliveryDate, price, productQuantityMap)
+        -calculatePrice(productQuantityMap) : int
+    }
+
+    class ProductService {
+        +getProducts() : List<Product>
+        +getProductByID(productID) : Product
     }
 }
 
@@ -29,18 +47,29 @@ package "Repository" {
         +getInstance() : Repositories
         +getClientRepository() : ClientRepository
         +getAddressRepository() : AddressRepository
+        +getProductRepository() : ProductRepository
+        +getOrderRepository() : OrderRepository
     }
 
     class ClientRepository {
         +getAll() : List<Client>
-        +getClientExists(clientID) : boolean
-        +save(client) : boolean
+        +getById(clientID) : Client
     }
 
     class AddressRepository {
         +findAddress(street, zipCode, town, country) : Address
         +getAddressCount() : int
-        +save(address) : boolean
+        +save(deliveryAddress) : boolean
+    }
+
+    class ProductRepository {
+        +getAll() : List<Product>
+        +getProductByID(productID) : Product
+    }
+
+    class OrderRepository {
+        +getOrderExists(orderID) : boolean
+        +save(order, client) : boolean
     }
 }
 
@@ -67,23 +96,52 @@ package "Model" {
         +Address(id, street, zipCode, town, country)
     }
 
-    enum CompanyType {
-        INDIVIDUAL
-        COMPANY
+    class Order {
+        -orderID : int
+        -deliveryAddress : Address
+        -orderDate : Date
+        -deliveryDate : Date
+        -price : double
+        -state : ProcessState
+        -productQuantity : Map<Product, Integer>
+        +Order(orderID, deliveryAddress, orderDate, deliveryDate, price, productQuantity)
     }
 
-    enum EntityState {
-        ACTIVE
-        INACTIVE
+    enum ProcessState {
+        PENDING
+        CONFIRMED
+    }
+
+    class Part {
+        -id : String
+        -name : String
+        -description : String
+        +Part(id, name, description)
+    }
+
+    class Product {
+        -category : ProductCategory
+        -capacity : int
+        -size : int
+        -color : String
+        -price : double
+        +Product(id, name, description, category, capacity, size, color, price)
     }
 }
 
 package "Exception" {
     class ClientException {
-        +clientAlreadyExists(clientID) : ClientException
-        +invalidPhoneNumber() : ClientException
-        +invalidZipCode() : ClientException
-        +invalidEmailFormat() : ClientException
+        +clientNotFound(clientID) : ClientException
+    }
+
+    class ProductException {
+        +productNotFound(productID) : ProductException
+    }
+
+    class OrderException {
+        +orderAlreadyExists(orderID) : OrderException
+        +invalidDeliveryDate() : OrderException
+        +invalidZipCode() : OrderException
     }
 
     class RuntimeException
@@ -91,30 +149,50 @@ package "Exception" {
 
 package "Commom" {
     class Validator {
-        +isValidPhoneNumber(phoneNumber) : boolean
         +isValidZipCode(zipCode) : boolean
-        +isValidEmail(email) : boolean
     }
 }
 
 
-RegisterClientUI ..> ClientController
+RegisterOrderUI ..> ClientController
+RegisterOrderUI ..> OrderController
+RegisterOrderUI ..> ProductController
 ClientController ..> ClientService
+OrderController ..> OrderService
+OrderController ..> ProductService
+ProductController ..> ProductService
 ClientService ..> Repositories : repositories
+OrderService ..> Repositories : repositories
+ProductService ..> Repositories : repositories
 ClientService ..> ClientRepository : clientRepository
-ClientService ..> AddressRepository : addressRepository
+OrderService ..> OrderRepository : orderRepository
+OrderService ..> AddressRepository : addressRepository
+ProductService ..> ProductRepository : productRepository
 ClientService ..> Client : client
-ClientService ..> Address : address
+OrderService ..> Order : order
+OrderService ..> Address : address
+ProductService ..> Product : product
 Repositories --> Repositories : instance
 Repositories "1" --> "1" ClientRepository : clientRepository
 Repositories "1" --> "1" AddressRepository : addressRepository
+Repositories "1" --> "1" OrderRepository : orderRepository
+Repositories "1" --> "1" ProductRepository : productRepository
 ClientRepository "1" --> "*" Client : categories
 AddressRepository "1" --> "*" Address : categories
+OrderRepository "1" --> "*" Order : categories
+ProductRepository "1" --> "*" Product : categories
 Client "*" --> "1" Address : has
-Client "*" --> "1" CompanyType : has
-Client "*" --> "1" EntityState : has
+Client "1" --> "*" Order : has
+Order "*" --> "1" Address : has
+Order "*" --> "1..*" Product : has
+Product --|> Part
+Order "*" --> "1" ProcessState : has
 ClientService ..> ClientException : throws
 ClientException --|> RuntimeException
-ClientService ..> Validator : uses
+OrderService ..> OrderException : throws
+OrderException --|> RuntimeException
+ProductService ..> ProductException : throws
+ProductException --|> RuntimeException
+OrderService ..> Validator : uses
 
 @enduml

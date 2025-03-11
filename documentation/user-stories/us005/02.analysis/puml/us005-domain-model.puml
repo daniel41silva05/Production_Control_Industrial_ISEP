@@ -8,17 +8,16 @@ skinparam classAttributeIconSize 0
 hide circle
 hide methods
 
-title Domain Model - US001
+title Domain Model - US005
 
-class Administrator {
+class ProductionManager {
 }
 
-class Client {
+class Order {
     id
-    name
-    vatin
-    phoneNumber
-    email
+    orderDate
+    deliveryDate
+    price
 }
 
 class Address {
@@ -29,17 +28,24 @@ class Address {
     country
 }
 
-enum CompanyType {
-    type
-}
-
-enum EntityState {
+enum ProcessState {
     state
 }
 
-Administrator "1" -- "1..*" Client : register >
-Client "*" -- "1" Address : has >
-Client "*" -- "1" CompanyType : has >
-Client "*" -- "1" EntityState : has >
+class Product {
+    id
+    name
+    description
+    capacity
+    size
+    color
+    price
+}
+
+
+ProductionManager "1" -- "1..*" Order : register >
+Order "*" -- "1..*" Product : contains >
+Order "*" -- "1" Address : delivered to >
+Order "*" -- "1" ProcessState : has >
 
 @enduml

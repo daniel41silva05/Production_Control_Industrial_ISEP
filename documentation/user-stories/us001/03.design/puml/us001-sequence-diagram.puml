@@ -108,7 +108,7 @@ activate ADM
                     REP --> SRV: addressRepository
                     deactivate REP
 
-                    SRV -> addressRepository: findAddress(address)
+                    SRV -> addressRepository: findAddress(street, zipCode, town, country)
                     activate addressRepository
                     addressRepository --> SRV: address
                     deactivate addressRepository
