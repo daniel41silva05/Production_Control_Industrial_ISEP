@@ -1,0 +1,162 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title System Sequence Diagram (SSD)
+
+autonumber
+
+actor "Production Manager" as PM
+participant ":CancelOrderUI" as UI
+participant ":ClientController" as clientCTRL
+participant ":OrderController" as orderCTRL
+participant ":ClientService" as clientSRV
+participant ":OrderService" as orderSRV
+participant "ClientException" as clientEXC
+participant "OrderException" as orderEXC
+participant "Repositories" as REPS
+participant "repositories\n:Repositories" as REP
+participant "clientRepository:\nClientRepository" as clientRepository
+participant "orderRepository:\nOrderRepository" as orderRepository
+
+title Delete Order Sequence
+
+activate PM
+    PM -> UI : asks to delete an order
+    activate UI
+
+        UI -> clientCTRL** : create
+        UI -> orderCTRL** : create
+
+        UI -> clientCTRL : getAllClients()
+        activate clientCTRL
+            clientCTRL -> clientSRV : getClients()
+            activate clientSRV
+
+                clientSRV -> REPS : getInstance()
+                activate REPS
+                REPS --> clientSRV: repositories
+                deactivate REPS
+                clientSRV -> REP : getClientRepository()
+                activate REP
+                REP --> clientSRV : clientRepository
+                deactivate REP
+
+                clientSRV -> clientRepository : getAll()
+                activate clientRepository
+                clientRepository --> clientSRV : clients
+                deactivate clientRepository
+            clientSRV --> clientCTRL : clients
+            deactivate clientSRV
+        clientCTRL --> UI : clients
+        deactivate clientCTRL
+
+    UI --> PM : shows the list of clients and requests client id
+    deactivate UI
+
+    PM -> UI : provides requested client id
+    activate UI
+        UI -> clientCTRL : getClientById(clientID)
+        activate clientCTRL
+            clientCTRL -> clientSRV : getClientById(clientID)
+            activate clientSRV
+
+                clientSRV -> REP : getClientRepository()
+                activate REP
+                REP --> clientSRV : clientRepository
+                deactivate REP
+
+                clientSRV -> clientRepository : getById(clientID)
+                activate clientRepository
+                clientRepository --> clientSRV : client
+                deactivate clientRepository
+
+                    alt client == null
+                        clientSRV -> clientEXC: throw clientNotFound(clientID)
+                        activate clientEXC
+                        clientEXC --> clientSRV: Exception Thrown
+                        deactivate clientEXC
+                        clientSRV --> clientCTRL: show error message (Client does not exist)
+                        clientCTRL --> UI: show error message (Client does not exist)
+                    else
+
+            clientSRV --> clientCTRL : client
+            deactivate clientSRV
+        clientCTRL --> UI : client
+        deactivate clientCTRL
+        UI --> PM : shows the client's order list and asks for confirmation
+    deactivate UI
+
+    PM -> UI : confirms that he wants to delete an order
+    activate UI
+
+    UI --> PM: requests order id
+    deactivate UI
+
+    PM -> UI : provides requested order id
+    activate UI
+
+        UI -> orderCTRL : cancelOrder(orderID)
+        activate orderCTRL
+            orderCTRL -> orderSRV : deleteOrder(orderID)
+            activate orderSRV
+
+                orderSRV -> orderSRV: getOrderByID(orderID)
+                activate orderSRV
+
+                orderSRV -> REPS : getInstance()
+                activate REPS
+                REPS --> orderSRV: repositories
+                deactivate REPS
+
+                orderSRV -> REP : getOrderRepository()
+                activate REP
+                REP --> orderSRV : orderRepository
+                deactivate REP
+
+                orderSRV -> orderRepository : getById(orderID))
+                activate orderRepository
+                orderRepository --> orderSRV : order
+                deactivate orderRepository
+
+                    alt order == null
+                        orderSRV -> orderEXC: throw orderNotFound(orderID))
+                        activate orderEXC
+                        orderEXC --> orderSRV: Exception Thrown
+                        deactivate orderEXC
+                        orderSRV --> orderCTRL: show error message (Order does not exist)
+                        orderCTRL --> UI: show error message (Order does not exist)
+                    else
+
+                orderSRV --> orderSRV: order
+                deactivate orderSRV
+
+                orderSRV -> orderRepository : delete(order))
+                activate orderRepository
+
+                    alt system error
+                        orderRepository --> orderSRV: Database error
+
+                        orderSRV --> orderCTRL: show error message (Database error)
+
+                        orderCTRL --> UI: show error message (Database error)
+                    else
+
+                orderRepository --> orderSRV : order
+                deactivate orderRepository
+
+            orderSRV --> orderCTRL : order
+            deactivate orderSRV
+        orderCTRL --> UI : order
+        deactivate orderCTRL
+
+        end
+        end
+        end
+
+        UI --> PM : shows all data and displays operation success or error message
+    deactivate UI
+
+deactivate PM
+@enduml

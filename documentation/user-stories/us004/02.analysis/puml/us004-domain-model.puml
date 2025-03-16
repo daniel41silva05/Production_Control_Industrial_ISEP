@@ -44,7 +44,7 @@ class Order {
     price
 }
 
-Administrator "1" -- "1..*" Client : register >
+Administrator "1" -- "1..*" Client : consult >
 Client "*" -- "1" Address : has >
 Client "*" -- "1" CompanyType : has >
 Client "*" -- "1" EntityState : has >

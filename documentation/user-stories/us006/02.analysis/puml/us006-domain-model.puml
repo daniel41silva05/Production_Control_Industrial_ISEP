@@ -8,7 +8,7 @@ skinparam classAttributeIconSize 0
 hide circle
 hide methods
 
-title Domain Model - US005
+title Domain Model - US006
 
 class ProductionManager {
 }
@@ -50,8 +50,9 @@ class Product {
     price
 }
 
+
+ProductionManager "1" -- "1..*" Order : delete >
 ProductionManager "1" -- "1..*" Client : consult >
-ProductionManager "1" -- "1..*" Order : register >
 Order "*" -- "1..*" Product : contains >
 Order "*" -- "1" Address : delivered to >
 Order "*" -- "1" ProcessState : has >

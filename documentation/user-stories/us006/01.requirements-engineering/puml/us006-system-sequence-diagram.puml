@@ -1,0 +1,57 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title System Sequence Diagram (SSD)
+
+autonumber
+
+actor "Production Manager" as PM
+participant ":System" as System
+
+activate PM
+
+    PM -> System : asks to delete an order
+    activate System
+
+        System --> PM : shows the list of clients and requests client id
+    deactivate System
+
+    PM -> System : provides requested client id
+    activate System
+
+    System -> System : checks if client already exists
+        alt client does not exist
+                System --> PM : shows error message (Client does not exist)
+            deactivate System
+        else client exists
+
+        System --> PM : shows the client's order list and asks for confirmation
+    deactivate System
+
+    PM -> System : confirms that he wants to delete an order
+    activate System
+
+        System --> PM : requests order id
+    deactivate System
+
+    PM -> System : provides requested order id
+    activate System
+
+            System -> System : checks if order already exists
+            alt order does not exist
+                System --> PM : shows error message (Order does not exist)
+                deactivate System
+            else order exists
+                System -> System : delete order
+                alt system error
+                    System --> PM : shows error message (Database error)
+                    deactivate System
+                else success
+                    System --> PM : shows all data of order and displays operation success
+                    deactivate System
+                end
+            end
+        end
+@enduml

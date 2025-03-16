@@ -1,0 +1,115 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype polyline
+skinparam classAttributeIconSize 0
+
+package "UI" {
+    class CancelOrderUI {
+    }
+}
+
+package "Controller" {
+    class ClientController {
+        +getAllClients() : List<Client>
+        +getClientById(clientID) : Client
+    }
+
+    class OrderController {
+        +cancelOrder(orderID) : Order
+    }
+}
+
+package "Service" {
+    class ClientService {
+        +getClients() : List<Client>
+        +getClientById(clientID) : Client
+    }
+
+    class OrderService {
+        +deleteOrder(orderID)
+        +getOrderByID(orderID) : Order
+    }
+}
+
+package "Repository" {
+    class Repositories {
+        -Repositories()
+        +getInstance() : Repositories
+        +getClientRepository() : ClientRepository
+        +getOrderRepository() : OrderRepository
+    }
+
+    class ClientRepository {
+        +getAll() : List<Client>
+        +getById(clientID) : Client
+    }
+
+    class OrderRepository {
+        +getByID(orderID) : Order
+        +delete(order) : boolean
+    }
+}
+
+package "Model" {
+    class Client {
+        -clientID : int
+        -address : Address
+        -name : String
+        -vatin : String
+        -phoneNumber : int
+        -email : String
+        -type : CompanyType
+        -state : EntityState
+        -orders : List<Order>
+        +Client(clientID, name, address, vatin, phoneNumber, email, type)
+    }
+
+    class Order {
+        -orderID : int
+        -deliveryAddress : Address
+        -orderDate : Date
+        -deliveryDate : Date
+        -price : double
+        -state : ProcessState
+        -productQuantity : Map<Product, Integer>
+        +Order(orderID, deliveryAddress, orderDate, deliveryDate, price, productQuantity)
+    }
+
+}
+
+package "Exception" {
+    class ClientException {
+        +clientNotFound(clientID) : ClientException
+    }
+
+    class OrderException {
+        +orderNotFound(orderID) : OrderException
+    }
+
+    class RuntimeException
+}
+
+
+CancelOrderUI ..> ClientController
+CancelOrderUI ..> OrderController
+ClientController ..> ClientService
+OrderController ..> OrderService
+ClientService ..> Repositories : repositories
+OrderService ..> Repositories : repositories
+ClientService ..> ClientRepository : clientRepository
+OrderService ..> OrderRepository : orderRepository
+ClientService ..> Client : client
+OrderService ..> Order : order
+Repositories --> Repositories : instance
+Repositories "1" --> "1" ClientRepository : clientRepository
+Repositories "1" --> "1" OrderRepository : orderRepository
+ClientRepository "1" --> "*" Client : categories
+OrderRepository "1" --> "*" Order : categories
+Client "1" --> "*" Order : has
+ClientService ..> ClientException : throws
+ClientException --|> RuntimeException
+OrderService ..> OrderException : throws
+OrderException --|> RuntimeException
+
+@enduml
