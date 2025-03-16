@@ -30,20 +30,10 @@ public class UpdateClientTest {
     private AddressRepository addressRepository;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         MockitoAnnotations.openMocks(this);
 
-        clientService = new ClientService();
-
-        injectMock(clientService, "connection", connection);
-        injectMock(clientService, "clientRepository", clientRepository);
-        injectMock(clientService, "addressRepository", addressRepository);
-    }
-
-    private void injectMock(Object target, String fieldName, Object mock) throws Exception {
-        var field = target.getClass().getDeclaredField(fieldName);
-        field.setAccessible(true);
-        field.set(target, mock);
+        clientService = new ClientService(connection, clientRepository, addressRepository);
     }
 
     @Test

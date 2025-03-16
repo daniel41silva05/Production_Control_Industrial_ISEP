@@ -25,6 +25,12 @@ public class ClientService {
         addressRepository = repositories.getAddressRepository();
     }
 
+    public ClientService(DatabaseConnection connection, ClientRepository clientRepository, AddressRepository addressRepository) {
+        this.connection = connection;
+        this.clientRepository = clientRepository;
+        this.addressRepository = addressRepository;
+    }
+
     public List<Client> getClients() {
         return clientRepository.getAll(connection);
     }

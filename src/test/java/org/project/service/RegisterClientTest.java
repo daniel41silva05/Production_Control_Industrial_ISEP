@@ -10,8 +10,6 @@ import org.project.model.*;
 import org.project.repository.AddressRepository;
 import org.project.repository.ClientRepository;
 
-import java.lang.reflect.Field;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -29,20 +27,10 @@ public class RegisterClientTest {
     private AddressRepository addressRepository;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         MockitoAnnotations.openMocks(this);
 
-        clientService = new ClientService();
-
-        injectMock(clientService, "connection", connection);
-        injectMock(clientService, "clientRepository", clientRepository);
-        injectMock(clientService, "addressRepository", addressRepository);
-    }
-
-    private void injectMock(Object target, String fieldName, Object mock) throws Exception {
-        Field field = target.getClass().getDeclaredField(fieldName);
-        field.setAccessible(true);
-        field.set(target, mock);
+        clientService = new ClientService(connection, clientRepository, addressRepository);
     }
 
     @Test

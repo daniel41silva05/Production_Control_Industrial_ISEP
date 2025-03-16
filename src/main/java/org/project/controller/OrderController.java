@@ -24,6 +24,12 @@ public class OrderController {
         this.productionTreeService = new ProductionTreeService();
     }
 
+    public OrderController(OrderService orderService, ProductService productService, ProductionTreeService productionTreeService) {
+        this.orderService = orderService;
+        this.productService = productService;
+        this.productionTreeService = productionTreeService;
+    }
+
     public Order getOrderByID (int orderID) {
         return orderService.getOrderByID(orderID);
     }

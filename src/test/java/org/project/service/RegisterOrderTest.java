@@ -1,8 +1,62 @@
-# US005 - Register an Order
+package org.project.service;
 
-## 4. Tests 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.project.controller.OrderController;
+import org.project.data.DatabaseConnection;
+import org.project.exceptions.OrderException;
+import org.project.exceptions.ProductException;
+import org.project.model.*;
+import org.project.repository.*;
 
-**Test 1:** Check if the order is being registered correctly, being stored in the repository.
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+public class RegisterOrderTest {
+
+    private OrderController orderController;
+
+    @Mock
+    private OrderService orderService;
+
+    @Mock
+    private ProductService productService;
+
+    @Mock
+    private ProductionTreeService productionTreeService;
+
+    @Mock
+    private DatabaseConnection connection;
+
+    @Mock
+    private AddressRepository addressRepository;
+
+    @Mock
+    private OrderRepository orderRepository;
+
+    @Mock
+    private ProductRepository productRepository;
+
+    @Mock
+    private ProductCategoryRepository productCategoryRepository;
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        MockitoAnnotations.openMocks(this);
+
+        orderService = new OrderService(connection, orderRepository, addressRepository);
+        productService = new ProductService(connection, productRepository, productCategoryRepository);
+
+        orderController = new OrderController(orderService, productService, productionTreeService);
+    }
 
     @Test
     public void testRegisterOrder_Success() throws ParseException {
@@ -40,9 +94,6 @@
         verify(orderRepository, times(1)).save(eq(connection), any(Order.class), any(Client.class));
         verify(addressRepository, times(1)).save(eq(connection), any(Address.class));
     }
-	
-
-**Test 2:** Check that the order price is being recorded correctly - AC09.
 
     @Test
     public void testRegisterOrder_PriceCalculated() throws ParseException {
@@ -70,8 +121,6 @@
         verify(orderRepository, times(1)).save(eq(connection), any(Order.class), any(Client.class));
     }
 
-**Test 3:** Check that it is not possible to register a order that already exists - AC03.
-
     @Test
     public void testRegisterOrder_OrderAlreadyExists() throws ParseException {
 
@@ -93,8 +142,6 @@
         });
     }
 
-**Test 4:** Check that it is not possible to register a order from a client not registered in the system - AC04.
-
     @Test
     public void testRegisterOrder_ClientNotFound() throws ParseException {
 
@@ -110,8 +157,6 @@
 
         verify(orderRepository, never()).save(eq(connection), any(Order.class), any(Client.class));
     }
-
-**Test 5:** Check that it is not possible to register a order with a product not registered in the system - AC07.
 
     @Test
     public void testRegisterOrder_ProductNotFound() throws ParseException {
@@ -135,8 +180,6 @@
         });
     }
 
-**Test 6:** Check that it is not possible to register a order with an invalid delivery date - AC05.
-
     @Test
     public void testRegisterOrder_InvalidDeliveryDate() throws ParseException {
 
@@ -155,8 +198,6 @@
         });
     }
 
-**Test 7:** Check that it is not possible to register a order with an invalid zip code - AC08.
-
     @Test
     public void testRegisterOrder_InvalidZipCode() throws ParseException {
         String invalidZipCode = "111";
@@ -174,8 +215,6 @@
             orderService.registerOrder(client, orderID, "Main St", invalidZipCode, "Springfield", "USA", orderDate, deliveryDate, 77, productQuantity);
         });
     }
-
-**Test 8:** Check that the system reuses an existing address when registering a order with the same address details.
 
     @Test
     public void testRegisterOrder_ExistingAddress() throws ParseException {
@@ -208,60 +247,4 @@
         verify(addressRepository, never()).save(eq(connection), any(Address.class));
     }
 
-## 5. Construction (Implementation)
-
-### Class OrderService 
-
-```java
-    public Order registerOrder(Client client, int orderID, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date orderDate, Date deliveryDate, int price, Map<Product, Integer> productQuantity) {
-    if (deliveryDate.before(orderDate)) {
-        throw OrderException.invalidDeliveryDate();
-    }
-
-    if (client == null) {
-        return null;
-    }
-
-    if (orderRepository.getOrderExists(connection, orderID)) {
-        throw OrderException.orderAlreadyExists(orderID);
-    }
-
-    if (!Validator.isValidZipCode(deliveryZipCode)) {
-        throw OrderException.invalidZipCode();
-    }
-
-    Address address = addressRepository.findAddress(connection, deliveryStreet, deliveryZipCode, deliveryTown, deliveryCountry);
-    if (address == null) {
-        int id = addressRepository.getAddressCount(connection);
-        address = new Address(id, deliveryStreet, deliveryZipCode, deliveryTown, deliveryCountry);
-        addressRepository.save(connection, address);
-    }
-
-    if (price == 0) {
-        price = calculatePrice(productQuantity);
-    }
-
-    Order order = new Order(orderID, address, orderDate, deliveryDate, price, productQuantity);
-
-    orderRepository.save(connection, order, client);
-
-    return order;
 }
-```
-```java
-    private int calculatePrice(Map<Product, Integer> productQuantity) {
-    double result = 0;
-
-    for (Map.Entry<Product, Integer> productEntry : productQuantity.entrySet()) {
-        Product product = productEntry.getKey();
-        double quantity = productEntry.getValue();
-        result += product.getPrice() * quantity;
-    }
-
-    return (int) result;
-}
-```
-
-## 6. Observations
-
-n/a

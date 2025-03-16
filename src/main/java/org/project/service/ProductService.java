@@ -25,6 +25,12 @@ public class ProductService {
         productCategoryRepository  = repositories.getProductCategoryRepository();
     }
 
+    public ProductService(DatabaseConnection connection, ProductRepository productRepository, ProductCategoryRepository productCategoryRepository) {
+        this.connection = connection;
+        this.productRepository = productRepository;
+        this.productCategoryRepository = productCategoryRepository;
+    }
+
     public List<ProductCategory> getProductCategories() {
         return productCategoryRepository.getAll(connection);
     }

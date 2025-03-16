@@ -22,6 +22,12 @@ public class OrderService {
         addressRepository = repositories.getAddressRepository();
     }
 
+    public OrderService(DatabaseConnection connection, OrderRepository orderRepository, AddressRepository addressRepository) {
+        this.connection = connection;
+        this.orderRepository = orderRepository;
+        this.addressRepository = addressRepository;
+    }
+
     public Order getOrderByID (int orderID) {
         Order order = orderRepository.getByID(connection, orderID);
 
