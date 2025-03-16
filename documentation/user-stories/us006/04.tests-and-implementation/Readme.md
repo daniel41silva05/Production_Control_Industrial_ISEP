@@ -38,7 +38,7 @@
 
 ## 5. Construction (Implementation)
 
-### Class ClientService
+### Class OrderService
 
 ```java
 public Order deleteOrder (int id) {

@@ -1,0 +1,228 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title System Sequence Diagram (SSD)
+
+autonumber
+
+actor "Production Manager" as PM
+participant ":UpdateOrderUI" as UI
+participant ":ClientController" as clientCTRL
+participant ":OrderController" as orderCTRL
+participant ":ClientService" as clientSRV
+participant ":OrderService" as orderSRV
+participant "ClientException" as clientEXC
+participant "OrderException" as orderEXC
+participant "Repositories" as REPS
+participant "repositories\n:Repositories" as REP
+participant "clientRepository:\nClientRepository" as clientRepository
+participant "orderRepository:\nOrderRepository" as orderRepository
+participant "addressRepository:\nAddressRepository" as addressRepository
+participant "order:\nOrder" as ORDER
+participant "address:\nAddress" as ADDRESS
+participant "Validator" as VAL
+
+title Delete Order Sequence
+
+activate PM
+    PM -> UI : asks to update an order
+    activate UI
+
+        UI -> clientCTRL** : create
+        UI -> orderCTRL** : create
+
+        UI -> clientCTRL : getAllClients()
+        activate clientCTRL
+            clientCTRL -> clientSRV : getClients()
+            activate clientSRV
+
+                clientSRV -> REPS : getInstance()
+                activate REPS
+                REPS --> clientSRV: repositories
+                deactivate REPS
+                clientSRV -> REP : getClientRepository()
+                activate REP
+                REP --> clientSRV : clientRepository
+                deactivate REP
+
+                clientSRV -> clientRepository : getAll()
+                activate clientRepository
+                clientRepository --> clientSRV : clients
+                deactivate clientRepository
+            clientSRV --> clientCTRL : clients
+            deactivate clientSRV
+        clientCTRL --> UI : clients
+        deactivate clientCTRL
+
+    UI --> PM : shows the list of clients and requests client id
+    deactivate UI
+
+    PM -> UI : provides requested client id
+    activate UI
+        UI -> clientCTRL : getClientById(clientID)
+        activate clientCTRL
+            clientCTRL -> clientSRV : getClientById(clientID)
+            activate clientSRV
+
+                clientSRV -> REP : getClientRepository()
+                activate REP
+                REP --> clientSRV : clientRepository
+                deactivate REP
+
+                clientSRV -> clientRepository : getById(clientID)
+                activate clientRepository
+                clientRepository --> clientSRV : client
+                deactivate clientRepository
+
+                    alt client == null
+                        clientSRV -> clientEXC: throw clientNotFound(clientID)
+                        activate clientEXC
+                        clientEXC --> clientSRV: Exception Thrown
+                        deactivate clientEXC
+                        clientSRV --> clientCTRL: show error message (Client does not exist)
+                        clientCTRL --> UI: show error message (Client does not exist)
+                    else
+
+            clientSRV --> clientCTRL : client
+            deactivate clientSRV
+        clientCTRL --> UI : client
+        deactivate clientCTRL
+        UI --> PM : shows the client's order list and asks for confirmation
+    deactivate UI
+
+    PM -> UI : confirms that he wants to update an order
+    activate UI
+
+    UI --> PM: requests order id
+    deactivate UI
+
+    PM -> UI : provides requested order id
+    activate UI
+
+        UI -> orderCTRL : getOrderByID(orderID)
+        activate orderCTRL
+            orderCTRL -> orderSRV : getOrderByID(orderID)
+            activate orderSRV
+
+                orderSRV -> REPS : getInstance()
+                activate REPS
+                REPS --> orderSRV: repositories
+                deactivate REPS
+
+                orderSRV -> REP : getOrderRepository()
+                activate REP
+                REP --> orderSRV : orderRepository
+                deactivate REP
+
+                orderSRV -> orderRepository : getById(orderID))
+                activate orderRepository
+                orderRepository --> orderSRV : order
+                deactivate orderRepository
+
+                    alt order == null
+                        orderSRV -> orderEXC: throw orderNotFound(orderID))
+                        activate orderEXC
+                        orderEXC --> orderSRV: Exception Thrown
+                        deactivate orderEXC
+                        orderSRV --> orderCTRL: show error message (Order does not exist)
+                        orderCTRL --> UI: show error message (Order does not exist)
+                    else
+
+            orderSRV --> orderCTRL : order
+            deactivate orderSRV
+        orderCTRL --> UI : order
+        deactivate orderCTRL
+
+        UI --> PM : shows all data of order and requests data to be update (i.e. Order Date, Delivery Date, Delivery Address, Price)
+    deactivate UI
+
+    PM -> UI : types requested data
+    activate UI
+
+        UI -> orderCTRL: updateOrder(order, deliveryStreet, deliveryZipCode, deliveryTown, deliveryCountry, orderDate, deliveryDate, price)
+        activate orderCTRL
+            orderCTRL -> orderSRV: updateOrder(order, deliveryStreet, deliveryZipCode, deliveryTown, deliveryCountry, orderDate, deliveryDate, price)
+            activate orderSRV
+
+                orderSRV -> VAL: isValidData(deliveryZipCode, deliveryDate)
+                activate VAL
+                VAL --> orderSRV: true/false
+                deactivate VAL
+
+                alt false
+
+                    orderSRV -> orderEXC: throw invalidData()
+                    activate orderEXC
+                    orderEXC --> orderSRV: Exception Thrown
+                    deactivate orderEXC
+                    orderSRV --> orderCTRL: show error message (Invalid data)
+
+                    orderCTRL --> UI: show error message (Invalid data)
+                    deactivate VAL
+                else
+
+                    orderSRV -> REP: getAddressRepository()
+                    activate REP
+                    REP --> orderSRV: addressRepository
+                    deactivate REP
+
+                    orderSRV -> addressRepository: findAddress(deliveryStreet, deliveryZipCode, deliveryTown, deliveryCountry)
+                    activate addressRepository
+                    addressRepository --> orderSRV: address
+                    deactivate addressRepository
+                    alt address == null
+                        orderSRV -> ADDRESS** : create(address)
+                        orderSRV -> addressRepository: save(address)
+                        activate addressRepository
+                        addressRepository --> orderSRV: address
+                        deactivate addressRepository
+                    end
+
+                    orderSRV -> ORDER: setDeliveryAddress(address)
+                    activate ORDER
+                    ORDER --> orderSRV :
+                    deactivate ORDER
+                    orderSRV -> ORDER: setOrderDate(orderDate)
+                    activate ORDER
+                    ORDER --> orderSRV :
+                    deactivate ORDER
+                    orderSRV -> ORDER: setDeliveryDate(deliveryDate)
+                    activate ORDER
+                    ORDER --> orderSRV :
+                    deactivate ORDER
+                    orderSRV -> ORDER: setPrice(price)
+                    activate ORDER
+                    ORDER --> orderSRV :
+                    deactivate ORDER
+
+                    orderSRV -> REP: getOrderRepository()
+                    activate REP
+                    REP --> orderSRV: orderRepository
+                    deactivate REP
+                    orderSRV -> orderRepository: update(order)
+                    activate orderRepository
+                    alt system error
+                        orderRepository --> orderSRV: Database error
+
+                        orderSRV --> orderCTRL: show error message (Database error)
+
+                        orderCTRL --> UI: show error message (Database error)
+                    else
+                        orderRepository --> orderSRV: order
+                        deactivate orderRepository
+                        orderSRV --> orderCTRL: order
+                        deactivate orderSRV
+                        orderCTRL --> UI: order
+                        deactivate orderCTRL
+                    end
+                end
+            end
+        end
+
+        UI --> PM : shows all data and displays operation success or error message
+    deactivate UI
+
+deactivate PM
+@enduml

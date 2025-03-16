@@ -1,0 +1,144 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype polyline
+skinparam classAttributeIconSize 0
+
+package "UI" {
+    class UpdateOrderUI {
+    }
+}
+
+package "Controller" {
+    class ClientController {
+        +getAllClients() : List<Client>
+        +getClientById(clientID) : Client
+    }
+
+    class OrderController {
+        +getOrderByID(orderID) : Order
+        +updateOrder(order, deliveryStreet, deliveryZipCode, deliveryTown, deliveryCountry, orderDate, deliveryDate, price) : Order
+    }
+}
+
+package "Service" {
+    class ClientService {
+        +getClients() : List<Client>
+        +getClientById(clientID) : Client
+    }
+
+    class OrderService {
+        +getOrderByID(orderID) : Order
+        +updateOrder(order, deliveryStreet, deliveryZipCode, deliveryTown, deliveryCountry, orderDate, deliveryDate, price)
+    }
+}
+
+package "Repository" {
+    class Repositories {
+        -Repositories()
+        +getInstance() : Repositories
+        +getClientRepository() : ClientRepository
+        +getOrderRepository() : OrderRepository
+        +getAddressRepository() : AddressRepository
+    }
+
+    class ClientRepository {
+        +getAll() : List<Client>
+        +getById(clientID) : Client
+    }
+
+    class OrderRepository {
+        +getByID(orderID) : Order
+        +update(order) : boolean
+    }
+
+    class AddressRepository {
+        +findAddress(deliveryStreet, deliveryZipCode, deliveryTown, deliveryCountry) : Address
+        +getAddressCount() : int
+        +save(address) : boolean
+    }
+}
+
+package "Model" {
+    class Client {
+        -clientID : int
+        -address : Address
+        -name : String
+        -vatin : String
+        -phoneNumber : int
+        -email : String
+        -type : CompanyType
+        -state : EntityState
+        -orders : List<Order>
+        +Client(clientID, name, address, vatin, phoneNumber, email, type)
+    }
+
+    class Order {
+        -orderID : int
+        -deliveryAddress : Address
+        -orderDate : Date
+        -deliveryDate : Date
+        -price : double
+        -state : ProcessState
+        -productQuantity : Map<Product, Integer>
+        +Order(orderID, deliveryAddress, orderDate, deliveryDate, price, productQuantity)
+    }
+
+    class Address {
+        -id : int
+        -street : String
+        -zipCode : String
+        -town : String
+        -country : String
+        +Address(id, street, zipCode, town, country)
+    }
+
+}
+
+package "Exception" {
+    class ClientException {
+        +clientNotFound(clientID) : ClientException
+    }
+
+    class OrderException {
+        +orderNotFound(orderID) : OrderException
+        +invalidDeliveryDate() : OrderException
+        +invalidZipCode() : OrderException
+    }
+
+    class RuntimeException
+}
+
+package "Commom" {
+    class Validator {
+        +isValidZipCode(zipCode) : boolean
+    }
+}
+
+UpdateOrderUI ..> ClientController
+UpdateOrderUI ..> OrderController
+ClientController ..> ClientService
+OrderController ..> OrderService
+ClientService ..> Repositories : repositories
+OrderService ..> Repositories : repositories
+ClientService ..> ClientRepository : clientRepository
+OrderService ..> OrderRepository : orderRepository
+OrderService ..> AddressRepository : addressRepository
+ClientService ..> Client : client
+OrderService ..> Order : order
+OrderService ..> Address : address
+Repositories --> Repositories : instance
+Repositories "1" --> "1" ClientRepository : clientRepository
+Repositories "1" --> "1" OrderRepository : orderRepository
+Repositories "1" --> "1" AddressRepository : addressRepository
+ClientRepository "1" --> "*" Client : categories
+OrderRepository "1" --> "*" Order : categories
+AddressRepository "1" --> "*" Address : categories
+Client "1" --> "*" Order : has
+ClientService ..> ClientException : throws
+ClientException --|> RuntimeException
+OrderService ..> OrderException : throws
+OrderException --|> RuntimeException
+ClientService ..> Validator : uses
+
+@enduml

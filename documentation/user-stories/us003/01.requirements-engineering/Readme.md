@@ -33,6 +33,7 @@ As an Administrator, I want to update client data, so that their information rem
 **Input Data:**
 
 * Typed data:
+  * Client ID
   * Name
   * Vatin
   * Street

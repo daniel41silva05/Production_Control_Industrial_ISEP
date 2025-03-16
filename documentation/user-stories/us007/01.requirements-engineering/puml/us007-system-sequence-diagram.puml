@@ -1,0 +1,70 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title System Sequence Diagram (SSD)
+
+autonumber
+
+actor "Production Manager" as PM
+participant ":System" as System
+
+activate PM
+
+    PM -> System : asks to update an order
+    activate System
+
+        System --> PM : shows the list of clients and requests client id
+    deactivate System
+
+    PM -> System : provides requested client id
+    activate System
+
+    System -> System : checks if client already exists
+        alt client does not exist
+                System --> PM : shows error message (Client does not exist)
+            deactivate System
+        else client exists
+
+        System --> PM : shows the client's order list and asks for confirmation
+    deactivate System
+
+    PM -> System : confirms that he wants to update an order
+    activate System
+
+        System --> PM : requests order id
+    deactivate System
+
+    PM -> System : provides requested order id
+    activate System
+
+            System -> System : checks if order already exists
+            alt order does not exist
+                System --> PM : shows error message (Order does not exist)
+                deactivate System
+            else order exists
+
+        System --> PM : shows all data of order and requests data to be update (i.e. Order Date, Delivery Date, Delivery Address, Price)
+    deactivate System
+
+    PM -> System : types requested data
+    activate System
+
+        System -> System : validates the data
+        alt invalid data
+            System --> PM : shows error message (Invalid data)
+            deactivate System
+        else valid data
+                System -> System : updates client data
+                alt system error
+                    System --> PM : shows error message (Database error)
+                    deactivate System
+                else success
+                    System --> PM : shows all data and displays operation success
+                    deactivate System
+                end
+            end
+        end
+
+@enduml

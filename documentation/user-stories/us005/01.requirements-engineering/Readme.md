@@ -41,6 +41,7 @@ As a Production Manager, I want to register an order, so that production can be 
   * ID
   * Client ID
   * Order Date
+  * Delivery Date
   * Delivery Street
   * Delivery Zip Code
   * Delivery Town
