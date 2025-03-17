@@ -1,8 +1,36 @@
-# US008 - Consult Active Orders
+package org.project.service;
 
-## 4. Tests 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.project.model.Order;
+import org.project.repository.OrderRepository;
+import org.project.data.DatabaseConnection;
 
-**Test 1:** Check if only include orders with a delivery date after the current one - AC02.
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+public class ActiveOrdersTest {
+
+    private OrderService orderService;
+
+    @Mock
+    private DatabaseConnection connection;
+
+    @Mock
+    private OrderRepository orderRepository;
+
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+        orderService = new OrderService(connection, orderRepository, null);
+    }
 
     @Test
     public void testActiveOrders_ReturnsOnlyFutureOrders() {
@@ -24,8 +52,6 @@
         assertFalse(activeOrders.contains(order2));
     }
 
-**Test 2:** Check if there are no orders returns empty.
-
     @Test
     public void testActiveOrders_ReturnsEmptyListWhenNoOrders() {
         when(orderRepository.getAll(connection)).thenReturn(Collections.emptyList());
@@ -34,8 +60,6 @@
 
         assertTrue(activeOrders.isEmpty());
     }
-
-**Test 3:** Check if there are only inactive orders returns empty.
 
     @Test
     public void testActiveOrders_ReturnsEmptyListWhenAllOrdersArePast() {
@@ -55,26 +79,4 @@
         assertTrue(activeOrders.isEmpty());
     }
 
-## 5. Construction (Implementation)
-
-### Class OrderService 
-
-```java
-public List<Order> activeOrders () {
-    List<Order> activeOrders = new ArrayList<>();
-
-    List<Order> orders = orderRepository.getAll(connection);
-
-    for (Order order : orders) {
-        if (order.getDeliveryDate().after(new Date())) {
-            activeOrders.add(order);
-        }
-    }
-
-    return activeOrders;
 }
-```
-
-## 6. Observations
-
-n/a

@@ -5,15 +5,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.project.data.DatabaseConnection;
-import org.project.exceptions.ClientException;
 import org.project.exceptions.OrderException;
 import org.project.model.Address;
 import org.project.model.Order;
-import org.project.repository.AddressRepository;
 import org.project.repository.OrderRepository;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -30,14 +26,11 @@ public class CancelOrderTest {
     @Mock
     private OrderRepository orderRepository;
 
-    @Mock
-    private AddressRepository addressRepository;
-
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
 
-        orderService = new OrderService(connection, orderRepository, addressRepository);
+        orderService = new OrderService(connection, orderRepository, null);
     }
 
     @Test

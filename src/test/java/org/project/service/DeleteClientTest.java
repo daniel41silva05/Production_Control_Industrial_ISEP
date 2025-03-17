@@ -8,7 +8,6 @@ import org.project.data.DatabaseConnection;
 import org.project.exceptions.ClientException;
 import org.project.model.Client;
 import org.project.model.CompanyType;
-import org.project.repository.AddressRepository;
 import org.project.repository.ClientRepository;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -24,14 +23,11 @@ public class DeleteClientTest {
     @Mock
     private ClientRepository clientRepository;
 
-    @Mock
-    private AddressRepository addressRepository;
-
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
 
-        clientService = new ClientService(connection, clientRepository, addressRepository);
+        clientService = new ClientService(connection, clientRepository, null);
     }
 
     @Test

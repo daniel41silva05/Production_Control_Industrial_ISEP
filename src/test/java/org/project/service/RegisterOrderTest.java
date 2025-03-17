@@ -31,9 +31,6 @@ public class RegisterOrderTest {
     private ProductService productService;
 
     @Mock
-    private ProductionTreeService productionTreeService;
-
-    @Mock
     private DatabaseConnection connection;
 
     @Mock
@@ -45,17 +42,14 @@ public class RegisterOrderTest {
     @Mock
     private ProductRepository productRepository;
 
-    @Mock
-    private ProductCategoryRepository productCategoryRepository;
-
     @BeforeEach
     public void setUp() throws Exception {
         MockitoAnnotations.openMocks(this);
 
         orderService = new OrderService(connection, orderRepository, addressRepository);
-        productService = new ProductService(connection, productRepository, productCategoryRepository);
+        productService = new ProductService(connection, productRepository, null);
 
-        orderController = new OrderController(orderService, productService, productionTreeService);
+        orderController = new OrderController(orderService, productService, null);
     }
 
     @Test
