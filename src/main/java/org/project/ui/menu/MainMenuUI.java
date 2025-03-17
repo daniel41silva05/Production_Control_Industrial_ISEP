@@ -15,10 +15,7 @@ public class MainMenuUI implements Runnable {
         List<MenuItem> options = new ArrayList<MenuItem>();
         options.add(new MenuItem("Client Management", new ClientManagementMenuUI()));
         options.add(new MenuItem("Order Management", new OrderManagementMenuUI()));
-        options.add(new MenuItem("Register a Product", new RegisterProductUI()));
-        options.add(new MenuItem("Change a product Category", new ChangeProductCategoryUI()));
-        options.add(new MenuItem("Delete a Product Category", new DeleteProductCategoryUI()));
-        options.add(new MenuItem("Consult products in a Category", new ConsultProductsInCategoryUI()));
+        options.add(new MenuItem("Product and Category Management", new ProductManagementMenuUI()));
         options.add(new MenuItem("Register a Component", new RegisterComponentUI()));
         options.add(new MenuItem("Register a Raw Material", new RegisterRawMaterialUI()));
         options.add(new MenuItem("Change Minimum Raw Material Stock", new ChangeMinimumRawMaterialStockUI()));

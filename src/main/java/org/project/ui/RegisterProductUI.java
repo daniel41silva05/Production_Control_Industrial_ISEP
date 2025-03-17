@@ -1,6 +1,7 @@
 package org.project.ui;
 
 import org.project.controller.ProductController;
+import org.project.exceptions.DatabaseException;
 import org.project.model.Product;
 import org.project.model.ProductCategory;
 import org.project.exceptions.ProductException;
@@ -18,7 +19,7 @@ public class RegisterProductUI implements Runnable {
 
     public void run() {
         try {
-            showProductCategories();
+            showProductCategories(controller.getProductCategories());
 
             List<String> optionCategory = new ArrayList<>();
             optionCategory.add("Register the product in a new category.");
@@ -52,15 +53,13 @@ public class RegisterProductUI implements Runnable {
                 System.out.println("\nProduct registered successfully.");
                 showProduct(product);
             }
-        } catch (ProductException e) {
+
+        } catch (ProductException | DatabaseException e) {
             System.out.println("\nError: " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("\nProduct registration failed.");
         }
     }
 
-    private void showProductCategories () {
-        List<ProductCategory> categories = controller.getProductCategories();
+    private void showProductCategories (List<ProductCategory> categories) {
         if (!categories.isEmpty()) {
             System.out.println("\nProduct Categories: ");
             for (ProductCategory category : categories) {

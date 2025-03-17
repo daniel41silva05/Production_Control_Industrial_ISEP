@@ -2,7 +2,6 @@ package org.project.controller;
 
 import org.project.model.Product;
 import org.project.model.ProductCategory;
-import org.project.exceptions.ProductException;
 import org.project.service.ProductService;
 
 import java.util.List;
@@ -24,27 +23,27 @@ public class ProductController {
         return productService.getProductCategories();
     }
 
-    public ProductCategory getProductCategory(int id) throws ProductException {
+    public ProductCategory getProductCategory(int id) {
         return productService.getCategoryByID(id);
     }
 
-    public ProductCategory registerCategory(int id, String name) throws ProductException {
+    public ProductCategory registerCategory(int id, String name) {
         return productService.registerCategory(id, name);
     }
 
-    public Product registerProduct(String productID, String name, String description, ProductCategory category, int capacity, int size, String color, double price) throws ProductException {
+    public Product registerProduct(String productID, String name, String description, ProductCategory category, int capacity, int size, String color, double price) {
         return productService.registerProduct(productID, name, description, category, capacity, size, color, price);
     }
 
-    public Product changeProductCategory (String productID, ProductCategory category) throws ProductException {
+    public Product changeProductCategory (String productID, ProductCategory category) {
         return productService.changeProductCategory(productID, category);
     }
 
-    public List<Product> productListInCategory(int categoryID) throws ProductException {
+    public List<Product> productListInCategory(int categoryID) {
         return productService.productListInCategory(categoryID);
     }
 
-    public ProductCategory deleteCategory(int id, Map<Product,Integer> productNewCategory) throws ProductException {
+    public ProductCategory deleteCategory(int id, Map<Product,Integer> productNewCategory) {
         return productService.deleteCategory(id, productNewCategory);
     }
 

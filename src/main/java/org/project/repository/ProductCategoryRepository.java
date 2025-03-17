@@ -1,6 +1,7 @@
 package org.project.repository;
 
 import org.project.data.DatabaseConnection;
+import org.project.exceptions.DatabaseException;
 import org.project.model.ProductCategory;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,8 +21,7 @@ public class ProductCategoryRepository {
             int rowsInserted = statement.executeUpdate();
             return rowsInserted > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            throw DatabaseException.databaseError();
         }
     }
 
@@ -34,8 +34,7 @@ public class ProductCategoryRepository {
             int rowsDeleted = statement.executeUpdate();
             return rowsDeleted > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            throw DatabaseException.databaseError();
         }
     }
 
@@ -54,7 +53,7 @@ public class ProductCategoryRepository {
                 categories.add(category);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw DatabaseException.databaseError();
         }
         return categories;
     }
@@ -74,7 +73,7 @@ public class ProductCategoryRepository {
                 );
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw DatabaseException.databaseError();
         }
         return category;
     }
@@ -92,7 +91,7 @@ public class ProductCategoryRepository {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw DatabaseException.databaseError();
         }
 
         return count > 0;

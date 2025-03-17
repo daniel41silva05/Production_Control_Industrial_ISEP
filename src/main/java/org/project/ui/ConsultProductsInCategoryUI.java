@@ -1,6 +1,7 @@
 package org.project.ui;
 
 import org.project.controller.ProductController;
+import org.project.exceptions.DatabaseException;
 import org.project.model.Product;
 import org.project.model.ProductCategory;
 import org.project.exceptions.ProductException;
@@ -18,16 +19,7 @@ public class ConsultProductsInCategoryUI implements Runnable {
 
     public void run() {
         try {
-            List<ProductCategory> categories = controller.getProductCategories();
-            if (!categories.isEmpty()) {
-                System.out.println("\nProduct Categories: ");
-                for (ProductCategory category : categories) {
-                    System.out.println(" - Product Category ID: " + category.getId() + " | Name: " + category.getName());
-                }
-            } else {
-                System.out.println("\nNo product categories registered.");
-                return;
-            }
+            showProductCategories(controller.getProductCategories());
 
             int categoryID = Utils.readIntegerFromConsole("Enter Product Category ID: ");
 
@@ -35,15 +27,25 @@ public class ConsultProductsInCategoryUI implements Runnable {
             if (products.isEmpty()) {
                 System.out.println("\nThe category you want to consult does not currently contain any products.");
             } else {
-                System.out.println("\nProducts from category " + products.getFirst().getCategory().getName() + ": ");
+                System.out.println("\nProducts from category " + categoryID + ": ");
                 for (Product product : products) {
                     showProduct(product);
                 }
             }
-        } catch (ProductException e) {
+
+        } catch (ProductException | DatabaseException e) {
             System.out.println("\nError: " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("\nConsult Category failed.");
+        }
+    }
+
+    private void showProductCategories (List<ProductCategory> categories) {
+        if (!categories.isEmpty()) {
+            System.out.println("\nProduct Categories: ");
+            for (ProductCategory category : categories) {
+                System.out.println(" - Product Category ID: " + category.getId() + " | Name: " + category.getName());
+            }
+        } else {
+            System.out.println("\nNo product categories registered.");
         }
     }
 

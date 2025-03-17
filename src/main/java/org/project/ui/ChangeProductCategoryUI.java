@@ -1,6 +1,7 @@
 package org.project.ui;
 
 import org.project.controller.ProductController;
+import org.project.exceptions.DatabaseException;
 import org.project.model.Product;
 import org.project.model.ProductCategory;
 import org.project.exceptions.ProductException;
@@ -33,11 +34,7 @@ public class ChangeProductCategoryUI implements Runnable {
                 return;
             }
 
-            List<ProductCategory> categories = controller.getProductCategories();
-            System.out.println("\nProduct Categories: ");
-            for (ProductCategory category : categories) {
-                System.out.println(" - Product Category ID: " + category.getId() + " | Name: " + category.getName());
-            }
+            showProductCategories(controller.getProductCategories());
 
             List<String> optionCategory = new ArrayList<>();
             optionCategory.add("Update the product in a new category.");
@@ -66,10 +63,9 @@ public class ChangeProductCategoryUI implements Runnable {
             } else {
                 System.out.println("\nProduct Category update failed.");
             }
-        } catch (ProductException e) {
+
+        } catch (ProductException | DatabaseException e) {
             System.out.println("\nError: " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("\nUpdate Product Category failed.");
         }
     }
 
@@ -83,5 +79,16 @@ public class ChangeProductCategoryUI implements Runnable {
         System.out.println(" - Capacity: " + product.getCapacity());
         System.out.println(" - Color: " + product.getColor());
         System.out.println(" - Price: " + product.getPrice() + "$");
+    }
+
+    private void showProductCategories (List<ProductCategory> categories) {
+        if (!categories.isEmpty()) {
+            System.out.println("\nProduct Categories: ");
+            for (ProductCategory category : categories) {
+                System.out.println(" - Product Category ID: " + category.getId() + " | Name: " + category.getName());
+            }
+        } else {
+            System.out.println("\nNo product categories registered.");
+        }
     }
 }

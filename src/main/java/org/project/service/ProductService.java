@@ -2,13 +2,11 @@ package org.project.service;
 
 import org.project.data.ConnectionFactory;
 import org.project.data.DatabaseConnection;
-import org.project.io.CsvReader;
 import org.project.model.*;
 import org.project.exceptions.ProductException;
 import org.project.repository.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,12 +33,14 @@ public class ProductService {
         return productCategoryRepository.getAll(connection);
     }
 
-    public ProductCategory getCategoryByID(int id) throws ProductException {
-        if (!productCategoryRepository.getCategoryExists(connection, id)) {
-            throw new ProductException("Product Category with ID " + id + " not exists.");
+    public ProductCategory getCategoryByID(int id) {
+        ProductCategory category = productCategoryRepository.getByID(connection, id);
+
+        if (category == null) {
+            throw ProductException.categoryNotFound(id);
         }
 
-        return productCategoryRepository.getByID(connection, id);
+        return category;
     }
 
     public List<Product> getProducts() {
@@ -57,58 +57,54 @@ public class ProductService {
         return product;
     }
 
-    public ProductCategory registerCategory(int id, String name) throws ProductException {
+    public ProductCategory registerCategory(int id, String name) {
         if (productCategoryRepository.getCategoryExists(connection, id)) {
-            throw new ProductException("Product Category with ID " + id + " already exists.");
+            throw ProductException.categoryAlreadyExists(id);
         }
 
         ProductCategory productCategory = new ProductCategory(id, name);
-        boolean success = productCategoryRepository.save(connection, productCategory);
-        if (!success) {
-            return null;
-        }
+
+        productCategoryRepository.save(connection, productCategory);
+
         return productCategory;
     }
 
-    public Product registerProduct(String productID, String name, String description, ProductCategory category, int capacity, int size, String color, double price) throws ProductException {
-
+    public Product registerProduct(String productID, String name, String description, ProductCategory category, int capacity, int size, String color, double price) {
         if (productRepository.getProductExists(connection, productID)) {
-            throw new ProductException("Product with ID " + productID + " already exists.");
+            throw ProductException.productAlreadyExists(productID);
+        }
+
+        if (category == null) {
+            return null;
         }
 
         Product product = new Product(productID, name, description, category, capacity, size, color, price);
-        boolean success = productRepository.saveProduct(connection, product);
-        if (!success) {
-            return null;
-        }
+
+        productRepository.saveProduct(connection, product);
 
         return product;
     }
 
-    public Product changeProductCategory (String productID, ProductCategory category) throws ProductException {
-        if (!productRepository.getProductExists(connection, productID)) {
-            throw new ProductException("Product with ID " + productID + " not exists.");
+    public Product changeProductCategory (String productID, ProductCategory category) {
+        Product product = getProductByID(productID);
+
+        if (category == null) {
+            return null;
         }
 
-        Product product = productRepository.getProductByID(connection, productID);
         if (product.getCategory().equals(category)) {
-            throw new ProductException("Product with ID " + productID + " already belongs to category" + category.getName() + ".");
+            throw ProductException.productAlreadyInCategory(productID, category.getName());
         }
+
         product.setCategory(category);
 
-        boolean success = productRepository.updateCategory(connection, product);
-        if (!success) {
-            return null;
-        }
+        productRepository.updateCategory(connection, product);
 
         return product;
     }
 
-    public List<Product> productListInCategory(int categoryID) throws ProductException {
-        if (!productCategoryRepository.getCategoryExists(connection, categoryID)) {
-            throw new ProductException("Product Category with ID " + categoryID + " not exists.");
-        }
-        ProductCategory productCategory = productCategoryRepository.getByID(connection, categoryID);
+    public List<Product> productListInCategory(int categoryID) {
+        ProductCategory productCategory = getCategoryByID(categoryID);
 
         List<Product> products = productRepository.getAllProducts(connection);
         List<Product> filteredProducts = new ArrayList<>();
@@ -122,32 +118,25 @@ public class ProductService {
         return filteredProducts;
     }
 
-    public ProductCategory deleteCategory(int id, Map<Product,Integer> productNewCategory) throws ProductException {
+    public ProductCategory deleteCategory(int id, Map<Product,Integer> productNewCategory){
         for (Map.Entry<Product, Integer> entry : productNewCategory.entrySet()) {
             Product product = entry.getKey();
             int categoryID = entry.getValue();
 
-            if (!productCategoryRepository.getCategoryExists(connection, categoryID)) {
-                throw new ProductException("Product Category with ID " + categoryID + " not exists.");
-            } else if (categoryID == id) {
-                throw new ProductException("Product Category with ID " + categoryID + " this is what will be deleted.");
+            if (categoryID == id) {
+                throw ProductException.categoryDeletionMessage(categoryID);
             }
 
-            ProductCategory productCategory = productCategoryRepository.getByID(connection, categoryID);
+            ProductCategory productCategory = getCategoryByID(categoryID);
+
             product.setCategory(productCategory);
 
-            boolean success = productRepository.updateCategory(connection, product);
-            if (!success) {
-                return null;
-            }
+            productRepository.updateCategory(connection, product);
         }
 
-        ProductCategory productCategory = productCategoryRepository.getByID(connection, id);
+        ProductCategory productCategory = getCategoryByID(id);
 
-        boolean success = productCategoryRepository.delete(connection, productCategory);
-        if (!success) {
-            return null;
-        }
+        productCategoryRepository.delete(connection, productCategory);
 
         return productCategory;
     }
