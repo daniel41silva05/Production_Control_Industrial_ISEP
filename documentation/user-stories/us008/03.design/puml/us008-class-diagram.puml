@@ -1,0 +1,60 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype polyline
+skinparam classAttributeIconSize 0
+
+package "UI" {
+    class ConsultActiveOrdersUI {
+    }
+}
+
+package "Controller" {
+    class OrderController {
+        +consultActiveOrders() : List<Order>
+    }
+}
+
+package "Service" {
+    class OrderService {
+        +activeOrders() : List<Order>
+    }
+}
+
+package "Repository" {
+    class Repositories {
+        -Repositories()
+        +getInstance() : Repositories
+        +getOrderRepository() : OrderRepository
+    }
+
+    class OrderRepository {
+        +getAll() : List<Order>
+    }
+
+}
+
+package "Model" {
+    class Order {
+        -orderID : int
+        -deliveryAddress : Address
+        -orderDate : Date
+        -deliveryDate : Date
+        -price : double
+        -state : ProcessState
+        -productQuantity : Map<Product, Integer>
+        +Order(orderID, deliveryAddress, orderID, deliveryDate, price, productQuantity)
+    }
+}
+
+
+ConsultActiveOrdersUI ..> OrderController
+OrderController ..> OrderService
+OrderService ..> Repositories : repositories
+OrderService ..> OrderRepository : orderRepository
+OrderService ..> Order : order
+Repositories --> Repositories : instance
+Repositories "1" --> "1" OrderRepository : orderRepository
+OrderRepository "1" --> "*" Order : categories
+
+@enduml
