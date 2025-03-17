@@ -1,8 +1,43 @@
-# US007 - Update Order Data
+package org.project.service;
 
-## 4. Tests 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.project.data.DatabaseConnection;
+import org.project.exceptions.OrderException;
+import org.project.model.Address;
+import org.project.model.Order;
+import org.project.repository.AddressRepository;
+import org.project.repository.OrderRepository;
 
-**Test 1:** Check if the order is being updated correctly, being stored in the repository.
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+public class UpdateOrderTest {
+
+    private OrderService orderService;
+
+    @Mock
+    private DatabaseConnection connection;
+
+    @Mock
+    private OrderRepository orderRepository;
+
+    @Mock
+    private AddressRepository addressRepository;
+
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+
+        orderService = new OrderService(connection, orderRepository, addressRepository);
+    }
 
     @Test
     public void testUpdateClient_Success() throws ParseException {
@@ -39,14 +74,10 @@
         verify(addressRepository, times(1)).save(eq(connection), any(Address.class));
     }
 
-**Test 2:** Check that it's not possible to update an order that doesn't exist - AC01.
-
     @Test
     public void testUpdateOrder_OrderNotFound() {
         assertNull(orderService.updateOrder(null, "Rua Clérigos", "1222-222", "Porto", "portugal", new Date(), new Date(), 77));
     }
-
-**Test 3:** Check that it is not possible to update an order with an invalid delivery date - AC04.
 
     @Test
     public void testUpdateOrder_InvalidDeliveryDate() throws ParseException {
@@ -64,8 +95,6 @@
         });
     }
 
-**Test 4:** Check that it is not possible to update an order with an invalid zip code - AC05.
-
     @Test
     public void testUpdateOrder_InvalidZipCode() {
         int orderID = 1;
@@ -79,8 +108,6 @@
             orderService.updateOrder(existingOrder, "Main St", invalidZipCode, "Springfield", "USA", new Date(), new Date(), 120);
         });
     }
-
-**Test 5:** Check that the system reuses an existing address when registering an order with the same address details.
 
     @Test
     public void testUpdateOrder_ExistingAddress() {
@@ -108,56 +135,4 @@
         verify(addressRepository, never()).save(eq(connection), any(Address.class));
     }
 
-## 5. Construction (Implementation)
-
-### Class ClientService 
-
-```java
-public Order updateOrder (Order order, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date orderDate, Date deliveryDate, double price) {
-    if (deliveryDate.before(orderDate)) {
-        throw OrderException.invalidDeliveryDate();
-    }
-
-    if (order == null) {
-        return null;
-    }
-
-    Address address = order.getDeliveryAddress();
-    if (!address.getStreet().equals(deliveryStreet) || !address.getZipCode().equals(deliveryZipCode) || !address.getTown().equals(deliveryTown) || !address.getCountry().equals(deliveryCountry)) {
-        if (!Validator.isValidZipCode(deliveryZipCode)) {
-            throw OrderException.invalidZipCode();
-        }
-
-        address = addressRepository.findAddress(connection, deliveryStreet, deliveryZipCode, deliveryTown, deliveryCountry);
-        if (address == null) {
-            int id = addressRepository.getAddressCount(connection);
-            address = new Address(id, deliveryStreet, deliveryZipCode, deliveryTown, deliveryCountry);
-            addressRepository.save(connection, address);
-        }
-    }
-
-    order.setDeliveryAddress(address);
-    order.setOrderDate(orderDate);
-    order.setDeliveryDate(deliveryDate);
-    order.setPrice(price);
-
-    orderRepository.update(connection, order);
-
-    return order;
 }
-```
-```java
-    public Order getOrderByID (int orderID) {
-    Order order = orderRepository.getByID(connection, orderID);
-
-    if (order == null) {
-        throw OrderException.orderNotFound(orderID);
-    }
-
-    return order;
-}
-```
-
-## 6. Observations
-
-n/a

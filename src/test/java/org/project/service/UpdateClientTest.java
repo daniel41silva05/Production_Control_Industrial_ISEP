@@ -71,7 +71,7 @@ public class UpdateClientTest {
     }
 
     @Test
-    public void testDeleteClient_ClientNotFound() {
+    public void testUpdateClient_ClientNotFound() {
         assertNull(clientService.updateClient(null, "John Doe", "123456789", "Main St", "9999-999", "Springfield", "USA", 123456789, "john.doe@example.com", CompanyType.INDIVIDUAL));
     }
 

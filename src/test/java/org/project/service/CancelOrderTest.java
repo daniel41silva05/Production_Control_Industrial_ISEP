@@ -41,13 +41,10 @@ public class CancelOrderTest {
     }
 
     @Test
-    public void testDeleteClient_Success() throws ParseException {
+    public void testDeleteClient_Success() {
         int orderID = 1;
 
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        Date orderDate = sdf.parse("26/01/2024");
-        Date deliveryDate = sdf.parse("26/01/2026");
-        Order order = new Order(orderID, new Address(2, "Main St", "1111-111", "Springfield", "USA"), orderDate, deliveryDate, 10, new HashMap<>());
+        Order order = new Order(orderID, new Address(2, "Main St", "1111-111", "Springfield", "USA"), new Date(), new Date(), 10, new HashMap<>());
 
         when(orderRepository.getByID(connection, orderID)).thenReturn(order);
 
