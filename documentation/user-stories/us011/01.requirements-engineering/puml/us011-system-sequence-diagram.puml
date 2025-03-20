@@ -12,7 +12,13 @@ participant ":System" as System
 
 activate PM
 
-    PM -> System : asks to register a new product
+    PM -> System : asks to change the category of a product
+    activate System
+
+        System --> PM : shows the list of products and asks for confirmation
+    deactivate System
+
+    PM -> System : confirms that he changes the category of a product
     activate System
 
         System --> PM : shows the list of categories
@@ -50,13 +56,19 @@ activate PM
             end
     end
 
-        System --> PM : requests data (i.e. Name, Description, Capacity, Size, Color, Price)
+        System --> PM : requests product id
     deactivate System
 
-    PM -> System : types requested data
+    PM -> System : types requested id
     activate System
 
-                System -> System : saves product data
+    System -> System : checks if product already exists
+        alt product does not exist
+                System --> PM : shows error message (Product does not exist)
+            deactivate System
+        else
+
+                System -> System : change the category of a product
                 alt system error
                     System --> PM : shows error message (Database error)
                     deactivate System
@@ -64,4 +76,5 @@ activate PM
                     System --> PM : shows all data and displays operation success
                     deactivate System
                 end
+        end
 @enduml

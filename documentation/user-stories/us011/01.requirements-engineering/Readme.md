@@ -20,6 +20,7 @@ As a Production Manager, I want to change the category of a product, so that it 
 
 * **AC01:** The Production Manager must be able to select a product and change its category.
 * **AC02:** Category must either already exist in the system or be provided during changed.
+* **AC03:** Is not possible to update category of a product with the same category
 
 ### 1.4. Found out Dependencies
 

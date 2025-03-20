@@ -1,8 +1,36 @@
-# US011 - Change Product Category
+package org.project.service;
 
-## 4. Tests 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.project.data.DatabaseConnection;
+import org.project.exceptions.ProductException;
+import org.project.model.Product;
+import org.project.model.ProductCategory;
+import org.project.repository.ProductRepository;
 
-**Test 1:** Check if the product category is being changed correctly, being stored in the repository.
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+public class ChangeProductCategoryTest {
+
+    private ProductService productService;
+
+    @Mock
+    private DatabaseConnection connection;
+
+    @Mock
+    private ProductRepository productRepository;
+
+    @Mock
+    private Product product;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        productService = new ProductService(connection, productRepository, null);
+    }
 
     @Test
     void testChangeProductCategory_Success() {
@@ -20,18 +48,14 @@
         verify(productRepository, times(1)).updateCategory(connection, product);
     }
 
-**Test 2:** Check that it is not possible to changed a product without a category - AC02.
-
     @Test
     void testChangeProductCategory_NullCategory() {
         String productId = "P002";
         when(productRepository.getProductByID(connection, productId)).thenReturn(product);
-        
+
         Product result = productService.changeProductCategory(productId, null);
         assertNull(result);
     }
-
-**Test 3:** Check if it is not possible to update category of a product with the same category - AC03.
 
     @Test
     void testChangeProductCategory_AlreadyInCategory() {
@@ -44,41 +68,4 @@
         assertThrows(ProductException.class, () -> productService.changeProductCategory(productId, category));
     }
 
-## 5. Construction (Implementation)
-
-### Class ProductService 
-
-```java
-public Product changeProductCategory (String productID, ProductCategory category) {
-    Product product = getProductByID(productID);
-
-    if (category == null) {
-        return null;
-    }
-
-    if (product.getCategory().equals(category)) {
-        throw ProductException.productAlreadyInCategory(productID, category.getName());
-    }
-
-    product.setCategory(category);
-
-    productRepository.updateCategory(connection, product);
-
-    return product;
 }
-```
-```java
-public Product getProductByID(String id) {
-    Product product = productRepository.getProductByID(connection, id);
-
-    if (product == null) {
-        throw ProductException.productNotFound(id);
-    }
-
-    return product;
-}
-```
-
-## 6. Observations
-
-n/a

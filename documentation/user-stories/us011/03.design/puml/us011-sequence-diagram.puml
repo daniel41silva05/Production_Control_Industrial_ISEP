@@ -8,7 +8,7 @@ title System Sequence Diagram (SSD)
 autonumber
 
 actor "Production Manager" as PM
-participant ":RegisterProductUI" as UI
+participant ":ChangeProductCategoryUI" as UI
 participant ":ProductController" as CTRL
 participant ":ProductService" as SRV
 participant "ProductException" as EXC
@@ -22,20 +22,48 @@ participant "product:\nProduct" as PRODUCT
 title Register Product Sequence
 
 activate PM
-    PM -> UI : asks to register a new product
+    PM -> UI : asks to change the category of a product
     activate UI
 
         UI -> CTRL** : create
 
-        UI -> CTRL : getProductCategories()
+        UI -> CTRL : getProducts()
         activate CTRL
-            CTRL -> SRV : getProductCategories()
+            CTRL -> SRV : getProducts()
             activate SRV
 
                 SRV -> REPS : getInstance()
                 activate REPS
                 REPS --> SRV: repositories
                 deactivate REPS
+                SRV -> REP : getProductRepository()
+                activate REP
+                REP --> SRV : productRepository
+                deactivate REP
+
+                SRV -> productRepository : getAll()
+                activate productRepository
+
+                productRepository --> SRV: products
+                deactivate productRepository
+
+            SRV --> CTRL : products
+            deactivate SRV
+
+        CTRL --> UI : products
+        deactivate CTRL
+
+    UI --> PM : shows the list of products and asks for confirmation
+    deactivate UI
+
+    PM -> UI : confirms that he changes the category of a product
+    activate UI
+
+        UI -> CTRL : getProductCategories()
+        activate CTRL
+            CTRL -> SRV : getProductCategories()
+            activate SRV
+
                 SRV -> REP : getProductCategoryRepository()
                 activate REP
                 REP --> SRV : productCategoryRepository
@@ -132,40 +160,38 @@ activate PM
     end
     end
 
-        UI --> PM : requests data (i.e. Name, Description, Capacity, Size, Color, Price)
+        UI --> PM : requests product id
     deactivate UI
 
-    PM -> UI : types requested data
+    PM -> UI : types requested id
     activate UI
 
-        UI -> CTRL : registerProduct(productID, name, description, category, capacity, size, color, price)
+        UI -> CTRL : changeProductCategory(productID, category)
         activate CTRL
-            CTRL -> SRV : registerProduct(productID, name, description, category, capacity, size, color, price)
+            CTRL -> SRV : changeProductCategory(productID, category)
             activate SRV
 
-                SRV -> REP : getProductRepository()
-                activate REP
-                REP --> SRV : productRepository
-                deactivate REP
-
-                SRV -> productRepository: productAlreadyExists(productID)
+                SRV -> productRepository: productNotFound(productID)
                 activate productRepository
                 productRepository --> SRV: true/false
                 deactivate productRepository
 
                 alt true
-                    SRV -> EXC: throw getProductExists(productID)
+                    SRV -> EXC: throw productNotFound(productID)
                     activate EXC
                     EXC --> SRV: Exception Thrown
                     deactivate EXC
-                    SRV --> CTRL: show error message (Product already registered)
+                    SRV --> CTRL: show error message (Product does not exist)
 
-                    CTRL --> UI: show error message (Product already registered)
+                    CTRL --> UI: show error message (Product does not exist)
                 else
 
-                SRV -> PRODUCT** : create(productID, name, description, category, capacity, size, color, price)
+                SRV -> PRODUCT : setCategory(category)
+                activate PRODUCT
+                PRODUCT --> SRV :
+                deactivate PRODUCT
 
-                    SRV -> productRepository: save(product)
+                    SRV -> productRepository: updateCategory(product)
                     activate productRepository
                     productRepository --> SRV: product
                     deactivate productRepository

@@ -28,7 +28,8 @@ class ProductCategory {
     name
 }
 
-ProductionManager "1" -- "1..*" Product : register >
+ProductionManager "1" -- "1..*" ProductCategory : consult >
+ProductionManager "1" -- "1..*" Product : update >
 Product "*" -- "1" ProductCategory : belongs to >
 
 @enduml

@@ -5,7 +5,7 @@ skinparam linetype polyline
 skinparam classAttributeIconSize 0
 
 package "UI" {
-    class RegisterProductUI {
+    class ChangeProductCategoryUI {
     }
 }
 
@@ -14,7 +14,8 @@ package "Controller" {
         +getProductCategories() : List<ProductCategory>
         +registerCategory(categoryID, categoryName) : ProductCategory
         +getProductCategory(categoryID) : ProductCategory
-        +registerProduct(productID, name, description, category, capacity, size, color, price) : Product
+        +getProducts() : List<Product>
+        +changeProductCategory(productID, category) : Product
     }
 }
 
@@ -23,7 +24,8 @@ package "Service" {
         +getProductCategories() : List<ProductCategory>
         +registerCategory(categoryID, categoryName) : ProductCategory
         +getCategoryByID(categoryID) : ProductCategory
-        +registerProduct(productID, name, description, category, capacity, size, color, price) : Product
+        +getProducts() : List<Product>
+        +changeProductCategory(productID, category) : Product
     }
 }
 
@@ -43,8 +45,9 @@ package "Repository" {
     }
 
     class ProductRepository {
-        +getProductExists(productID) : boolean
-        +saveProduct(product) : boolean
+        +getAllProducts() : List<Product>
+        +getProductByID(productID) : Product
+        +updateCategory(product) : boolean
     }
 }
 
@@ -76,13 +79,14 @@ package "Exception" {
     class ProductException {
         +categoryNotFound(categoryID) : ProductException
         +categoryAlreadyExists(categoryID) : ProductException
-        +productAlreadyExists(productID) : ProductException
+        +productNotFound(productID) : ProductException
+        +productAlreadyInCategory(productID, categoryName) : ProductException
     }
 
     class RuntimeException
 }
 
-RegisterProductUI ..> ProductController
+ChangeProductCategoryUI ..> ProductController
 ProductController ..> ProductService
 ProductService ..> Repositories : repositories
 ProductService ..> ProductRepository : productRepository
