@@ -3,7 +3,7 @@ skinparam monochrome true
 skinparam packageStyle rectangle
 skinparam shadowing false
 
-title System Sequence Diagram (SSD)
+title Sequence Diagram (SD)
 
 autonumber
 
@@ -18,8 +18,6 @@ participant "productCategoryRepository:\nProductCategoryRepository" as productCa
 participant "productRepository:\nProductRepository" as productRepository
 participant "category:\nProductCategory" as CATEGORY
 participant "product:\nProduct" as PRODUCT
-
-title Register Product Sequence
 
 activate PM
     PM -> UI : asks to change the category of a product

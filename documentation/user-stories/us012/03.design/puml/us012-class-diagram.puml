@@ -1,0 +1,94 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype polyline
+skinparam classAttributeIconSize 0
+
+package "UI" {
+    class ConsultProductsInCategoryUI {
+    }
+}
+
+package "Controller" {
+    class ProductController {
+        +getProductCategories() : List<ProductCategory>
+        +productListInCategory(categoryID) : List<Product>
+    }
+}
+
+package "Service" {
+    class ProductService {
+        +getProductCategories() : List<ProductCategory>
+        -getCategoryByID(categoryID) : ProductCategory
+        +productListInCategory(categoryID) : List<Product>
+    }
+}
+
+package "Repository" {
+    class Repositories {
+        -Repositories()
+        +getInstance() : Repositories
+        +getProductRepository() : ProductRepository
+        +getProductCategoryRepository() : ProductCategoryRepository
+    }
+
+    class ProductCategoryRepository {
+        +getAll() : List<ProductCategory>
+        +getByID(categoryID) : ProductCategory
+    }
+
+    class ProductRepository {
+        +getAllProducts() : List<Product>
+    }
+}
+
+package "Model" {
+    class Part {
+        -id : String
+        -name : String
+        -description : String
+        +Part(id, name, description)
+    }
+
+    class Product {
+        -category : ProductCategory
+        -capacity : int
+        -size : int
+        -color : String
+        -price : double
+        +Product(id, name, description, category, capacity, size, color, price)
+    }
+
+    class ProductCategory {
+        -id : String
+        -name : String
+        +ProductCategory(id, name)
+    }
+}
+
+package "Exception" {
+    class ProductException {
+        +categoryNotFound(categoryID) : ProductException
+    }
+
+    class RuntimeException
+}
+
+ConsultProductsInCategoryUI ..> ProductController
+ProductController ..> ProductService
+ProductService ..> Repositories : repositories
+ProductService ..> ProductRepository : productRepository
+ProductService ..> ProductCategoryRepository : productCategoryRepository
+ProductService ..> Product : product
+ProductService ..> ProductCategory : productCategory
+Repositories --> Repositories : instance
+Repositories "1" --> "1" ProductRepository : productRepository
+Repositories "1" --> "1" ProductCategoryRepository : productCategoryRepository
+ProductRepository "1" --> "*" Product : categories
+ProductCategoryRepository "1" --> "*" ProductCategory : categories
+Product "*" --> "1" ProductCategory : has
+Product --|> Part
+ProductService ..> ProductException : throws
+ProductException --|> RuntimeException
+
+@enduml

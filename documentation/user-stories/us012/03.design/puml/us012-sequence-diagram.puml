@@ -1,0 +1,123 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title Sequence Diagram (SD)
+
+autonumber
+
+actor "Production Manager" as PM
+participant ":RegisterProductUI" as UI
+participant ":ProductController" as CTRL
+participant ":ProductService" as SRV
+participant "ProductException" as EXC
+participant "Repositories" as REPS
+participant "repositories\n:Repositories" as REP
+participant "productCategoryRepository:\nProductCategoryRepository" as productCategoryRepository
+participant "productRepository:\nProductRepository" as productRepository
+participant "product:\nProduct" as PRODUCT
+participant "filteredProducts:\nList<Product>" as filteredProducts
+
+activate PM
+    PM -> UI : requests to consult products by category
+    activate UI
+
+        UI -> CTRL** : create
+
+        UI -> CTRL : getProductCategories()
+        activate CTRL
+            CTRL -> SRV : getProductCategories()
+            activate SRV
+
+                SRV -> REPS : getInstance()
+                activate REPS
+                REPS --> SRV: repositories
+                deactivate REPS
+                SRV -> REP : getProductCategoryRepository()
+                activate REP
+                REP --> SRV : productCategoryRepository
+                deactivate REP
+
+                SRV -> productCategoryRepository : getAll()
+                activate productCategoryRepository
+
+                productCategoryRepository --> SRV: categories
+                deactivate productCategoryRepository
+
+            SRV --> CTRL : categories
+            deactivate SRV
+
+        CTRL --> UI : categories
+        deactivate CTRL
+
+    UI --> PM : shows the list of categories and requests category ID
+    deactivate UI
+
+    PM -> UI : provides category ID
+    activate UI
+
+    UI -> CTRL : productListInCategory(categoryID)
+    activate CTRL
+    CTRL -> SRV : productListInCategory(categoryID)
+    activate SRV
+
+    SRV -> SRV : getCategoryByID(categoryID)
+    activate SRV
+
+    SRV -> productCategoryRepository : getById(categoryID)
+    activate productCategoryRepository
+    productCategoryRepository --> SRV : category
+    deactivate productCategoryRepository
+
+    SRV --> SRV : category
+    deactivate SRV
+
+    alt category == null
+        SRV -> EXC: throw categoryNotFound(categoryID)
+        activate EXC
+        EXC --> SRV: Exception Thrown
+        deactivate EXC
+        SRV --> CTRL: show error message (Category does not exist)
+        CTRL --> UI: show error message (Category does not exist)
+    end
+
+    SRV -> REP : getProductRepository()
+    activate REP
+    REP --> SRV : productRepository
+    deactivate REP
+
+    SRV -> productRepository : getAllProducts()
+    activate productRepository
+
+    productRepository --> SRV: products
+    deactivate productRepository
+
+    SRV -> filteredProducts** : create
+
+            loop For each product in products
+
+                SRV -> PRODUCT : getCategory()
+                activate PRODUCT
+                PRODUCT --> SRV : productCategory
+                deactivate PRODUCT
+
+                alt productCategory == category
+                    SRV -> filteredProducts : add(product)
+                    activate filteredProducts
+                    filteredProducts --> SRV :
+                    deactivate filteredProducts
+                end
+            end loop
+
+    SRV --> CTRL : filteredProducts
+    deactivate SRV
+
+    CTRL --> UI : filteredProducts
+    deactivate CTRL
+
+    UI --> PM : shows the list of products in the selected category or error message
+    deactivate UI
+
+deactivate PM
+@enduml

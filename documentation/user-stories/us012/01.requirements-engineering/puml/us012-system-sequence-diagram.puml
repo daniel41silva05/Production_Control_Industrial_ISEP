@@ -1,0 +1,36 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title System Sequence Diagram (SSD)
+
+autonumber
+
+actor "Production Manager" as PM
+participant ":System" as System
+
+activate PM
+
+    PM -> System : requests to consult products by category
+    activate System
+
+        System --> PM : shows the list of categories and requests category ID
+    deactivate System
+
+        PM -> System : provides category ID
+        activate System
+
+        System -> System : checks if category already exists
+            alt category does not exist
+                    System --> PM : shows error message (Category does not exist)
+                deactivate System
+            else
+
+            System -> System : retrieves products from the category
+            System --> PM : shows the list of products in the selected category
+            deactivate System
+
+            end
+
+@enduml

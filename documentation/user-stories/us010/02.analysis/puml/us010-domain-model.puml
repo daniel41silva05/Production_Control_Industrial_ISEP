@@ -8,7 +8,7 @@ skinparam classAttributeIconSize 0
 hide circle
 hide methods
 
-title Domain Model - US009
+title Domain Model - US010
 
 class ProductionManager {
 }
