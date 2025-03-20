@@ -1,4 +1,4 @@
-# US009 - Register a Product
+# US010 - Register a Product
 
 ## 4. Tests 
 

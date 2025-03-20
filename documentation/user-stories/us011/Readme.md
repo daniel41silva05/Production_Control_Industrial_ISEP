@@ -1,4 +1,4 @@
-# US009 - Register a Product
+# US011 - Change Product Category
 
 [Requirements Engineering](01.requirements-engineering/Readme.md)
 

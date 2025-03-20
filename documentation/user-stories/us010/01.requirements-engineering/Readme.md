@@ -1,4 +1,4 @@
-# US009 - Register a Product
+# US010 - Register a Product
 
 ## 1. Requirements Engineering
 
@@ -50,7 +50,7 @@ As a Production Manager, I want to register a product, so that it can be used in
 
 ### 1.6. System Sequence Diagram (SSD)
 
-![System Sequence Diagram](svg/us009-system-sequence-diagram.svg)
+![System Sequence Diagram](svg/us010-system-sequence-diagram.svg)
 
 ### 1.7 Other Relevant Remarks
 
