@@ -1,8 +1,33 @@
-# US009 - Register a Product
+package org.project.service;
 
-## 4. Tests 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.project.data.DatabaseConnection;
+import org.project.exceptions.ProductException;
+import org.project.model.Product;
+import org.project.model.ProductCategory;
+import org.project.repository.ProductRepository;
 
-**Test 1:** Check if the product is being registered correctly, being stored in the repository.
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+public class RegisterProductTest {
+
+    private ProductService productService;
+
+    @Mock
+    private DatabaseConnection connection;
+
+    @Mock
+    private ProductRepository productRepository;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        productService = new ProductService(connection, productRepository, null);
+    }
 
     @Test
     void testRegisterProduct_Success() {
@@ -24,8 +49,6 @@
         verify(productRepository, times(1)).saveProduct(connection, result);
     }
 
-**Test 2:** Check that it is not possible to register a product that already exists - AC03.
-
     @Test
     void testRegisterProduct_AlreadyExists() {
         String productId = "P001";
@@ -37,8 +60,6 @@
 
     }
 
-**Test 3:** Check that it is not possible to register a product without a category - AC04.
-
     @Test
     void testRegisterProduct_CategoryNotFound() {
         String productId = "P002";
@@ -46,29 +67,4 @@
 
         assertNull(productService.registerProduct(productId, "Test", "Desc", category, 10, 20, "Blue", 150));
     }
-
-## 5. Construction (Implementation)
-
-### Class ProductService 
-
-```java
-    public Product registerProduct(String productID, String name, String description, ProductCategory category, int capacity, int size, String color, double price) {
-    if (productRepository.getProductExists(connection, productID)) {
-        throw ProductException.productAlreadyExists(productID);
-    }
-
-    if (category == null) {
-        return null;
-    }
-
-    Product product = new Product(productID, name, description, category, capacity, size, color, price);
-
-    productRepository.saveProduct(connection, product);
-
-    return product;
 }
-```
-
-## 6. Observations
-
-n/a
