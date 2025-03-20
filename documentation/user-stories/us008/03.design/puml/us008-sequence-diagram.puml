@@ -17,7 +17,7 @@ participant "orderRepository:\nOrderRepository" as orderRepository
 participant "order:\nOrder" as ORDER
 participant "activeOrders:\nList<Order>" as activeOrders
 
-title Client Status Sequence
+title Active Orders Sequence
 
 activate PM
     PM -> UI : requests active orders

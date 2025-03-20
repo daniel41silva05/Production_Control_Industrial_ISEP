@@ -1,0 +1,102 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype polyline
+skinparam classAttributeIconSize 0
+
+package "UI" {
+    class RegisterProductUI {
+    }
+}
+
+package "Controller" {
+    class ProductController {
+        +getProductCategories() : List<ProductCategory>
+        +registerCategory(categoryID, categoryName) : ProductCategory
+        +getProductCategory(categoryID) : ProductCategory
+        +registerProduct(productID, name, description, category, capacity, size, color, price) : Product
+    }
+}
+
+package "Service" {
+    class ProductService {
+        +getProductCategories() : List<ProductCategory>
+        +registerCategory(categoryID, categoryName) : ProductCategory
+        +getCategoryByID(categoryID) : ProductCategory
+        +registerProduct(productID, name, description, category, capacity, size, color, price) : Product
+    }
+}
+
+package "Repository" {
+    class Repositories {
+        -Repositories()
+        +getInstance() : Repositories
+        +getProductRepository() : ProductRepository
+        +getProductCategoryRepository() : ProductCategoryRepository
+    }
+
+    class ProductCategoryRepository {
+        +getAll() : List<ProductCategory>
+        +getByID(categoryID) : ProductCategory
+        +getCategoryExists(categoryID) : boolean
+        +save(category) : boolean
+    }
+
+    class ProductRepository {
+        +getProductExists(productID) : boolean
+        +saveProduct(product) : boolean
+    }
+}
+
+package "Model" {
+    class Part {
+        -id : String
+        -name : String
+        -description : String
+        +Part(id, name, description)
+    }
+
+    class Product {
+        -category : ProductCategory
+        -capacity : int
+        -size : int
+        -color : String
+        -price : double
+        +Product(id, name, description, category, capacity, size, color, price)
+    }
+
+    class ProductCategory {
+        -id : String
+        -name : String
+        +ProductCategory(id, name)
+    }
+}
+
+package "Exception" {
+    class ProductException {
+        +categoryNotFound(categoryID) : ProductException
+        +categoryAlreadyExists(categoryID) : ProductException
+        +productAlreadyExists(productID) : ProductException
+    }
+
+    class RuntimeException
+}
+
+RegisterProductUI ..> ProductController
+ProductController ..> ProductService
+ProductService ..> Repositories : repositories
+ProductService ..> ProductRepository : productRepository
+ProductService ..> ProductCategoryRepository : productCategoryRepository
+ProductService ..> Product : product
+ProductService ..> ProductCategory : productCategory
+Repositories --> Repositories : instance
+Repositories "1" --> "1" ProductRepository : productRepository
+Repositories "1" --> "1" ProductCategoryRepository : productCategoryRepository
+ProductRepository "1" --> "*" Product : categories
+ProductCategoryRepository "1" --> "*" ProductCategory : categories
+Product "*" --> "1" ProductCategory : has
+Product --|> Part
+ProductService ..> ProductException : throws
+ProductException --|> RuntimeException
+
+@enduml

@@ -1,0 +1,182 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title System Sequence Diagram (SSD)
+
+autonumber
+
+actor "Production Manager" as PM
+participant ":RegisterProductUI" as UI
+participant ":ProductController" as CTRL
+participant ":ProductService" as SRV
+participant "ProductException" as EXC
+participant "Repositories" as REPS
+participant "repositories\n:Repositories" as REP
+participant "productCategoryRepository:\nProductCategoryRepository" as productCategoryRepository
+participant "productRepository:\nProductRepository" as productRepository
+participant "category:\nProductCategory" as CATEGORY
+participant "product:\nProduct" as PRODUCT
+
+title Register Product Sequence
+
+activate PM
+    PM -> UI : asks to register a new product
+    activate UI
+
+        UI -> CTRL** : create
+
+        UI -> CTRL : getProductCategories()
+        activate CTRL
+            CTRL -> SRV : getProductCategories()
+            activate SRV
+
+                SRV -> REPS : getInstance()
+                activate REPS
+                REPS --> SRV: repositories
+                deactivate REPS
+                SRV -> REP : getProductCategoryRepository()
+                activate REP
+                REP --> SRV : productCategoryRepository
+                deactivate REP
+
+                SRV -> productCategoryRepository : getAll()
+                activate productCategoryRepository
+
+                productCategoryRepository --> SRV: categories
+                deactivate productCategoryRepository
+
+            SRV --> CTRL : categories
+            deactivate SRV
+
+        CTRL --> UI : categories
+        deactivate CTRL
+
+    UI --> PM : shows the list of categories
+    deactivate UI
+
+    PM -> UI : selects an option (new/existing category)
+    activate UI
+
+    alt new category
+
+    UI --> PM : requests category name
+    deactivate UI
+
+    PM -> UI : provides category name
+    activate UI
+
+        UI -> CTRL : registerCategory(categoryID, categoryName)
+        activate CTRL
+            CTRL -> SRV : registerCategory(categoryID, categoryName)
+            activate SRV
+
+                SRV -> productCategoryRepository: getCategoryExists(categoryID)
+                activate productCategoryRepository
+                productCategoryRepository --> SRV: true/false
+                deactivate productCategoryRepository
+
+                alt true
+                    SRV -> EXC: throw categoryAlreadyExists()
+                    activate EXC
+                    EXC --> SRV: Exception Thrown
+                    deactivate EXC
+                    SRV --> CTRL: show error message (Product Category already registered)
+
+                    CTRL --> UI: show error message (Product Category already registered)
+                else
+
+                SRV -> CATEGORY** : create(categoryID, categoryName)
+
+                    SRV -> productCategoryRepository: save(category)
+                    activate productCategoryRepository
+                    productCategoryRepository --> SRV: category
+                    deactivate productCategoryRepository
+                        SRV --> CTRL : category
+                        deactivate SRV
+                        CTRL --> UI : category
+                        deactivate CTRL
+                end
+
+    else existing category
+
+    UI --> PM : requests category ID
+    deactivate UI
+
+    PM -> UI : provides category ID
+    activate UI
+
+    UI -> CTRL : getProductCategory(categoryID)
+    activate CTRL
+    CTRL -> SRV : getProductCategory(categoryID)
+    activate SRV
+
+    SRV -> productCategoryRepository : getById(categoryID)
+    activate productCategoryRepository
+    productCategoryRepository --> SRV : category
+    deactivate productCategoryRepository
+
+    alt category == null
+        SRV -> EXC: throw categoryNotFound(categoryID)
+        activate EXC
+        EXC --> SRV: Exception Thrown
+        deactivate EXC
+        SRV --> CTRL: show error message (Category does not exist)
+        CTRL --> UI: show error message (Category does not exist)
+    else
+    SRV --> CTRL : category
+    deactivate SRV
+    CTRL --> UI : category
+    deactivate CTRL
+    end
+    end
+
+        UI --> PM : requests data (i.e. Name, Description, Capacity, Size, Color, Price)
+    deactivate UI
+
+    PM -> UI : types requested data
+    activate UI
+
+        UI -> CTRL : registerProduct(productID, name, description, category, capacity, size, color, price)
+        activate CTRL
+            CTRL -> SRV : registerProduct(productID, name, description, category, capacity, size, color, price)
+            activate SRV
+
+                SRV -> REP : getProductRepository()
+                activate REP
+                REP --> SRV : productRepository
+                deactivate REP
+
+                SRV -> productRepository: productAlreadyExists(productID)
+                activate productRepository
+                productRepository --> SRV: true/false
+                deactivate productRepository
+
+                alt true
+                    SRV -> EXC: throw getProductExists(productID)
+                    activate EXC
+                    EXC --> SRV: Exception Thrown
+                    deactivate EXC
+                    SRV --> CTRL: show error message (Product already registered)
+
+                    CTRL --> UI: show error message (Product already registered)
+                else
+
+                SRV -> PRODUCT** : create(productID, name, description, category, capacity, size, color, price)
+
+                    SRV -> productRepository: save(product)
+                    activate productRepository
+                    productRepository --> SRV: product
+                    deactivate productRepository
+                        SRV --> CTRL : product
+                        deactivate SRV
+                        CTRL --> UI : product
+                        deactivate CTRL
+                end
+
+        UI --> PM : shows all data and displays operation success or error message
+    deactivate UI
+
+deactivate PM
+@enduml

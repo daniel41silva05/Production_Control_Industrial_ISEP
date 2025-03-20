@@ -1,0 +1,67 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title System Sequence Diagram (SSD)
+
+autonumber
+
+actor "Production Manager" as PM
+participant ":System" as System
+
+activate PM
+
+    PM -> System : asks to register a new product
+    activate System
+
+        System --> PM : shows the list of categories
+    deactivate System
+
+    PM -> System : selects an option (new/existing category)
+    activate System
+
+    alt new category
+
+            System --> PM : requests category name
+            deactivate System
+
+            PM -> System : provides category name
+            activate System
+
+            System -> System : saves category
+                alt system error
+                    System --> PM : shows error message (Database error)
+                    deactivate System
+                end
+
+    else existing category
+
+        System --> PM : requests category ID
+        deactivate System
+
+        PM -> System : provides category ID
+        activate System
+
+        System -> System : checks if category already exists
+            alt category does not exist
+                    System --> PM : shows error message (Category does not exist)
+                deactivate System
+            end
+    end
+
+        System --> PM : requests data (i.e. Name, Description, Capacity, Size, Color, Price)
+    deactivate System
+
+    PM -> System : types requested data
+    activate System
+
+                System -> System : saves product data
+                alt system error
+                    System --> PM : shows error message (Database error)
+                    deactivate System
+                else success
+                    System --> PM : shows all data and displays operation success
+                    deactivate System
+                end
+@enduml
