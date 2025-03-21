@@ -1,0 +1,62 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype polyline
+skinparam classAttributeIconSize 0
+
+package "UI" {
+    class ConsultRawMaterialsStockAlertUI {
+    }
+}
+
+package "Controller" {
+    class RawMaterialController {
+        +consultRawMaterialsStockAlert() : List<RawMaterial>
+    }
+}
+
+package "Service" {
+    class RawMaterialService {
+        +consultRawMaterialsStockAlert() : List<RawMaterial>
+        -getRawMaterials() : List<RawMaterial>
+    }
+}
+
+package "Repository" {
+    class Repositories {
+        -Repositories()
+        +getInstance() : Repositories
+        +getRawMaterialRepository() : RawMaterialRepository
+    }
+
+    class RawMaterialRepository {
+        +getAllRawMaterials() : List<RawMaterial>
+    }
+}
+
+package "Model" {
+    class Part {
+        -id : String
+        -name : String
+        -description : String
+        +Part(id, name, description)
+    }
+
+    class RawMaterial {
+        -currentStock : int
+        -minimumStock : int
+        +RawMaterial(id, name, description)
+    }
+}
+
+ConsultRawMaterialsStockAlertUI ..> RawMaterialController
+RawMaterialController ..> RawMaterialService
+RawMaterialService ..> Repositories : repositories
+RawMaterialService ..> RawMaterialRepository : rawMaterialRepository
+RawMaterialService ..> RawMaterial : rawMaterial
+Repositories --> Repositories : instance
+Repositories "1" --> "1" RawMaterialRepository : rawMaterialRepository
+RawMaterialRepository "1" --> "*" RawMaterial : categories
+RawMaterial --|> Part
+
+@enduml

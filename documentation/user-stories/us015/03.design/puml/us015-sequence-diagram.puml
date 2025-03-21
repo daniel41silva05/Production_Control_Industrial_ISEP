@@ -1,0 +1,90 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title Sequence Diagram (SD)
+
+autonumber
+
+actor "Production Manager" as ADM
+participant ":ConsultRawMaterialsStockAlertUI" as UI
+participant ":RawMaterialController" as CTRL
+participant ":RawMaterialService" as SRV
+participant "Repositories" as REPS
+participant "repositories\n:Repositories" as REP
+participant "rawMaterialRepository:\nRawMaterialRepository" as rawMaterialRepository
+participant "rawMaterial:\nRawMaterial" as RAWMATERIAL
+participant "rawMaterialsStockAlert:\nList<RawMaterial>" as rawMaterialsStockAlert
+
+activate ADM
+    ADM -> UI : requests raw materials low in stock
+    activate UI
+
+        UI -> CTRL** : create
+
+        UI -> CTRL : consultRawMaterialsStockAlert()
+        activate CTRL
+            CTRL -> SRV : consultRawMaterialsStockAlert()
+            activate SRV
+
+                SRV -> SRV : getRawMaterials()
+                activate SRV
+
+                SRV -> REPS : getInstance()
+                activate REPS
+                REPS --> SRV: repositories
+                deactivate REPS
+                SRV -> REP : getRawMaterialRepository()
+                activate REP
+                REP --> SRV : rawMaterialRepository
+                deactivate REP
+
+                SRV -> rawMaterialRepository : getAllRawMaterials()
+                activate rawMaterialRepository
+
+                    alt system error
+                        rawMaterialRepository --> SRV: Database error
+
+                        SRV --> CTRL: show error message (Database error)
+
+                        CTRL --> UI: show error message (Database error)
+                    end
+
+                rawMaterialRepository --> SRV : rawMaterials
+                deactivate rawMaterialRepository
+
+                SRV --> SRV : rawMaterials
+                deactivate SRV
+
+                SRV -> rawMaterialsStockAlert** : create
+
+                loop For each rawMaterial in rawMaterials
+
+                    SRV -> RAWMATERIAL : getMinimumStock()
+                    activate RAWMATERIAL
+                    RAWMATERIAL --> SRV : minimumStock
+                    deactivate RAWMATERIAL
+
+                    SRV -> RAWMATERIAL : getCurrentStock()
+                    activate RAWMATERIAL
+                    RAWMATERIAL --> SRV : currentStock
+                    deactivate RAWMATERIAL
+
+                    alt minimumStock > currentStock
+                        SRV -> rawMaterialsStockAlert : add(rawMaterial)
+                        activate rawMaterialsStockAlert
+                        rawMaterialsStockAlert --> SRV :
+                        deactivate rawMaterialsStockAlert
+                    end
+                end loop
+
+            SRV --> CTRL : rawMaterialsStockAlert
+            deactivate SRV
+        CTRL --> UI : rawMaterialsStockAlert
+        deactivate CTRL
+    UI --> ADM : shows the list of low stock raw materials
+    deactivate UI
+
+deactivate ADM
+@enduml
