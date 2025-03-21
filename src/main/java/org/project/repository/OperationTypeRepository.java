@@ -1,6 +1,7 @@
 package org.project.repository;
 
 import org.project.data.DatabaseConnection;
+import org.project.exceptions.DatabaseException;
 import org.project.model.*;
 
 import java.sql.*;
@@ -18,8 +19,7 @@ public class OperationTypeRepository {
             int rowsInserted = statement.executeUpdate();
             return rowsInserted > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            throw DatabaseException.databaseError();
         }
     }
 
@@ -85,7 +85,7 @@ public class OperationTypeRepository {
 
             operationTypes.addAll(operationTypeMap.values());
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw DatabaseException.databaseError();
         }
 
         return operationTypes;
@@ -154,7 +154,7 @@ public class OperationTypeRepository {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw DatabaseException.databaseError();
         }
 
         return operationType;
@@ -173,7 +173,7 @@ public class OperationTypeRepository {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw DatabaseException.databaseError();
         }
 
         return count > 0;

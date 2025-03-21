@@ -1,15 +1,10 @@
 package org.project.ui;
 
 import org.project.controller.OperationController;
-import org.project.controller.OrderController;
-import org.project.exceptions.ClientException;
-import org.project.exceptions.OperationException;
-import org.project.exceptions.OrderException;
-import org.project.exceptions.ProductException;
+import org.project.exceptions.*;
 import org.project.model.*;
 import org.project.ui.utils.Utils;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class RegisterOperationUI implements Runnable {
@@ -22,7 +17,7 @@ public class RegisterOperationUI implements Runnable {
 
     public void run() {
         try {
-            showOperationTypes();
+            showOperationTypes(controller.getOperationTypes());
 
             List<String> optionOperation = new ArrayList<>();
             optionOperation.add("Register the operation in a new type.");
@@ -48,15 +43,13 @@ public class RegisterOperationUI implements Runnable {
                 System.out.println("\nOperation registered successfully.");
                 showOperation(operation);
             }
-        } catch (OperationException e) {
+
+        } catch (OperationException | DatabaseException e) {
             System.out.println("\nError: " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("\nOperation registration failed.");
         }
     }
 
-    private void showOperationTypes() {
-        List<OperationType> types = controller.getOperationTypes();
+    private void showOperationTypes(List<OperationType> types) {
         System.out.println("\nOperation Types:");
         if (types.isEmpty()) {
             System.out.println("No operation types registered.");

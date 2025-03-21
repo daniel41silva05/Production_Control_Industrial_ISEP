@@ -35,39 +35,49 @@ public class OperationService {
         return operationRepository.getAll(connection);
     }
 
-    private OperationType getOperationTypeByID(int id) throws OperationException {
-        if (!operationTypeRepository.getOperationTypeExists(connection, id)) {
+    private OperationType getOperationTypeByID(int id) {
+        OperationType opType = operationTypeRepository.getById(connection, id);
+
+        if (opType == null) {
             throw OperationException.operationTypeNotFound(id);
         }
 
-        return operationTypeRepository.getById(connection, id);
+        return opType;
     }
 
-    public Operation registerOperation(int id, String name, int executionTime, int typeID) throws OperationException {
+    private Operation getOperationByID(int id) {
+        Operation operation = operationRepository.getById(connection, id);
+
+        if (operation == null) {
+            throw OperationException.operationNotFound(id);
+        }
+
+        return operation;
+    }
+
+    public Operation registerOperation(int id, String name, int executionTime, int typeID) {
         if (operationRepository.getOperationExists(connection, id)) {
-            throw new OperationException("Operation with ID " + id + " already exists.");
+            throw OperationException.operationAlreadyExists(id);
         }
 
         OperationType type = getOperationTypeByID(typeID);
 
         Operation operation =  new Operation(id, type, name, executionTime);
-        boolean success = operationRepository.save(connection, operation);
-        if (!success) {
-            return null;
-        }
+
+        operationRepository.save(connection, operation);
+
         return operation;
     }
 
-    public OperationType registerOperationType(int id, String name) throws OperationException {
+    public OperationType registerOperationType(int id, String name) {
         if (operationTypeRepository.getOperationTypeExists(connection, id)) {
-            throw new OperationException("Operation Type with ID " + id + " already exists.");
+            throw OperationException.operationTypeAlreadyExists(id);
         }
 
         OperationType operationType =  new OperationType(id, name);
-        boolean success = operationTypeRepository.save(connection, operationType);
-        if (!success) {
-            return null;
-        }
+
+        operationTypeRepository.save(connection, operationType);
+
         return operationType;
     }
 
@@ -78,34 +88,23 @@ public class OperationService {
         for (OperationDTO dto : operationDTOs) {
 
             Operation operation;
-
-            if (!operationTypeRepository.getOperationTypeExists(connection, dto.getTypeId())) {
-                return null;
-            }
             OperationType type = operationTypeRepository.getById(connection, dto.getTypeId());
-
-            boolean success;
 
             if (!operationRepository.getOperationExists(connection, dto.getId())) {
 
                 operation = new Operation(dto.getId(), type, dto.getName(), dto.getExecutionTime());
-                success = operationRepository.save(connection, operation);
+                operationRepository.save(connection, operation);
 
             } else {
-
                 operation = operationRepository.getById(connection, dto.getId());
                 operation.setName(dto.getName());
                 operation.setExecutionTime(dto.getExecutionTime());
                 operation.setType(type);
 
-                success = operationRepository.updateOperation(connection, operation);
+                operationRepository.updateOperation(connection, operation);
             }
 
-            if (!success) {
-                return null;
-            } else {
-                operations.add(operation);
-            }
+            operations.add(operation);
         }
         return operations;
     }
@@ -116,33 +115,23 @@ public class OperationService {
         for (OperationType operationType : operationTypes) {
 
             if (!operationTypeRepository.getOperationTypeExists(connection, operationType.getId())) {
-
-                boolean success = operationTypeRepository.save(connection, operationType);
-                if (!success) {
-                    return null;
-                }
+                operationTypeRepository.save(connection, operationType);
             }
         }
         return operationTypes;
     }
 
-    public Operation updateOperationTime(int id, int executionTime) throws OperationException {
-        if (!operationRepository.getOperationExists(connection, id)) {
-            throw new OperationException("Operation with ID " + id + " not exists.");
-        }
-
-        Operation operation = operationRepository.getById(connection, id);
+    public Operation updateOperationTime(int id, int executionTime) {
+        Operation operation = getOperationByID(id);
 
         if (operation.getExecutionTime() == executionTime) {
-            throw new OperationException("The execution time remains the same.");
+            throw OperationException.timeRemainsSame();
         }
 
         operation.setExecutionTime(executionTime);
 
-        boolean success = operationRepository.updateOperation(connection, operation);
-        if (!success) {
-            return null;
-        }
+        operationRepository.updateOperation(connection, operation);
+
         return operation;
     }
 

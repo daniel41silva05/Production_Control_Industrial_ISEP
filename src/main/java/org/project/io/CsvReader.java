@@ -1,6 +1,7 @@
 package org.project.io;
 
 import org.project.dto.OperationDTO;
+import org.project.dto.ProductionElementDTO;
 import org.project.model.*;
 
 import java.io.BufferedReader;
@@ -197,5 +198,44 @@ public class CsvReader {
         }
         return rawMaterials;
     }
+
+    public static HashMap<ProductionElementDTO, List<Integer>> loadBOO(String booFile) {
+        HashMap<ProductionElementDTO, List<Integer>> elementNextOperationsDto = new HashMap<>();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(booFile))) {
+            String line;
+            br.readLine();
+
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(";");
+
+                if (values.length < 4) {
+                    continue;
+                }
+
+                try {
+                    int opId = Integer.parseInt(values[0].trim());
+                    String partId = values[1].trim();
+                    int quantity = Integer.parseInt(values[2].trim());
+
+                    ProductionElementDTO element = new ProductionElementDTO(opId, partId, quantity);
+                    List<Integer> nextOperations = new ArrayList<>();
+
+                    for (int i = 3; i < values.length; i++) {
+                        nextOperations.add(Integer.parseInt(values[i].trim()));
+                    }
+
+                    elementNextOperationsDto.put(element, nextOperations);
+                } catch (NumberFormatException e) {
+                    System.err.println("Invalid number format in BOO file: " + e.getMessage());
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Error loading BOO file: " + e.getMessage());
+        }
+
+        return elementNextOperationsDto;
+    }
+
 
 }

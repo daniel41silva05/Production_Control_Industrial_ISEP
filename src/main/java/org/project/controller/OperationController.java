@@ -1,6 +1,5 @@
 package org.project.controller;
 
-import org.project.exceptions.OperationException;
 import org.project.model.Operation;
 import org.project.model.OperationType;
 import org.project.service.OperationService;
@@ -23,15 +22,15 @@ public class OperationController {
         return operationService.getOperations();
     }
 
-    public Operation registerOperation(int id, String name, int executionTime, int typeID) throws OperationException {
+    public Operation registerOperation(int id, String name, int executionTime, int typeID) {
         return operationService.registerOperation(id, name, executionTime, typeID);
     }
 
-    public OperationType registerOperationType(int id, String name) throws OperationException {
+    public OperationType registerOperationType(int id, String name) {
         return operationService.registerOperationType(id, name);
     }
 
-    public Operation updateOperationTime(int id, int executionTime) throws OperationException {
+    public Operation updateOperationTime(int id, int executionTime) {
         return operationService.updateOperationTime(id, executionTime);
     }
 
