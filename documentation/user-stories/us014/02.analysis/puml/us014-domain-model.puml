@@ -1,0 +1,26 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+skinparam classAttributeIconSize 0
+
+hide circle
+hide methods
+
+title Domain Model - US014
+
+class ProductionManager {
+}
+
+class RawMaterial {
+    id
+    name
+    description
+    currentStock
+    minimumStock
+}
+
+ProductionManager "1" -- "1..*" RawMaterial : register >
+
+@enduml

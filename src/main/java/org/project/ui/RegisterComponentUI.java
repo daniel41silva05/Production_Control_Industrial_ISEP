@@ -1,6 +1,7 @@
 package org.project.ui;
 
 import org.project.controller.ComponentController;
+import org.project.exceptions.DatabaseException;
 import org.project.exceptions.ProductException;
 import org.project.model.Component;
 import org.project.ui.utils.Utils;
@@ -47,10 +48,8 @@ public class RegisterComponentUI implements Runnable {
                 }
             }
 
-        } catch (ProductException e) {
+        } catch (ProductException | DatabaseException e) {
             System.out.println("\nError: " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("\nComponent registration failed.");
         }
     }
 

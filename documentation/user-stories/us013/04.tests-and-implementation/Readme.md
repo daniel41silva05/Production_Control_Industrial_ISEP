@@ -34,23 +34,19 @@
 
 ## 5. Construction (Implementation)
 
-### Class ProductService 
+### Class ComponentService 
 
 ```java
-    public Product registerProduct(String productID, String name, String description, ProductCategory category, int capacity, int size, String color, double price) {
-    if (productRepository.getProductExists(connection, productID)) {
-        throw ProductException.productAlreadyExists(productID);
+public Component registerComponent(String id, String name, String description) {
+    if (componentRepository.getComponentExists(connection, id)) {
+        throw ProductException.componentAlreadyExists(id);
     }
 
-    if (category == null) {
-        return null;
-    }
+    Component component = new Component(id, name, description);
 
-    Product product = new Product(productID, name, description, category, capacity, size, color, price);
+    componentRepository.saveComponent(connection, component);
 
-    productRepository.saveProduct(connection, product);
-
-    return product;
+    return component;
 }
 ```
 

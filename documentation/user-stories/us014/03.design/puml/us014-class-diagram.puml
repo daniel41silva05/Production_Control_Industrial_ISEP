@@ -1,0 +1,75 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype polyline
+skinparam classAttributeIconSize 0
+
+package "UI" {
+    class RegisterRawMaterialUI {
+    }
+}
+
+package "Controller" {
+    class RawMaterialController {
+        +getRawMaterials() : List<RawMaterial>
+        +registerRawMaterial(id, name, description, currentStock, minimumStock) : RawMaterial
+    }
+}
+
+package "Service" {
+    class RawMaterialService {
+        +getRawMaterials() : List<RawMaterial>
+        +registerRawMaterial(id, name, description, currentStock, minimumStock) : RawMaterial
+    }
+}
+
+package "Repository" {
+    class Repositories {
+        -Repositories()
+        +getInstance() : Repositories
+        +getRawMaterialRepository() : RawMaterialRepository
+    }
+
+    class RawMaterialRepository {
+        +getAllRawMaterials() : List<RawMaterial>
+        +getRawMaterialExists(id) : boolean
+        +saveRawMaterial(rawMaterial) : boolean
+    }
+}
+
+package "Model" {
+    class Part {
+        -id : String
+        -name : String
+        -description : String
+        +Part(id, name, description)
+    }
+
+    class RawMaterial {
+        -currentStock : int
+        -minimumStock : int
+        +RawMaterial(id, name, description)
+    }
+}
+
+package "Exception" {
+    class ProductException {
+        +rawMaterialAlreadyExists(id) : ProductException
+    }
+
+    class RuntimeException
+}
+
+RegisterRawMaterialUI ..> RawMaterialController
+RawMaterialController ..> RawMaterialService
+RawMaterialService ..> Repositories : repositories
+RawMaterialService ..> RawMaterialRepository : rawMaterialRepository
+RawMaterialService ..> RawMaterial : rawMaterial
+Repositories --> Repositories : instance
+Repositories "1" --> "1" RawMaterialRepository : rawMaterialRepository
+RawMaterialRepository "1" --> "*" RawMaterial : categories
+RawMaterial --|> Part
+RawMaterialService ..> ProductException : throws
+ProductException --|> RuntimeException
+
+@enduml

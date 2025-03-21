@@ -1,0 +1,103 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title Sequence Diagram (SD)
+
+autonumber
+
+actor "Production Manager" as ADM
+participant ":RegisterRawMaterialUI" as UI
+participant ":RawMaterialController" as CTRL
+participant ":RawMaterialService" as SRV
+participant "ProductException" as EXC
+participant "Repositories" as REPS
+participant "repositories\n:Repositories" as REP
+participant "rawMaterialRepository:\nRawMaterialRepository" as rawMaterialRepository
+participant "rawMaterial:\nRawMaterial" as RAWMATERIAL
+
+activate ADM
+    ADM -> UI : asks to register a new raw material
+    activate UI
+
+        UI -> CTRL** : create
+
+        UI -> CTRL : getRawMaterials()
+        activate CTRL
+            CTRL -> SRV : getRawMaterials()
+            activate SRV
+
+                SRV -> REPS : getInstance()
+                activate REPS
+                REPS --> SRV: repositories
+                deactivate REPS
+                SRV -> REP : getRawMaterialRepository()
+                activate REP
+                REP --> SRV : rawMaterialRepository
+                deactivate REP
+
+                SRV -> rawMaterialRepository : getAllRawMaterials()
+                activate rawMaterialRepository
+                rawMaterialRepository --> SRV : rawMaterials
+                deactivate rawMaterialRepository
+            SRV --> CTRL : rawMaterials
+            deactivate SRV
+        CTRL --> UI : rawMaterials
+        deactivate CTRL
+    UI --> ADM : shows the list of raw materials and requests confirmation
+    deactivate UI
+
+    ADM -> UI : confirms that he wants to register a new raw material
+    activate UI
+        UI --> ADM : requests data (i.e. Name, Description, Current Stock, Minimum Stock)
+    deactivate UI
+
+    ADM -> UI : types requested data
+    activate UI
+        UI -> CTRL: registerRawMaterial(id, name, description, currentStock, minimumStock)
+        activate CTRL
+            CTRL -> SRV: registerRawMaterial(id, name, description, currentStock, minimumStock)
+            activate SRV
+
+                SRV -> rawMaterialRepository: getRawMaterialExists(id)
+                activate rawMaterialRepository
+                rawMaterialRepository --> SRV: true/false
+                deactivate rawMaterialRepository
+
+                alt true
+
+                    SRV -> EXC: throw rawMaterialAlreadyExists(id)
+                    activate EXC
+                    EXC --> SRV: Exception Thrown
+                    deactivate EXC
+                    SRV --> CTRL: show error message (Raw Material already registered)
+
+                    CTRL --> UI: show error message (Raw Material already registered)
+                else
+
+                    SRV -> RAWMATERIAL** : create(id, name, description, currentStock, minimumStock)
+
+                    SRV -> rawMaterialRepository: save(rawMaterial)
+                    activate rawMaterialRepository
+                    alt system error
+                        rawMaterialRepository --> SRV: Database error
+
+                        SRV --> CTRL: show error message (Database error)
+
+                        CTRL --> UI: show error message (Database error)
+                    else
+                        rawMaterialRepository --> SRV: rawMaterial
+                        deactivate rawMaterialRepository
+                        SRV --> CTRL: rawMaterial
+                        deactivate SRV
+                        CTRL --> UI: rawMaterial
+                        deactivate CTRL
+                    end
+                end
+
+    UI --> ADM: shows all data and displays operation success or error message
+    deactivate UI
+
+deactivate ADM
+@enduml

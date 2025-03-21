@@ -29,26 +29,32 @@ public class RawMaterialService {
         supplierRepository  = repositories.getSupplierRepository();
     }
 
-    public List<RawMaterial> getRawMaterials() { return rawMaterialRepository.getAllRawMaterials(connection); }
-
-    public RawMaterial getRawMaterialByID (String id) throws ProductException {
-        if (!rawMaterialRepository.getRawMaterialExists(connection, id)) {
-            throw new ProductException("RawMaterial with ID " + id + " not exists.");
-        }
-
-        return rawMaterialRepository.getRawMaterialByID(connection, id);
+    public RawMaterialService(DatabaseConnection connection, RawMaterialRepository rawMaterialRepository, SupplierRepository supplierRepository) {
+        this.connection = connection;
+        this.rawMaterialRepository = rawMaterialRepository;
+        this.supplierRepository = supplierRepository;
     }
 
-    public RawMaterial registerRawMaterial(String id, String name, String description, int currentStock, int minimumStock) throws ProductException {
+    public List<RawMaterial> getRawMaterials() { return rawMaterialRepository.getAllRawMaterials(connection); }
+
+    public RawMaterial getRawMaterialByID (String id) {
+        RawMaterial rawMaterial = rawMaterialRepository.getRawMaterialByID(connection, id);
+
+        if (rawMaterial == null) {
+            throw ProductException.rawMaterialNotFound(id);
+        }
+
+        return rawMaterial;
+    }
+
+    public RawMaterial registerRawMaterial(String id, String name, String description, int currentStock, int minimumStock) {
         if (rawMaterialRepository.getRawMaterialExists(connection, id)) {
-            throw new ProductException("RawMaterial with ID " + id + " already exists.");
+            throw ProductException.rawMaterialAlreadyExists(id);
         }
 
         RawMaterial rawMaterial = new RawMaterial(id, name, description, currentStock, minimumStock);
-        boolean success = rawMaterialRepository.saveRawMaterial(connection, rawMaterial);
-        if (!success) {
-            return null;
-        }
+        rawMaterialRepository.saveRawMaterial(connection, rawMaterial);
+
         return rawMaterial;
     }
 
@@ -57,11 +63,9 @@ public class RawMaterialService {
 
         for (RawMaterial rawMaterial : rawMaterials) {
 
-            boolean success;
-
             if (!rawMaterialRepository.getRawMaterialExists(connection, rawMaterial.getId())) {
 
-                success = rawMaterialRepository.saveRawMaterial(connection, rawMaterial);
+                rawMaterialRepository.saveRawMaterial(connection, rawMaterial);
 
             } else {
                 int currentStock = rawMaterial.getCurrentStock();
@@ -71,31 +75,25 @@ public class RawMaterialService {
                 rawMaterial.setCurrentStock(currentStock);
                 rawMaterial.setMinimumStock(minimumStock);
 
-                success = rawMaterialRepository.updateRawMaterial(connection, rawMaterial);
-            }
-
-            if (!success) {
-                return null;
+                rawMaterialRepository.updateRawMaterial(connection, rawMaterial);
             }
 
         }
         return rawMaterials;
     }
 
-    public RawMaterial changeMinimumRawMaterialStock (String id, int newRawMaterial) throws ProductException {
+    public RawMaterial changeMinimumRawMaterialStock (String id, int newRawMaterial) {
 
         RawMaterial rawMaterial = getRawMaterialByID(id);
 
         if (rawMaterial.getMinimumStock() == newRawMaterial) {
-            throw new ProductException("The minimum stock remains the same");
+            throw ProductException.minimumStockRemainsSame();
         }
 
         rawMaterial.setMinimumStock(newRawMaterial);
 
-        boolean success = rawMaterialRepository.updateRawMaterial(connection, rawMaterial);
-        if (!success) {
-            return null;
-        }
+        rawMaterialRepository.updateRawMaterial(connection, rawMaterial);
+
         return rawMaterial;
     }
 

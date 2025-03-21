@@ -5,12 +5,15 @@ public class ProductException extends RuntimeException {
     public static final String PRODUCT_ALREADY_EXISTS = "Product with ID %s already exists.";
     public static final String CATEGORY_ALREADY_EXISTS = "Product Category with ID %d already exists.";
     public static final String COMPONENT_ALREADY_EXISTS = "Component with ID %s already exists.";
+    public static final String RAWMATERIAL_ALREADY_EXISTS = "Raw Material with ID %s already exists.";
     public static final String PRODUCT_NOT_FOUND = "Product with ID %s does not exist.";
     public static final String CATEGORY_NOT_FOUND = "Product Category with ID %d does not exist.";
+    public static final String RAWMATERIAL_NOT_FOUND = "Raw Material with ID %s does not exist.";
     public static final String PRODUCT_ALREADY_IN_CATEGORY = "Product with ID %s already belongs to category %s.";
     public static final String CATEGORY_DELETION_MESSAGE = "Product Category with ID %d this is what will be deleted.";
     public static final String PRODUCTION_TREE_NOT_FOUND = "Product with ID %s does not have any production tree in the system.";
     public static final String NOT_ENOUGH_STOCK = "There is not enough stock of the raw material id: %s";
+    public static final String MINIMUM_STOCK_REMAINS_SAME = "The minimum stock remains the same";
 
     public ProductException(String message) {
         super(message);
@@ -28,12 +31,20 @@ public class ProductException extends RuntimeException {
         return new ProductException(String.format(COMPONENT_ALREADY_EXISTS, id));
     }
 
+    public static ProductException rawMaterialAlreadyExists(String id) {
+        return new ProductException(String.format(RAWMATERIAL_ALREADY_EXISTS, id));
+    }
+
     public static ProductException productNotFound(String id) {
         return new ProductException(String.format(PRODUCT_NOT_FOUND, id));
     }
 
     public static ProductException categoryNotFound(int id) {
         return new ProductException(String.format(CATEGORY_NOT_FOUND, id));
+    }
+
+    public static ProductException rawMaterialNotFound(String id) {
+        return new ProductException(String.format(RAWMATERIAL_NOT_FOUND, id));
     }
 
     public static ProductException productionTreeNotFound(String id) {
@@ -50,6 +61,10 @@ public class ProductException extends RuntimeException {
 
     public static ProductException categoryDeletionMessage(int categoryID) {
         return new ProductException(String.format(CATEGORY_DELETION_MESSAGE, categoryID));
+    }
+
+    public static ProductException minimumStockRemainsSame() {
+        return new ProductException(String.format(MINIMUM_STOCK_REMAINS_SAME));
     }
 
 }

@@ -21,11 +21,11 @@ public class RawMaterialController {
         return rawMaterialService.getRawMaterials();
     }
 
-    public RawMaterial getRawMaterialByID (String id) throws ProductException {
+    public RawMaterial getRawMaterialByID (String id) {
         return rawMaterialService.getRawMaterialByID(id);
     }
 
-    public RawMaterial registerRawMaterial(String id, String name, String description, int currentStock, int minimumStock) throws ProductException {
+    public RawMaterial registerRawMaterial(String id, String name, String description, int currentStock, int minimumStock) {
         return rawMaterialService.registerRawMaterial(id, name, description, currentStock, minimumStock);
     }
 
@@ -33,7 +33,7 @@ public class RawMaterialController {
         return rawMaterialService.registerRawMaterialsFromCSV(filePath);
     }
 
-    public RawMaterial changeMinimumRawMaterialStock (String id, int newRawMaterial) throws ProductException {
+    public RawMaterial changeMinimumRawMaterialStock (String id, int newRawMaterial) {
         return rawMaterialService.changeMinimumRawMaterialStock(id, newRawMaterial);
     }
 

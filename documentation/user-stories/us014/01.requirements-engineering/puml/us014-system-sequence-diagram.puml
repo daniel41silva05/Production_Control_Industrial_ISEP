@@ -1,0 +1,39 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title System Sequence Diagram (SSD)
+
+autonumber
+
+actor "Production Manager" as PM
+participant ":System" as System
+
+activate PM
+
+    PM -> System : asks to register a new raw material
+    activate System
+
+        System --> PM : shows the list of raw materials and requests confirmation
+    deactivate System
+
+    PM -> System : confirms that he wants to register a new raw material
+    activate System
+
+        System --> PM : requests data (i.e. Name, Description, Current Stock, Minimum Stock)
+    deactivate System
+
+    PM -> System : types requested data
+    activate System
+
+    System -> System : saves raw material data
+    alt system error
+        System --> PM : shows error message (Database error)
+        deactivate System
+    else success
+        System --> PM : shows all data and displays operation success
+        deactivate System
+    end
+
+@enduml

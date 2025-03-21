@@ -1,6 +1,7 @@
 package org.project.ui;
 
 import org.project.controller.RawMaterialController;
+import org.project.exceptions.DatabaseException;
 import org.project.exceptions.ProductException;
 import org.project.model.RawMaterial;
 import org.project.ui.utils.Utils;
@@ -49,10 +50,8 @@ public class RegisterRawMaterialUI implements Runnable {
                 }
             }
 
-        } catch (ProductException e) {
+        } catch (ProductException | DatabaseException e) {
             System.out.println("\nError: " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("\nRaw Material registration failed.");
         }
     }
 
