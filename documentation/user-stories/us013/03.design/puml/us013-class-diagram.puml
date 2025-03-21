@@ -1,0 +1,73 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype polyline
+skinparam classAttributeIconSize 0
+
+package "UI" {
+    class RegisterComponentUI {
+    }
+}
+
+package "Controller" {
+    class ComponentController {
+        +getComponents() : List<Component>
+        +registerComponent(id, name, description) : Component
+    }
+}
+
+package "Service" {
+    class ComponentService {
+        +getComponents() : List<Component>
+        +registerComponent(id, name, description) : Component
+    }
+}
+
+package "Repository" {
+    class Repositories {
+        -Repositories()
+        +getInstance() : Repositories
+        +getComponentRepository() : ComponentRepository
+    }
+
+    class ComponentRepository {
+        +getAllComponents() : List<Component>
+        +getComponentExists(id) : boolean
+        +saveComponent(component) : boolean
+    }
+}
+
+package "Model" {
+    class Part {
+        -id : String
+        -name : String
+        -description : String
+        +Part(id, name, description)
+    }
+
+    class Component {
+        +Component(id, name, description)
+    }
+}
+
+package "Exception" {
+    class ProductException {
+        +componentAlreadyExists(id) : ProductException
+    }
+
+    class RuntimeException
+}
+
+RegisterComponentUI ..> ComponentController
+ComponentController ..> ComponentService
+ComponentService ..> Repositories : repositories
+ComponentService ..> ComponentRepository : componentRepository
+ComponentService ..> Component : component
+Repositories --> Repositories : instance
+Repositories "1" --> "1" ComponentRepository : componentRepository
+ComponentRepository "1" --> "*" Component : categories
+Component --|> Part
+ComponentService ..> ProductException : throws
+ProductException --|> RuntimeException
+
+@enduml

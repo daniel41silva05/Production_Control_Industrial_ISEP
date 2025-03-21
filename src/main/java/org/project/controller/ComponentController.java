@@ -1,6 +1,5 @@
 package org.project.controller;
 
-import org.project.exceptions.ProductException;
 import org.project.model.Component;
 import org.project.service.ComponentService;
 
@@ -18,7 +17,7 @@ public class ComponentController {
         return componentService.getComponents();
     }
 
-    public Component registerComponent(String id, String name, String description) throws ProductException {
+    public Component registerComponent(String id, String name, String description) {
         return componentService.registerComponent(id, name, description);
     }
 

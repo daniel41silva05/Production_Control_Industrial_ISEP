@@ -1,0 +1,103 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title Sequence Diagram (SD)
+
+autonumber
+
+actor "Production Manager" as ADM
+participant ":RegisterComponentUI" as UI
+participant ":ComponentController" as CTRL
+participant ":ComponentService" as SRV
+participant "ProductException" as EXC
+participant "Repositories" as REPS
+participant "repositories\n:Repositories" as REP
+participant "componentRepository:\nComponentRepository" as componentRepository
+participant "component:\nComponent" as COMPONENT
+
+activate ADM
+    ADM -> UI : asks to register a new component
+    activate UI
+
+        UI -> CTRL** : create
+
+        UI -> CTRL : getComponents()
+        activate CTRL
+            CTRL -> SRV : getComponents()
+            activate SRV
+
+                SRV -> REPS : getInstance()
+                activate REPS
+                REPS --> SRV: repositories
+                deactivate REPS
+                SRV -> REP : getComponentRepository()
+                activate REP
+                REP --> SRV : componentRepository
+                deactivate REP
+
+                SRV -> componentRepository : getAllComponents()
+                activate componentRepository
+                componentRepository --> SRV : components
+                deactivate componentRepository
+            SRV --> CTRL : components
+            deactivate SRV
+        CTRL --> UI : components
+        deactivate CTRL
+    UI --> ADM : shows the list of components and requests confirmation
+    deactivate UI
+
+    ADM -> UI : confirms that he wants to register a new component
+    activate UI
+        UI --> ADM : requests data (i.e. Name, Description)
+    deactivate UI
+
+    ADM -> UI : types requested data
+    activate UI
+        UI -> CTRL: registerComponent(id, name, description)
+        activate CTRL
+            CTRL -> SRV: registerComponent(id, name, description)
+            activate SRV
+
+                SRV -> componentRepository: getComponentExists(id)
+                activate componentRepository
+                componentRepository --> SRV: true/false
+                deactivate componentRepository
+
+                alt true
+
+                    SRV -> EXC: throw componentAlreadyExists(id)
+                    activate EXC
+                    EXC --> SRV: Exception Thrown
+                    deactivate EXC
+                    SRV --> CTRL: show error message (Component already registered)
+
+                    CTRL --> UI: show error message (Component already registered)
+                else
+
+                    SRV -> COMPONENT** : create(id, name, description)
+
+                    SRV -> componentRepository: save(component)
+                    activate componentRepository
+                    alt system error
+                        componentRepository --> SRV: Database error
+
+                        SRV --> CTRL: show error message (Database error)
+
+                        CTRL --> UI: show error message (Database error)
+                    else
+                        componentRepository --> SRV: component
+                        deactivate componentRepository
+                        SRV --> CTRL: component
+                        deactivate SRV
+                        CTRL --> UI: component
+                        deactivate CTRL
+                    end
+                end
+
+    UI --> ADM: shows all data and displays operation success or error message
+    deactivate UI
+
+deactivate ADM
+@enduml

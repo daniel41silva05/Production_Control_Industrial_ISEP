@@ -1,6 +1,7 @@
 package org.project.repository;
 
 import org.project.data.DatabaseConnection;
+import org.project.exceptions.DatabaseException;
 import org.project.model.Component;
 
 import java.sql.Connection;
@@ -44,15 +45,13 @@ public class ComponentRepository {
                 }
 
                 conn.rollback();
-                return false;
+                throw DatabaseException.databaseError();
             } catch (SQLException e) {
                 conn.rollback();
-                e.printStackTrace();
-                return false;
+                throw DatabaseException.databaseError();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            throw DatabaseException.databaseError();
         }
     }
 
@@ -75,7 +74,7 @@ public class ComponentRepository {
                 ));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw DatabaseException.databaseError();
         }
         return components;
     }
@@ -103,7 +102,7 @@ public class ComponentRepository {
 
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw DatabaseException.databaseError();
         }
         return component;
     }
@@ -121,7 +120,7 @@ public class ComponentRepository {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw DatabaseException.databaseError();
         }
 
         return count > 0;

@@ -4,6 +4,7 @@ public class ProductException extends RuntimeException {
 
     public static final String PRODUCT_ALREADY_EXISTS = "Product with ID %s already exists.";
     public static final String CATEGORY_ALREADY_EXISTS = "Product Category with ID %d already exists.";
+    public static final String COMPONENT_ALREADY_EXISTS = "Component with ID %s already exists.";
     public static final String PRODUCT_NOT_FOUND = "Product with ID %s does not exist.";
     public static final String CATEGORY_NOT_FOUND = "Product Category with ID %d does not exist.";
     public static final String PRODUCT_ALREADY_IN_CATEGORY = "Product with ID %s already belongs to category %s.";
@@ -21,6 +22,10 @@ public class ProductException extends RuntimeException {
 
     public static ProductException categoryAlreadyExists(int id) {
         return new ProductException(String.format(CATEGORY_ALREADY_EXISTS, id));
+    }
+
+    public static ProductException componentAlreadyExists(String id) {
+        return new ProductException(String.format(COMPONENT_ALREADY_EXISTS, id));
     }
 
     public static ProductException productNotFound(String id) {

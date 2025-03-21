@@ -6,6 +6,8 @@ import org.project.exceptions.ProductException;
 import org.project.io.CsvReader;
 import org.project.model.Component;
 import org.project.repository.ComponentRepository;
+import org.project.repository.ProductCategoryRepository;
+import org.project.repository.ProductRepository;
 import org.project.repository.Repositories;
 
 import java.util.List;
@@ -21,20 +23,24 @@ public class ComponentService {
         componentRepository = repositories.getComponentRepository();
     }
 
+    public ComponentService(DatabaseConnection connection, ComponentRepository componentRepository) {
+        this.connection = connection;
+        this.componentRepository = componentRepository;
+    }
+
     public List<Component> getComponents() {
         return componentRepository.getAllComponents(connection);
     }
 
-    public Component registerComponent(String id, String name, String description) throws ProductException {
+    public Component registerComponent(String id, String name, String description) {
         if (componentRepository.getComponentExists(connection, id)) {
-            throw new ProductException("Component with ID " + id + " already exists.");
+            throw ProductException.componentAlreadyExists(id);
         }
 
         Component component = new Component(id, name, description);
-        boolean success = componentRepository.saveComponent(connection, component);
-        if (!success) {
-            return null;
-        }
+
+        componentRepository.saveComponent(connection, component);
+
         return component;
     }
 
@@ -44,11 +50,7 @@ public class ComponentService {
         for (Component component : components) {
 
             if (!componentRepository.getComponentExists(connection, component.getId())) {
-
-                boolean success = componentRepository.saveComponent(connection, component);
-                if (!success) {
-                    return null;
-                }
+                componentRepository.saveComponent(connection, component);
             }
         }
         return components;
