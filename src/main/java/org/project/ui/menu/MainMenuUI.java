@@ -15,12 +15,7 @@ public class MainMenuUI implements Runnable {
         List<MenuItem> options = new ArrayList<MenuItem>();
         options.add(new MenuItem("Client Management", new ClientManagementMenuUI()));
         options.add(new MenuItem("Order Management", new OrderManagementMenuUI()));
-        options.add(new MenuItem("Product and Category Management", new ProductManagementMenuUI()));
-        options.add(new MenuItem("Register a Component", new RegisterComponentUI()));
-        options.add(new MenuItem("Register a Raw Material", new RegisterRawMaterialUI()));
-        options.add(new MenuItem("Change Minimum Raw Material Stock", new ChangeMinimumRawMaterialStockUI()));
-        options.add(new MenuItem("Consult Stock of Raw Materials", new ConsultRawMaterialsStockUI()));
-        options.add(new MenuItem("Consult Raw Materials in Stock Alert", new ConsultRawMaterialsStockAlertUI()));
+        options.add(new MenuItem("Product, Component and Raw Material Management", new ProductManagementMenuUI()));
         options.add(new MenuItem("Register an Operation", new RegisterOperationUI()));
         options.add(new MenuItem("Change Operation Execution Time", new ChangeOperationExecutionTimeUI()));
         options.add(new MenuItem("Upload Operations from CSV file", new LoadOperationsCsvUI()));
