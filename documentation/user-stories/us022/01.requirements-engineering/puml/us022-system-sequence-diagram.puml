@@ -1,0 +1,67 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title System Sequence Diagram (SSD)
+
+autonumber
+
+actor "Plant Floor Manager" as PM
+participant ":System" as System
+
+activate PM
+
+    PM -> System : asks to register a new operation
+    activate System
+
+        System --> PM : shows the list of operation types
+    deactivate System
+
+    PM -> System : selects an option (new/existing operation type)
+    activate System
+
+    alt new operation type
+
+            System --> PM : requests operation type name
+            deactivate System
+
+            PM -> System : types requested name
+            activate System
+
+            System -> System : saves operation type
+                alt system error
+                    System --> PM : shows error message (Database error)
+                    deactivate System
+                end
+
+    else existing operation type
+
+        System --> PM : requests operation type ID
+        deactivate System
+
+        PM -> System : provides operation type ID
+        activate System
+
+        System -> System : checks if operation type already exists
+            alt operation type does not exist
+                    System --> PM : shows error message (Operation Type does not exist)
+                deactivate System
+            end
+    end
+
+        System --> PM : requests data (i.e. Name, Execution Time)
+    deactivate System
+
+    PM -> System : types requested data
+    activate System
+
+                System -> System : saves operation data
+                alt system error
+                    System --> PM : shows error message (Database error)
+                    deactivate System
+                else success
+                    System --> PM : shows all data and displays operation success
+                    deactivate System
+                end
+@enduml

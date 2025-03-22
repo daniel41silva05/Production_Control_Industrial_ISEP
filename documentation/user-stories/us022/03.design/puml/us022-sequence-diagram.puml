@@ -1,0 +1,180 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title Sequence Diagram (SD)
+
+autonumber
+
+actor "Plant Floor Manager" as PM
+participant ":RegisterOperationUI" as UI
+participant ":OperationController" as CTRL
+participant ":OperationService" as SRV
+participant "OperationException" as EXC
+participant "Repositories" as REPS
+participant "repositories\n:Repositories" as REP
+participant "operationTypeRepository:\nOperationTypeRepository" as operationTypeRepository
+participant "operationRepository:\nOperationRepository" as operationRepository
+participant "type:\nOperationType" as TYPE
+participant "operation:\nOperation" as OPERATION
+
+activate PM
+    PM -> UI : asks to register a new operation
+    activate UI
+
+        UI -> CTRL** : create
+
+        UI -> CTRL : getOperationTypes()
+        activate CTRL
+            CTRL -> SRV : getOperationTypes()
+            activate SRV
+
+                SRV -> REPS : getInstance()
+                activate REPS
+                REPS --> SRV: repositories
+                deactivate REPS
+                SRV -> REP : getOperationTypeRepository()
+                activate REP
+                REP --> SRV : operationTypeRepository
+                deactivate REP
+
+                SRV -> operationTypeRepository : getAll()
+                activate operationTypeRepository
+
+                operationTypeRepository --> SRV: operationTypes
+                deactivate operationTypeRepository
+
+            SRV --> CTRL : operationTypes
+            deactivate SRV
+
+        CTRL --> UI : operationTypes
+        deactivate CTRL
+
+    UI --> PM : shows the list of operation types
+    deactivate UI
+
+    PM -> UI : selects an option (new/existing operation type)
+    activate UI
+
+    alt new operation type
+
+    UI --> PM : requests operation type name
+    deactivate UI
+
+    PM -> UI : provides operation type name
+    activate UI
+
+        UI -> CTRL : registerOperationType(typeID, typeName)
+        activate CTRL
+            CTRL -> SRV : registerOperationType(typeID, typeName)
+            activate SRV
+
+                SRV -> operationTypeRepository: getOperationTypeExists(typeID)
+                activate operationTypeRepository
+                operationTypeRepository --> SRV: true/false
+                deactivate operationTypeRepository
+
+                alt true
+                    SRV -> EXC: throw operationTypeAlreadyExists(typeID)
+                    activate EXC
+                    EXC --> SRV: Exception Thrown
+                    deactivate EXC
+                    SRV --> CTRL: show error message (Operation Type already registered)
+
+                    CTRL --> UI: show error message (Operation Type already registered)
+                else
+
+                SRV -> TYPE** : create(typeID, typeName)
+
+                    SRV -> operationTypeRepository: save(type)
+                    activate operationTypeRepository
+                    operationTypeRepository --> SRV: type
+                    deactivate operationTypeRepository
+                        SRV --> CTRL : type
+                        deactivate SRV
+                        CTRL --> UI : type
+                        deactivate CTRL
+                end
+
+    else existing operation type
+
+    UI --> PM : requests operation type ID
+    deactivate UI
+
+    PM -> UI : provides operation type ID
+    activate UI
+
+    UI -> CTRL : getOperationTypeByID(typeID)
+    activate CTRL
+    CTRL -> SRV : getOperationTypeByID(typeID)
+    activate SRV
+
+    SRV -> operationTypeRepository : getById(typeID)
+    activate operationTypeRepository
+    operationTypeRepository --> SRV : type
+    deactivate operationTypeRepository
+
+    alt type == null
+        SRV -> EXC: throw operationTypeNotFound(typeID)
+        activate EXC
+        EXC --> SRV: Exception Thrown
+        deactivate EXC
+        SRV --> CTRL: show error message (Operation Type does not exist)
+        CTRL --> UI: show error message (Operation Type does not exist)
+    else
+    SRV --> CTRL : type
+    deactivate SRV
+    CTRL --> UI : type
+    deactivate CTRL
+    end
+    end
+
+        UI --> PM : requests data (i.e. Name, Execution Time)
+    deactivate UI
+
+    PM -> UI : types requested data
+    activate UI
+
+        UI -> CTRL : registerOperation(operationID, operationName, executionTime, type)
+        activate CTRL
+            CTRL -> SRV : registerOperation(operationID, operationName, executionTime, type)
+            activate SRV
+
+                SRV -> REP : getOperationRepository()
+                activate REP
+                REP --> SRV : operationRepository
+                deactivate REP
+
+                SRV -> operationRepository: getOperationExists(operationID)
+                activate operationRepository
+                operationRepository --> SRV: true/false
+                deactivate operationRepository
+
+                alt true
+                    SRV -> EXC: throw operationAlreadyExists(operationID)
+                    activate EXC
+                    EXC --> SRV: Exception Thrown
+                    deactivate EXC
+                    SRV --> CTRL: show error message (Operation already registered)
+
+                    CTRL --> UI: show error message (Operation already registered)
+                else
+
+                SRV -> OPERATION** : create(operationID, operationName, executionTime, type)
+
+                    SRV -> operationRepository: save(operation)
+                    activate operationRepository
+                    operationRepository --> SRV: operation
+                    deactivate operationRepository
+                        SRV --> CTRL : operation
+                        deactivate SRV
+                        CTRL --> UI : operation
+                        deactivate CTRL
+                end
+
+        UI --> PM : shows all data and displays operation success or error message
+    deactivate UI
+
+deactivate PM
+@enduml

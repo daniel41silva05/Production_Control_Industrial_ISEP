@@ -27,6 +27,12 @@ public class OperationService {
         operationTypeRepository = repositories.getOperationTypeRepository();
     }
 
+    public OperationService(DatabaseConnection connection, OperationRepository operationRepository, OperationTypeRepository operationTypeRepository) {
+        this.connection = connection;
+        this.operationRepository = operationRepository;
+        this.operationTypeRepository = operationTypeRepository;
+    }
+
     public List<OperationType> getOperationTypes() {
         return operationTypeRepository.getAll(connection);
     }

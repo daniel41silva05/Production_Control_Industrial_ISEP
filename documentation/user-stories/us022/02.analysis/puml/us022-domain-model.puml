@@ -1,0 +1,30 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+skinparam classAttributeIconSize 0
+
+hide circle
+hide methods
+
+title Domain Model - US022
+
+class PlantFloorManager {
+}
+
+class Operation {
+    id
+    name
+    executionTime
+}
+
+class OperationType {
+    id
+    name
+}
+
+PlantFloorManager "1" -- "1..*" Operation : register >
+Operation "*" -- "1" OperationType : belongs to >
+
+@enduml

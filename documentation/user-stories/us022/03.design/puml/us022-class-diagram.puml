@@ -1,0 +1,93 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype polyline
+skinparam classAttributeIconSize 0
+
+package "UI" {
+    class RegisterOperationUI {
+    }
+}
+
+package "Controller" {
+    class OperationController {
+        +getOperationTypes() : List<OperationType>
+        +registerOperationType(typeID, typeName) : OperationType
+        +registerOperation(operationID, operationName, executionTime, typeID) : Operation
+    }
+}
+
+package "Service" {
+    class OperationService {
+        +getOperationTypes() : List<OperationType>
+        +registerOperationType(typeID, typeName) : OperationType
+        -getOperationTypeByID(typeID) : OperationType
+        +registerOperation(operationID, operationName, executionTime, typeID) : Operation
+    }
+}
+
+package "Repository" {
+    class Repositories {
+        -Repositories()
+        +getInstance() : Repositories
+        +getOperationRepository() : OperationRepository
+        +getOperationTypeRepository() : OperationTypeRepository
+    }
+
+    class OperationTypeRepository {
+        +getAll() : List<OperationType>
+        +getByID(typeID) : OperationType
+        +getOperationTypeExists(typeID) : boolean
+        +save(type) : boolean
+    }
+
+    class OperationRepository {
+        +getOperationExists(operationID) : boolean
+        +save(operation) : boolean
+    }
+}
+
+package "Model" {
+    class Operation {
+        -id : String
+        -type : OperationType
+        -name : String
+        -executionTime : int
+        +Operation(id, type, name, executionTime)
+    }
+
+    class OperationType {
+        -id : String
+        -name : String
+        -workstationSetupTime : Map<WorkstationType, Integer>
+        +OperationType(id, name)
+    }
+}
+
+package "Exception" {
+    class OperationException {
+        +operationTypeAlreadyExists(typeID) : OperationException
+        +operationAlreadyExists(operationID) : OperationException
+        +operationTypeNotFound(typeID) : OperationException
+    }
+
+    class RuntimeException
+}
+
+RegisterOperationUI ..> OperationController
+OperationController ..> OperationService
+OperationService ..> Repositories : repositories
+OperationService ..> OperationRepository : operationRepository
+OperationService ..> OperationTypeRepository : operationTypeRepository
+OperationService ..> Operation : operation
+OperationService ..> OperationType : type
+Repositories --> Repositories : instance
+Repositories "1" --> "1" OperationRepository : operationRepository
+Repositories "1" --> "1" OperationTypeRepository : operationTypeRepository
+OperationRepository "1" --> "*" Operation : categories
+OperationTypeRepository "1" --> "*" OperationType : categories
+Operation "*" --> "1" OperationType : has
+OperationService ..> OperationException : throws
+OperationException --|> RuntimeException
+
+@enduml
