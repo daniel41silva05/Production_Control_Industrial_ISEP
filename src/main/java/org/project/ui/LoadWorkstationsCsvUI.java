@@ -1,6 +1,8 @@
 package org.project.ui;
 
 import org.project.controller.WorkstationController;
+import org.project.exceptions.DatabaseException;
+import org.project.exceptions.WorkstationException;
 import org.project.model.*;
 import org.project.ui.utils.Utils;
 
@@ -16,6 +18,8 @@ public class LoadWorkstationsCsvUI implements Runnable {
     }
 
     public void run() {
+
+        try {
 
         String fileWorkstationTypes = Utils.readLineFromConsole("Enter file name of workstation types (ex. workstation_types.csv): ");
 
@@ -36,6 +40,10 @@ public class LoadWorkstationsCsvUI implements Runnable {
             System.out.println("\nUpload of workstations failed.");
         } else {
             showWorkstations(workstationTypeMap);
+        }
+
+        } catch (WorkstationException | DatabaseException e) {
+            System.out.println("\nError: " + e.getMessage());
         }
     }
 

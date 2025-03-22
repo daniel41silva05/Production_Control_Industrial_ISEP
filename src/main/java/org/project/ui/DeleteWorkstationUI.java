@@ -1,6 +1,7 @@
 package org.project.ui;
 
 import org.project.controller.WorkstationController;
+import org.project.exceptions.DatabaseException;
 import org.project.exceptions.WorkstationException;
 import org.project.model.Workstation;
 import org.project.ui.utils.Utils;
@@ -17,7 +18,7 @@ public class DeleteWorkstationUI implements Runnable {
 
     public void run() {
         try {
-            showWorkstations();
+            showWorkstations(controller.getWorkstations());
 
             boolean delete = Utils.confirm("Do you want to delete a workstation?");
             if (!delete) {
@@ -33,15 +34,12 @@ public class DeleteWorkstationUI implements Runnable {
                 System.out.println("\nWorkstation deleted successfully.");
             }
 
-        } catch (WorkstationException e) {
+        } catch (WorkstationException | DatabaseException e) {
             System.out.println("\nError: " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("\nFailed to delete workstation.");
         }
     }
 
-    private void showWorkstations() {
-        List<Workstation> workstations = controller.getWorkstations();
+    private void showWorkstations(List<Workstation> workstations) {
         System.out.println("\nWorkstations:");
         if (workstations.isEmpty()) {
             System.out.println("No workstations registered.");

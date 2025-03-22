@@ -73,7 +73,7 @@ package "Exception" {
 }
 
 RegisterWorkstationUI ..> WorkstationController
-WorkstationController ..> WorkstationController
+WorkstationController ..> WorkstationService
 WorkstationService ..> Repositories : repositories
 WorkstationService ..> WorkstationRepository : workstationRepository
 WorkstationService ..> WorkstationTypeRepository : workstationTypeRepository

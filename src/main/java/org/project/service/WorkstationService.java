@@ -209,7 +209,7 @@ public class WorkstationService {
             throw WorkstationException.workstationOperationNotAssigned(workstationTypeId, operationTypeId);
         }
 
-        if (!operationType.getWorkstationSetupTime().get(workstationType).equals(newSetupTime)) {
+        if (operationType.getWorkstationSetupTime().get(workstationType).equals(newSetupTime)) {
             throw OperationException.setupTimeRemainsSame();
         }
 

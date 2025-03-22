@@ -1,0 +1,108 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype polyline
+skinparam classAttributeIconSize 0
+
+package "UI" {
+    class ChangeOperationWorkstationSetupTimeUI {
+    }
+}
+
+package "Controller" {
+    class WorkstationController {
+        +getWorkstationTypes() : List<WorkstationType>
+        +changeSetupTime(operationID, workstationID, setupTime) : Integer
+    }
+
+    class OperationController {
+        +getOperationTypes() : List<OperationType>
+    }
+}
+
+package "Service" {
+    class WorkstationService {
+        +getWorkstationTypes() : List<WorkstationType>
+        +changeSetupTime(operationID, workstationID, setupTime) : Integer
+    }
+
+    class OperationService {
+        +getOperationTypes() : List<OperationType>
+    }
+}
+
+package "Repository" {
+    class Repositories {
+        -Repositories()
+        +getInstance() : Repositories
+        +getWorkstationTypeRepository() : WorkstationTypeRepository
+        +getOperationTypeRepository() : OperationTypeRepository
+    }
+
+    class WorkstationTypeRepository {
+        +getAll() : List<WorkstationType>
+        +getByID(workstationTypeID) : WorkstationType
+        +getWorkstationTypeExists(workstationTypeID) : boolean
+        +updateOperationWorkstationTime(workstationTypeID, operationTypeID) : boolean
+    }
+
+    class OperationTypeRepository {
+        +getAll() : List<OperationType>
+        +getByID(operationTypeID) : OperationType
+        +getOperationTypeExists(operationTypeID) : boolean
+    }
+
+}
+
+package "Model" {
+    class WorkstationType {
+        -id : int
+        -name : String
+        -workstations : List<Workstation>
+        +WorkstationType(id, name)
+    }
+
+    class OperationType {
+        -id : int
+        -name : String
+        -workstationSetupTime : Map<WorkstationType, Integer>
+        +OperationType(id, name)
+    }
+}
+
+package "Exception" {
+    class WorkstationException {
+        +workstationTypeAlreadyExists(workstationTypeID) : WorkstationException
+        +workstationTypeNotFound(workstationTypeID) : WorkstationException
+    }
+
+    class OperationException {
+        +operationTypeAlreadyExists(operationTypeID) : OperationException
+        +operationTypeNotFound(operationTypeID) : OperationException
+    }
+
+    class RuntimeException
+}
+
+ChangeOperationWorkstationSetupTimeUI ..> WorkstationController
+ChangeOperationWorkstationSetupTimeUI ..> OperationController
+WorkstationController ..> WorkstationService
+OperationController ..> OperationService
+WorkstationService ..> Repositories : repositories
+WorkstationService ..> WorkstationTypeRepository : workstationTypeRepository
+WorkstationService ..> WorkstationType : workstationType
+OperationService ..> Repositories : repositories
+OperationService ..> OperationTypeRepository : operationTypeRepository
+OperationService ..> OperationType : operationType
+Repositories --> Repositories : instance
+Repositories "1" --> "1" OperationTypeRepository : operationTypeRepository
+Repositories "1" --> "1" WorkstationTypeRepository : workstationTypeRepository
+OperationTypeRepository "1" --> "*" OperationType : categories
+WorkstationTypeRepository "1" --> "*" WorkstationType : categories
+OperationType "*" --> "*" WorkstationType
+WorkstationService ..> WorkstationException : throws
+WorkstationException --|> RuntimeException
+OperationService ..> OperationException : throws
+OperationException --|> RuntimeException
+
+@enduml

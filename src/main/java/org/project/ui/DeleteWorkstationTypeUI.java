@@ -1,6 +1,7 @@
 package org.project.ui;
 
 import org.project.controller.WorkstationController;
+import org.project.exceptions.DatabaseException;
 import org.project.exceptions.WorkstationException;
 import org.project.model.WorkstationType;
 import org.project.ui.utils.Utils;
@@ -17,7 +18,7 @@ public class DeleteWorkstationTypeUI implements Runnable {
 
     public void run() {
         try {
-            showWorkstationTypes();
+            showWorkstationTypes(controller.getWorkstationTypes());
 
             boolean delete = Utils.confirm("Do you want to delete a workstation type?");
             if (!delete) {
@@ -33,15 +34,12 @@ public class DeleteWorkstationTypeUI implements Runnable {
                 System.out.println("\nWorkstation Type deleted successfully.");
             }
 
-        } catch (WorkstationException e) {
+        } catch (WorkstationException | DatabaseException e) {
             System.out.println("\nError: " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("\nFailed to delete workstation type.");
         }
     }
 
-    private void showWorkstationTypes() {
-        List<WorkstationType> types = controller.getWorkstationTypes();
+    private void showWorkstationTypes(List<WorkstationType> types) {
         System.out.println("\nWorkstation Types:");
         if (types.isEmpty()) {
             System.out.println("No workstation types registered.");

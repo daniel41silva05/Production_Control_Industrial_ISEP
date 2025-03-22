@@ -1,6 +1,8 @@
 package org.project.ui;
 
+import org.project.controller.OperationController;
 import org.project.controller.WorkstationController;
+import org.project.exceptions.DatabaseException;
 import org.project.exceptions.OperationException;
 import org.project.exceptions.WorkstationException;
 import org.project.model.*;
@@ -10,37 +12,36 @@ import java.util.List;
 
 public class ChangeOperationWorkstationSetupTimeUI implements Runnable {
 
-    private final WorkstationController controller;
+    private final WorkstationController workstationController;
+    private final OperationController operationController;
 
     public ChangeOperationWorkstationSetupTimeUI() {
-        this.controller = new WorkstationController();
+        this.workstationController = new WorkstationController();
+        this.operationController = new OperationController();
     }
 
     public void run() {
         try {
-            showOperationTypes();
-            showWorkstationTypes();
+            showOperationTypes(operationController.getOperationTypes());
+            showWorkstationTypes(workstationController.getWorkstationTypes());
 
             int operationID = Utils.readIntegerFromConsole("Enter Operation Type ID: ");
             int workstationID = Utils.readIntegerFromConsole("Enter Workstation Type ID: ");
             int setupTime = Utils.readIntegerFromConsole("Enter New Setup Time: ");
 
-            Integer newSetupTime = controller.changeSetupTime(operationID, workstationID, setupTime);
+            Integer newSetupTime = workstationController.changeSetupTime(operationID, workstationID, setupTime);
             if (newSetupTime == null) {
                 System.out.println("\nSetup time update failed.");
             } else {
                 System.out.println("\nSetup time updated successfully.");
                 showChange(operationID, workstationID, newSetupTime);
             }
-        } catch (WorkstationException | OperationException e) {
+        } catch (WorkstationException | OperationException | DatabaseException e) {
             System.out.println("\nError: " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("\nSetup time update failed.");
         }
     }
 
-    private void showOperationTypes() {
-        List<OperationType> types = controller.getOperationTypes();
+    private void showOperationTypes(List<OperationType> types) {
         System.out.println("\nOperation Types:");
         if (types.isEmpty()) {
             System.out.println("No operation types registered.");
@@ -51,8 +52,7 @@ public class ChangeOperationWorkstationSetupTimeUI implements Runnable {
         }
     }
 
-    private void showWorkstationTypes() {
-        List<WorkstationType> types = controller.getWorkstationTypes();
+    private void showWorkstationTypes(List<WorkstationType> types) {
         System.out.println("\nWorkstation Types:");
         if (types.isEmpty()) {
             System.out.println("No workstation types registered.");

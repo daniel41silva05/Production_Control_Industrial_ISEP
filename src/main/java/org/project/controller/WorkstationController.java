@@ -12,19 +12,13 @@ import java.util.Map;
 public class WorkstationController {
 
     private WorkstationService workstationService;
-    private OperationService operationService;
 
     public WorkstationController() {
         workstationService = new WorkstationService();
-        operationService = new OperationService();
     }
 
     public List<WorkstationType> getWorkstationTypes() {
         return workstationService.getWorkstationTypes();
-    }
-
-    public List<OperationType> getOperationTypes() {
-        return operationService.getOperationTypes();
     }
 
     public List<Workstation> getWorkstations() {

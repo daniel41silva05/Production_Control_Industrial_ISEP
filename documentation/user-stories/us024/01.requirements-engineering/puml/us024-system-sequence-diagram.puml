@@ -1,0 +1,32 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title System Sequence Diagram (SSD)
+
+autonumber
+
+actor "Plant Floor Manager" as PM
+participant ":System" as System
+
+activate PM
+
+    PM -> System : asks to register a new workstation
+    activate System
+
+        System --> PM : shows the list of workstation types and operation types and requests data (i.e. Operation Type ID, Workstation Type ID, Setup Time)
+    deactivate System
+
+    PM -> System : types/selects requested data
+    activate System
+
+                System -> System : updates data
+                alt fail
+                    System --> PM : shows error message
+                    deactivate System
+                else success
+                    System --> PM : shows all data and displays operation success
+                    deactivate System
+                end
+@enduml
