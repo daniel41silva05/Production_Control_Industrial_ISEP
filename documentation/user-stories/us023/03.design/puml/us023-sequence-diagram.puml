@@ -1,0 +1,180 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title Sequence Diagram (SD)
+
+autonumber
+
+actor "Plant Floor Manager" as PM
+participant ":WorkstationTypeRepository" as UI
+participant ":WorkstationController" as CTRL
+participant ":WorkstationService" as SRV
+participant "WorkstationException" as EXC
+participant "Repositories" as REPS
+participant "repositories\n:Repositories" as REP
+participant "workstationTypeRepository:\nWorkstationTypeRepository" as workstationTypeRepository
+participant "workstationRepository:\nWorkstationRepository" as workstationRepository
+participant "type:\nWorkstationType" as TYPE
+participant "workstation:\nWorkstation" as WORKSTATION
+
+activate PM
+    PM -> UI : asks to register a new workstation
+    activate UI
+
+        UI -> CTRL** : create
+
+        UI -> CTRL : getWorkstationTypes()
+        activate CTRL
+            CTRL -> SRV : getWorkstationTypes()
+            activate SRV
+
+                SRV -> REPS : getInstance()
+                activate REPS
+                REPS --> SRV: repositories
+                deactivate REPS
+                SRV -> REP : getWorkstationTypeRepository()
+                activate REP
+                REP --> SRV : workstationTypeRepository
+                deactivate REP
+
+                SRV -> workstationTypeRepository : getAll()
+                activate workstationTypeRepository
+
+                workstationTypeRepository --> SRV: workstationTypes
+                deactivate workstationTypeRepository
+
+            SRV --> CTRL : workstationTypes
+            deactivate SRV
+
+        CTRL --> UI : workstationTypes
+        deactivate CTRL
+
+    UI --> PM : shows the list of workstation types
+    deactivate UI
+
+    PM -> UI : selects an option (new/existing workstation type)
+    activate UI
+
+    alt new workstation type
+
+    UI --> PM : requests workstation type name
+    deactivate UI
+
+    PM -> UI : provides workstation type name
+    activate UI
+
+        UI -> CTRL : registerWorkstationType(typeID, typeName)
+        activate CTRL
+            CTRL -> SRV : registerWorkstationType(typeID, typeName)
+            activate SRV
+
+                SRV -> workstationTypeRepository: getWorkstationTypeExists(typeID)
+                activate workstationTypeRepository
+                workstationTypeRepository --> SRV: true/false
+                deactivate workstationTypeRepository
+
+                alt true
+                    SRV -> EXC: throw workstationTypeAlreadyExists(typeID)
+                    activate EXC
+                    EXC --> SRV: Exception Thrown
+                    deactivate EXC
+                    SRV --> CTRL: show error message (Workstation Type already registered)
+
+                    CTRL --> UI: show error message (Workstation Type already registered)
+                else
+
+                SRV -> TYPE** : create(typeID, typeName)
+
+                    SRV -> workstationTypeRepository: save(type)
+                    activate workstationTypeRepository
+                    workstationTypeRepository --> SRV: type
+                    deactivate workstationTypeRepository
+                        SRV --> CTRL : type
+                        deactivate SRV
+                        CTRL --> UI : type
+                        deactivate CTRL
+                end
+
+    else existing workstation type
+
+    UI --> PM : requests workstation type ID
+    deactivate UI
+
+    PM -> UI : provides workstation type ID
+    activate UI
+
+    UI -> CTRL : getWorkstationTypeById(typeID)
+    activate CTRL
+    CTRL -> SRV : getWorkstationTypeById(typeID)
+    activate SRV
+
+    SRV -> workstationTypeRepository : getById(typeID)
+    activate workstationTypeRepository
+    workstationTypeRepository --> SRV : type
+    deactivate workstationTypeRepository
+
+    alt type == null
+        SRV -> EXC: throw workstationTypeNotFound(typeID)
+        activate EXC
+        EXC --> SRV: Exception Thrown
+        deactivate EXC
+        SRV --> CTRL: show error message (Workstation Type does not exist)
+        CTRL --> UI: show error message (Workstation Type does not exist)
+    else
+    SRV --> CTRL : type
+    deactivate SRV
+    CTRL --> UI : type
+    deactivate CTRL
+    end
+    end
+
+        UI --> PM : requests workstation name
+    deactivate UI
+
+    PM -> UI : types requested name
+    activate UI
+
+        UI -> CTRL : registerWorkstation(workstationID, workstationName, type)
+        activate CTRL
+            CTRL -> SRV : registerWorkstation(workstationID, workstationName, type)
+            activate SRV
+
+                SRV -> REP : getWorkstationRepository()
+                activate REP
+                REP --> SRV : workstationRepository
+                deactivate REP
+
+                SRV -> workstationRepository: getWorkstationExists(workstationID)
+                activate workstationRepository
+                workstationRepository --> SRV: true/false
+                deactivate workstationRepository
+
+                alt true
+                    SRV -> EXC: throw workstationAlreadyExists(workstationID)
+                    activate EXC
+                    EXC --> SRV: Exception Thrown
+                    deactivate EXC
+                    SRV --> CTRL: show error message (Workstation already registered)
+
+                    CTRL --> UI: show error message (Workstation already registered)
+                else
+
+                SRV -> WORKSTATION** : create(workstationID, workstationName, type)
+
+                    SRV -> workstationRepository: save(workstation)
+                    activate workstationRepository
+                    workstationRepository --> SRV: workstation
+                    deactivate workstationRepository
+                        SRV --> CTRL : workstation
+                        deactivate SRV
+                        CTRL --> UI : workstation
+                        deactivate CTRL
+                end
+
+        UI --> PM : shows all data and displays workstation success or error message
+    deactivate UI
+
+deactivate PM
+@enduml

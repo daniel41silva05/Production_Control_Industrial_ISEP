@@ -1,0 +1,91 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype polyline
+skinparam classAttributeIconSize 0
+
+package "UI" {
+    class RegisterWorkstationUI {
+    }
+}
+
+package "Controller" {
+    class WorkstationController {
+        +getWorkstationTypes() : List<WorkstationType>
+        +registerWorkstationType(typeID, typeName) : WorkstationType
+        +registerWorkstation(workstationID, workstationName, typeID) : Workstation
+    }
+}
+
+package "Service" {
+    class WorkstationService {
+        +getWorkstationTypes() : List<WorkstationType>
+        +registerWorkstationType(typeID, typeName) : WorkstationType
+        -getWorkstationTypeById(typeID) : WorkstationType
+        +registerWorkstation(workstationID, workstationName, typeID) : Workstation
+    }
+}
+
+package "Repository" {
+    class Repositories {
+        -Repositories()
+        +getInstance() : Repositories
+        +getWorkstationTypeRepository() : WorkstationTypeRepository
+        +getWorkstationRepository() : WorkstationRepository
+    }
+
+    class WorkstationTypeRepository {
+        +getAll() : List<WorkstationType>
+        +getByID(typeID) : WorkstationType
+        +getWorkstationTypeExists(typeID) : boolean
+        +save(type) : boolean
+    }
+
+    class WorkstationRepository {
+        +getWorkstationExists(workstationID) : boolean
+        +save(workstation) : boolean
+    }
+}
+
+package "Model" {
+    class Workstation {
+        -id : int
+        -name : String
+        +Workstation(id, name)
+    }
+
+    class WorkstationType {
+        -id : int
+        -name : String
+        -workstations : List<Workstation>
+        +WorkstationType(id, name)
+    }
+}
+
+package "Exception" {
+    class WorkstationException {
+        +workstationTypeAlreadyExists(typeID) : WorkstationException
+        +workstationAlreadyExists(workstationID) : WorkstationException
+        +workstationTypeNotFound(typeID) : WorkstationException
+    }
+
+    class RuntimeException
+}
+
+RegisterWorkstationUI ..> WorkstationController
+WorkstationController ..> WorkstationController
+WorkstationService ..> Repositories : repositories
+WorkstationService ..> WorkstationRepository : workstationRepository
+WorkstationService ..> WorkstationTypeRepository : workstationTypeRepository
+WorkstationService ..> Workstation : workstation
+WorkstationService ..> WorkstationType : type
+Repositories --> Repositories : instance
+Repositories "1" --> "1" WorkstationRepository : workstationRepository
+Repositories "1" --> "1" WorkstationTypeRepository : workstationTypeRepository
+WorkstationRepository "1" --> "*" Workstation : categories
+WorkstationTypeRepository "1" --> "*" WorkstationType : categories
+Workstation "*" --> "1" WorkstationType : has
+WorkstationService ..> WorkstationException : throws
+WorkstationException --|> RuntimeException
+
+@enduml

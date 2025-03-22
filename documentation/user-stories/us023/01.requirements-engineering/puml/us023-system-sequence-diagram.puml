@@ -1,0 +1,67 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title System Sequence Diagram (SSD)
+
+autonumber
+
+actor "Plant Floor Manager" as PM
+participant ":System" as System
+
+activate PM
+
+    PM -> System : asks to register a new workstation
+    activate System
+
+        System --> PM : shows the list of workstation types
+    deactivate System
+
+    PM -> System : selects an option (new/existing workstation type)
+    activate System
+
+    alt new workstation type
+
+            System --> PM : requests workstation type name
+            deactivate System
+
+            PM -> System : types requested name
+            activate System
+
+            System -> System : saves workstation type
+                alt system error
+                    System --> PM : shows error message (Database error)
+                    deactivate System
+                end
+
+    else existing workstation type
+
+        System --> PM : requests workstation type ID
+        deactivate System
+
+        PM -> System : provides workstation type ID
+        activate System
+
+        System -> System : checks if workstation type already exists
+            alt workstation type does not exist
+                    System --> PM : shows error message (Workstation Type does not exist)
+                deactivate System
+            end
+    end
+
+        System --> PM : requests workstation name
+    deactivate System
+
+    PM -> System : types requested name
+    activate System
+
+                System -> System : saves workstation data
+                alt system error
+                    System --> PM : shows error message (Database error)
+                    deactivate System
+                else success
+                    System --> PM : shows all data and displays operation success
+                    deactivate System
+                end
+@enduml

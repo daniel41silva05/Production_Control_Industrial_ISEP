@@ -49,7 +49,7 @@ package "Repository" {
 
 package "Model" {
     class Operation {
-        -id : String
+        -id : int
         -type : OperationType
         -name : String
         -executionTime : int
@@ -57,7 +57,7 @@ package "Model" {
     }
 
     class OperationType {
-        -id : String
+        -id : int
         -name : String
         -workstationSetupTime : Map<WorkstationType, Integer>
         +OperationType(id, name)

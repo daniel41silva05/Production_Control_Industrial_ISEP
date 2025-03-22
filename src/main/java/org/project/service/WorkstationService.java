@@ -33,6 +33,13 @@ public class WorkstationService {
         operationTypeRepository = repositories.getOperationTypeRepository();
     }
 
+    public WorkstationService (DatabaseConnection connection, WorkstationRepository workstationRepository, WorkstationTypeRepository workstationTypeRepository, OperationTypeRepository operationTypeRepository) {
+        this.connection = connection;
+        this.workstationRepository = workstationRepository;
+        this.workstationTypeRepository = workstationTypeRepository;
+        this.operationTypeRepository = operationTypeRepository;
+    }
+
     public List<WorkstationType> getWorkstationTypes() {
         return workstationTypeRepository.getAll(connection);
     }
