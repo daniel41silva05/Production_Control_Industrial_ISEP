@@ -2,6 +2,7 @@ package org.project.ui;
 
 import org.project.controller.OperationController;
 import org.project.controller.ProductController;
+import org.project.exceptions.DatabaseException;
 import org.project.exceptions.OperationException;
 import org.project.exceptions.ProductException;
 import org.project.model.Operation;
@@ -23,7 +24,7 @@ public class ChangeOperationExecutionTimeUI implements Runnable {
 
     public void run() {
         try {
-            showOperations();
+            showOperations(controller.getOperations());
 
             int operationID = Utils.readIntegerFromConsole("Enter Operation ID: ");
             int executionTime = Utils.readIntegerFromConsole("Enter New Execution Time: ");
@@ -35,15 +36,13 @@ public class ChangeOperationExecutionTimeUI implements Runnable {
                 System.out.println("\nOperation updated successfully.");
                 showOperation(operation);
             }
-        } catch (OperationException e) {
+
+        } catch (OperationException | DatabaseException e) {
             System.out.println("\nError: " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("\nOperation update failed.");
         }
     }
 
-    private void showOperations() {
-        List<Operation> operations = controller.getOperations();
+    private void showOperations(List<Operation> operations) {
         System.out.println("\nOperations:");
         if (operations.isEmpty()) {
             System.out.println("No operations registered.");

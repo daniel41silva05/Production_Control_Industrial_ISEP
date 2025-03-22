@@ -1,6 +1,7 @@
 package org.project.ui;
 
 import org.project.controller.OperationController;
+import org.project.exceptions.DatabaseException;
 import org.project.model.*;
 import org.project.ui.utils.Utils;
 
@@ -15,6 +16,7 @@ public class LoadOperationsCsvUI implements Runnable {
     }
 
     public void run() {
+        try {
 
         String fileOperationTypes = Utils.readLineFromConsole("Enter file name of operation types (ex. operation_types.csv): ");
 
@@ -35,6 +37,10 @@ public class LoadOperationsCsvUI implements Runnable {
             System.out.println("\nUpload of operations failed.");
         } else {
             showOperations(operations);
+        }
+
+        } catch (DatabaseException e) {
+        System.out.println("\nError: " + e.getMessage());
         }
     }
 
