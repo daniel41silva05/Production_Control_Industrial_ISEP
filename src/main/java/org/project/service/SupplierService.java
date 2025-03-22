@@ -21,39 +21,40 @@ public class SupplierService {
         supplierRepository = repositories.getSupplierRepository();
     }
 
+    public SupplierService(DatabaseConnection connection, SupplierRepository supplierRepository) {
+        this.connection = connection;
+        this.supplierRepository = supplierRepository;
+    }
+
     public List<Supplier> getSuppliers() {
         return supplierRepository.getAll(connection);
     }
 
-    public Supplier getSupplierByID (int id) throws SupplierException {
-        if (!supplierRepository.getSupplierExists(connection, id)) {
-            throw new SupplierException("Supplier with ID " + id + " not exists.");
+    public Supplier getSupplierByID (int id) {
+        Supplier supplier = supplierRepository.getById(connection, id);
+
+        if (supplier == null) {
+            throw SupplierException.supplierNotFound(id);
         }
 
-        return supplierRepository.getById(connection, id);
-    }
-
-    public Supplier registerSupplier(int supplierID, String name, int phoneNumber, String email, EntityState state) throws SupplierException {
-        if (supplierRepository.getSupplierExists(connection, supplierID)) {
-            throw new SupplierException("Supplier with ID " + supplierID + " already exists.");
-        }
-
-        Supplier supplier = new Supplier(supplierID, name, phoneNumber, email, state);
-        boolean success = supplierRepository.save(connection, supplier);
-        if (!success) {
-            return null;
-        }
         return supplier;
     }
 
-    public Supplier deleteSupplier (int id) throws SupplierException {
+    public Supplier registerSupplier(int supplierID, String name, int phoneNumber, String email, EntityState state) {
+        if (supplierRepository.getSupplierExists(connection, supplierID)) {
+            throw SupplierException.supplierAlreadyExists(supplierID);
+        }
 
+        Supplier supplier = new Supplier(supplierID, name, phoneNumber, email, state);
+        supplierRepository.save(connection, supplier);
+
+        return supplier;
+    }
+
+    public Supplier deleteSupplier (int id) {
         Supplier supplier = getSupplierByID(id);
 
-        boolean success = supplierRepository.delete(connection, supplier);
-        if (!success) {
-            return null;
-        }
+        supplierRepository.delete(connection, supplier);
 
         return supplier;
     }
@@ -62,15 +63,12 @@ public class SupplierService {
         supplier.setPhoneNumber(phoneNumber);
         supplier.setEmail(email);
 
-        boolean success = supplierRepository.update(connection, supplier);
-        if (!success) {
-            return null;
-        }
+        supplierRepository.update(connection, supplier);
 
         return supplier;
     }
 
-    public List<Supplier> updateSupplierStatus () throws SupplierException {
+    public List<Supplier> updateSupplierStatus () {
         List<Supplier> suppliers = getSuppliers();
 
         for (Supplier supplier : suppliers) {
@@ -85,16 +83,10 @@ public class SupplierService {
 
             if (supplier.getState().equals(EntityState.INACTIVE) && containsActiveSupplyOffers) {
                 supplier.setState(EntityState.ACTIVE);
-                boolean success = supplierRepository.updateStatus(connection, supplier);
-                if (!success) {
-                    throw new SupplierException("Problems updating supplier status.");
-                }
+                supplierRepository.updateStatus(connection, supplier);
             } else if (supplier.getState().equals(EntityState.ACTIVE) && !containsActiveSupplyOffers) {
                 supplier.setState(EntityState.INACTIVE);
-                boolean success = supplierRepository.updateStatus(connection, supplier);
-                if (!success) {
-                    throw new SupplierException("Problems updating supplier status.");
-                }
+                supplierRepository.updateStatus(connection, supplier);
             }
 
         }

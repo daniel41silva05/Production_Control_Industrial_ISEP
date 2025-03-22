@@ -1,38 +1,50 @@
 package org.project.controller;
 
-import org.project.exceptions.DatabaseException;
-import org.project.exceptions.ProductException;
-import org.project.exceptions.SupplierException;
-import org.project.exceptions.SupplyOfferException;
 import org.project.model.ProcessState;
+import org.project.model.RawMaterial;
+import org.project.model.Supplier;
 import org.project.model.SupplyOffer;
+import org.project.service.RawMaterialService;
 import org.project.service.SupplyOfferService;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class SupplyOfferController {
 
     private SupplyOfferService supplyOfferService;
+    private RawMaterialService rawMaterialService;
 
     public SupplyOfferController() {
         supplyOfferService = new SupplyOfferService();
+        rawMaterialService = new RawMaterialService();
     }
 
-    public SupplyOffer getSupplyOfferByID (int id) throws SupplyOfferException {
+    public SupplyOffer getSupplyOfferByID (int id) {
         return supplyOfferService.getSupplyOfferByID (id);
     }
 
-    public SupplyOffer registerSupplyOffer(int supplierID, int supplyOfferID, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date startDate, Date endDate, ProcessState state, Map<String, Map<Integer, Double>> rawMaterialIDsQuantityCost) throws SupplierException, SupplyOfferException, ProductException, DatabaseException {
-        return supplyOfferService.registerSupplyOffer(supplierID, supplyOfferID, deliveryStreet, deliveryZipCode, deliveryTown, deliveryCountry, startDate, endDate, state, rawMaterialIDsQuantityCost);
+    public SupplyOffer registerSupplyOffer(Supplier supplier, int supplyOfferID, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date startDate, Date endDate, ProcessState state, Map<String, Map<Integer, Double>> rawMaterialIDsQuantityCost) {
+        Map<RawMaterial, Map<Integer, Double>> rawMaterialsQuantityCost = new HashMap<>();
+        for (Map.Entry<String, Map<Integer, Double>> rawMaterialIdQuantityCost : rawMaterialIDsQuantityCost.entrySet()) {
+            RawMaterial rawMaterial = rawMaterialService.getRawMaterialByID(rawMaterialIdQuantityCost.getKey());
+            for (Map.Entry<Integer, Double> entry : rawMaterialIdQuantityCost.getValue().entrySet()) {
+                rawMaterialsQuantityCost
+                        .computeIfAbsent(rawMaterial, k -> new HashMap<>())
+                        .put(entry.getKey(), entry.getValue());
+            }
+        }
+
+        return supplyOfferService.registerSupplyOffer(supplier, supplyOfferID, deliveryStreet, deliveryZipCode, deliveryTown, deliveryCountry, startDate, endDate, state, rawMaterialsQuantityCost);
     }
 
-    public SupplyOffer deleteSupplyOffer (int id) throws SupplyOfferException {
+    public SupplyOffer deleteSupplyOffer (int id) {
         return supplyOfferService.deleteSupplyOffer(id);
     }
 
-    public SupplyOffer updateSupplyOffer (SupplyOffer supplyOffer, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date startDate, Date endDate) throws SupplyOfferException, DatabaseException {
+    public SupplyOffer updateSupplyOffer (SupplyOffer supplyOffer, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date startDate, Date endDate) {
         return supplyOfferService.updateSupplyOffer(supplyOffer, deliveryStreet, deliveryZipCode, deliveryTown, deliveryCountry, startDate, endDate);
     }
 
@@ -40,7 +52,8 @@ public class SupplyOfferController {
         return supplyOfferService.activeSupplyOffers();
     }
 
-    public SupplyOffer completeSupplyOffer(int supplyOfferID) throws SupplyOfferException, ProductException {
+    public SupplyOffer completeSupplyOffer(int supplyOfferID) {
         return supplyOfferService.completeSupplyOffer(supplyOfferID);
     }
+
 }

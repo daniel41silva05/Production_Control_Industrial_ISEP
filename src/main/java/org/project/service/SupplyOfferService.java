@@ -13,7 +13,6 @@ public class SupplyOfferService {
     private DatabaseConnection connection;
     private SupplyOfferRepository supplyOfferRepository;
     private AddressRepository addressRepository;
-    private SupplierRepository supplierRepository;
     private RawMaterialRepository rawMaterialRepository;
 
     public SupplyOfferService() {
@@ -21,31 +20,28 @@ public class SupplyOfferService {
         Repositories repositories = Repositories.getInstance();
         supplyOfferRepository = repositories.getSupplyOfferRepository();
         addressRepository = repositories.getAddressRepository();
-        supplierRepository = repositories.getSupplierRepository();
         rawMaterialRepository = repositories.getRawMaterialRepository();
     }
 
-    public SupplyOffer getSupplyOfferByID (int id) throws SupplyOfferException {
-        if (!supplyOfferRepository.getSupplyOfferExists(connection, id)) {
-            throw new SupplyOfferException("Supply Offer with ID " + id + " not exists.");
+    public SupplyOffer getSupplyOfferByID (int id)  {
+        SupplyOffer supplyOffer = supplyOfferRepository.getByID(connection, id);
+
+        if (supplyOffer == null) {
+            throw SupplyOfferException.supplyOfferNotFound(id);
         }
 
-        return supplyOfferRepository.getByID(connection, id);
+        return supplyOffer;
     }
 
-    public SupplyOffer registerSupplyOffer(int supplierID, int supplyOfferID, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date startDate, Date endDate, ProcessState state, Map<String, Map<Integer, Double>> rawMaterialIDsQuantityCost) throws SupplierException, SupplyOfferException, ProductException, DatabaseException {
+    public SupplyOffer registerSupplyOffer(Supplier supplier, int supplyOfferID, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date startDate, Date endDate, ProcessState state, Map<RawMaterial, Map<Integer, Double>> rawMaterialsQuantityCost) {
         if (endDate.before(startDate)) {
-            throw new SupplyOfferException("End date cannot be before Start date.");
+            throw SupplyOfferException.invalidDateRange();
         }
 
         if (supplyOfferRepository.getSupplyOfferExists(connection, supplyOfferID)) {
-            throw new SupplyOfferException("Supply Offer with ID " + supplyOfferID + " already exists.");
+            throw SupplyOfferException.supplyOfferAlreadyExists(supplyOfferID);
         }
 
-        if (!supplierRepository.getSupplierExists(connection, supplierID)) {
-            throw new SupplierException("Supplier with ID " + supplierID + " not exists.");
-        }
-        Supplier supplier = supplierRepository.getById(connection, supplierID);
         if (supplier == null) {
             return null;
         }
@@ -57,51 +53,25 @@ public class SupplyOfferService {
             addressRepository.save(connection, address);
         }
 
-        Map<RawMaterial, Map<Integer, Double>> rawMaterialsQuantityCost = new HashMap<>();
-        for (Map.Entry<String, Map<Integer, Double>> rawMaterialIdQuantityCost : rawMaterialIDsQuantityCost.entrySet()) {
-            String rawMaterialID = rawMaterialIdQuantityCost.getKey();
-
-            if (!rawMaterialRepository.getRawMaterialExists(connection, rawMaterialID)) {
-                throw new ProductException("Raw Material with ID " + rawMaterialID + " not exists.");
-            }
-            RawMaterial rawMaterial = rawMaterialRepository.getRawMaterialByID(connection, rawMaterialID);
-            if (rawMaterial == null) {
-                return null;
-            }
-
-            for (Map.Entry<Integer, Double> entry : rawMaterialIdQuantityCost.getValue().entrySet()) {
-                rawMaterialsQuantityCost
-                        .computeIfAbsent(rawMaterial, k -> new HashMap<>())
-                        .put(entry.getKey(), entry.getValue());
-            }
-
-        }
-
         SupplyOffer supplyOffer = new SupplyOffer(supplyOfferID, address, startDate, endDate, state, rawMaterialsQuantityCost);
 
-        boolean success = supplyOfferRepository.save(connection, supplyOffer, supplier);
-        if (!success) {
-            return null;
-        }
+        supplyOfferRepository.save(connection, supplyOffer, supplier);
 
         supplier.getSupplyOffers().add(supplyOffer);
         return supplyOffer;
     }
 
-    public SupplyOffer deleteSupplyOffer (int id) throws SupplyOfferException {
+    public SupplyOffer deleteSupplyOffer (int id) {
         SupplyOffer supplyOffer = getSupplyOfferByID(id);
 
-        boolean success = supplyOfferRepository.delete(connection, supplyOffer);
-        if (!success) {
-            return null;
-        }
+        supplyOfferRepository.delete(connection, supplyOffer);
 
         return supplyOffer;
     }
 
-    public SupplyOffer updateSupplyOffer (SupplyOffer supplyOffer, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date startDate, Date endDate) throws SupplyOfferException, DatabaseException {
+    public SupplyOffer updateSupplyOffer (SupplyOffer supplyOffer, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date startDate, Date endDate) {
         if (endDate.before(startDate)) {
-            throw new SupplyOfferException("End date cannot be before Start date.");
+            throw SupplyOfferException.invalidDateRange();
         }
 
         Address address = supplyOffer.getDeliveryAddress();
@@ -118,10 +88,7 @@ public class SupplyOfferService {
         supplyOffer.setStartDate(startDate);
         supplyOffer.setEndDate(endDate);
 
-        boolean success = supplyOfferRepository.update(connection, supplyOffer);
-        if (!success) {
-            return null;
-        }
+        supplyOfferRepository.update(connection, supplyOffer);
 
         return supplyOffer;
     }
@@ -140,8 +107,7 @@ public class SupplyOfferService {
         return activeSupplyOffers;
     }
 
-    public SupplyOffer completeSupplyOffer(int supplyOfferID) throws SupplyOfferException, ProductException {
-
+    public SupplyOffer completeSupplyOffer(int supplyOfferID) {
         SupplyOffer supplyOffer = getSupplyOfferByID(supplyOfferID);
 
         for (Map.Entry<RawMaterial, Map<Integer, Double>> getRawMaterialQuantityCost : supplyOffer.getRawMaterialsQuantityCost().entrySet()) {
@@ -152,24 +118,18 @@ public class SupplyOfferService {
                 int newCurrentStock = rawMaterial.getCurrentStock() - quantity;
 
                 if (newCurrentStock < 0) {
-                    throw new ProductException("There is not enough stock of the raw material id: " + rawMaterial.getId());
+                    throw SupplyOfferException.insufficientStock(rawMaterial.getId());
                 }
 
                 rawMaterial.setCurrentStock(newCurrentStock);
 
-                boolean success = rawMaterialRepository.updateRawMaterial(connection, rawMaterial);
-                if (!success) {
-                    throw new ProductException("Unable to update stock.");
-                }
+                rawMaterialRepository.updateRawMaterial(connection, rawMaterial);
             }
         }
 
         supplyOffer.setState(ProcessState.CONFIRMED);
 
-        boolean success = supplyOfferRepository.updateState(connection, supplyOffer);
-        if (!success) {
-            return null;
-        }
+        supplyOfferRepository.updateState(connection, supplyOffer);
 
         return supplyOffer;
     }

@@ -16,12 +16,7 @@ public class MainMenuUI implements Runnable {
         options.add(new MenuItem("Client Management", new ClientManagementMenuUI()));
         options.add(new MenuItem("Order Management", new OrderManagementMenuUI()));
         options.add(new MenuItem("Product, Component and Raw Material Management", new ProductManagementMenuUI()));
-        options.add(new MenuItem("Operation Management", new OperationManagementMenuUI()));
-        options.add(new MenuItem("Register a Workstation", new RegisterWorkstationUI()));
-        options.add(new MenuItem("Delete a Workstation", new DeleteWorkstationUI()));
-        options.add(new MenuItem("Delete a Workstation Type", new DeleteWorkstationTypeUI()));
-        options.add(new MenuItem("Change Setup Time Workstation to an Operation", new ChangeOperationWorkstationSetupTimeUI()));
-        options.add(new MenuItem("Upload Workstations from CSV file", new LoadWorkstationsCsvUI()));
+        options.add(new MenuItem("Operation and Workstation Management", new OperationWorkstationManagementMenuUI()));
 
         int option = 0;
         do {

@@ -1,6 +1,7 @@
 package org.project.repository;
 
 import org.project.data.DatabaseConnection;
+import org.project.exceptions.DatabaseException;
 import org.project.model.*;
 
 import java.sql.Connection;
@@ -27,8 +28,7 @@ public class SupplierRepository {
             int rowsInserted = statement.executeUpdate();
             return rowsInserted > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            throw DatabaseException.databaseError();
         }
     }
 
@@ -60,12 +60,11 @@ public class SupplierRepository {
                 return rowsDeleted > 0;
             } catch (SQLException e) {
                 conn.rollback();
-                e.printStackTrace();
+                throw DatabaseException.databaseError();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw DatabaseException.databaseError();
         }
-        return false;
     }
 
     public boolean update(DatabaseConnection connection, Supplier supplier) {
@@ -79,8 +78,7 @@ public class SupplierRepository {
             int rowsUpdated = statement.executeUpdate();
             return rowsUpdated > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            throw DatabaseException.databaseError();
         }
     }
 
@@ -94,8 +92,7 @@ public class SupplierRepository {
             int rowsUpdated = statement.executeUpdate();
             return rowsUpdated > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            throw DatabaseException.databaseError();
         }
     }
 
@@ -154,7 +151,7 @@ public class SupplierRepository {
             }
             suppliers.addAll(supplierMap.values());
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw DatabaseException.databaseError();
         }
 
         return suppliers;
@@ -209,7 +206,7 @@ public class SupplierRepository {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw DatabaseException.databaseError();
         }
 
         return supplier;
@@ -228,7 +225,7 @@ public class SupplierRepository {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw DatabaseException.databaseError();
         }
 
         return count > 0;

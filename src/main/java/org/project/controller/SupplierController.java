@@ -1,6 +1,5 @@
 package org.project.controller;
 
-import org.project.exceptions.SupplierException;
 import org.project.model.EntityState;
 import org.project.model.Supplier;
 import org.project.service.SupplierService;
@@ -19,15 +18,15 @@ public class SupplierController {
         return supplierService.getSuppliers();
     }
 
-    public Supplier getSupplierByID (int id) throws SupplierException {
+    public Supplier getSupplierByID (int id) {
         return supplierService.getSupplierByID(id);
     }
 
-    public Supplier registerSupplier(int supplierID, String name, int phoneNumber, String email, EntityState state) throws SupplierException {
+    public Supplier registerSupplier(int supplierID, String name, int phoneNumber, String email, EntityState state) {
         return supplierService.registerSupplier(supplierID, name, phoneNumber, email, state);
     }
 
-    public Supplier deleteSupplier (int id) throws SupplierException {
+    public Supplier deleteSupplier (int id) {
         return supplierService.deleteSupplier(id);
     }
 
@@ -35,7 +34,7 @@ public class SupplierController {
         return supplierService.updateSupplier(supplier, phoneNumber, email);
     }
 
-    public List<Supplier> updateSupplierStatus () throws SupplierException {
+    public List<Supplier> updateSupplierStatus () {
         return supplierService.updateSupplierStatus();
     }
 

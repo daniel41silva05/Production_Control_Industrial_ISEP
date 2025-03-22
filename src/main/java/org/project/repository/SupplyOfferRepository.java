@@ -1,6 +1,7 @@
 package org.project.repository;
 
 import org.project.data.DatabaseConnection;
+import org.project.exceptions.DatabaseException;
 import org.project.model.*;
 
 import java.sql.Connection;
@@ -44,8 +45,7 @@ public class SupplyOfferRepository {
             }
             return rowsInserted > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            throw DatabaseException.databaseError();
         }
     }
 
@@ -69,12 +69,11 @@ public class SupplyOfferRepository {
                 return rowsDeleted > 0;
             } catch (SQLException e) {
                 conn.rollback();
-                e.printStackTrace();
+                throw DatabaseException.databaseError();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw DatabaseException.databaseError();
         }
-        return false;
     }
 
     public boolean update(DatabaseConnection connection, SupplyOffer supplyOffer) {
@@ -89,8 +88,7 @@ public class SupplyOfferRepository {
             int rowsUpdated = statement.executeUpdate();
             return rowsUpdated > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            throw DatabaseException.databaseError();
         }
     }
 
@@ -104,8 +102,7 @@ public class SupplyOfferRepository {
             int rowsUpdated = statement.executeUpdate();
             return rowsUpdated > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            throw DatabaseException.databaseError();
         }
     }
 
@@ -174,7 +171,7 @@ public class SupplyOfferRepository {
             }
             supplyOffers.addAll(supplyOfferMap.values());
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw DatabaseException.databaseError();
         }
         return supplyOffers;
     }
@@ -240,9 +237,8 @@ public class SupplyOfferRepository {
                 return supplyOffer;
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw DatabaseException.databaseError();
         }
-        return null;
     }
 
     public boolean getSupplyOfferExists(DatabaseConnection connection, int id) {
@@ -258,7 +254,7 @@ public class SupplyOfferRepository {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw DatabaseException.databaseError();
         }
 
         return count > 0;
