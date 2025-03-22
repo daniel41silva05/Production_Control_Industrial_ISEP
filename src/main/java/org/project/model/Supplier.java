@@ -13,13 +13,13 @@ public class Supplier {
     private EntityState state;
     private List<SupplyOffer> supplyOffers;
 
-    public Supplier(int id, String name, int phoneNumber, String email, List<SupplyOffer> supplyOffers) {
+    public Supplier(int id, String name, int phoneNumber, String email) {
         this.id = id;
         this.name = name;
         this.phoneNumber = phoneNumber;
         this.email = email;
         this.state = EntityState.INACTIVE;
-        this.supplyOffers = supplyOffers;
+        this.supplyOffers = new ArrayList<>();
     }
 
     public Supplier(int id, String name, int phoneNumber, String email, EntityState state) {

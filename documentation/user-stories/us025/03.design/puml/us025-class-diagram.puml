@@ -1,0 +1,89 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype polyline
+skinparam classAttributeIconSize 0
+
+package "UI" {
+    class RegisterSupplierUI {
+    }
+}
+
+package "Controller" {
+    class SupplierController {
+        +getSuppliers() : List<Supplier>
+        +registerSupplier(supplierID, name, phoneNumber, email) : Supplier
+    }
+}
+
+package "Service" {
+    class SupplierService {
+        +getSuppliers() : List<Supplier>
+        +registerSupplier(supplierID, name, phoneNumber, email) : Supplier
+    }
+}
+
+package "Repository" {
+    class Repositories {
+        -Repositories()
+        +getInstance() : Repositories
+        +getSupplierRepository() : SupplierRepository
+    }
+
+    class SupplierRepository {
+        +getAll() : List<Supplier>
+        +getSupplierExists(supplierID) : boolean
+        +save(supplier) : boolean
+    }
+}
+
+package "Model" {
+    class Supplier {
+        -supplierID : int
+        -name : String
+        -phoneNumber : int
+        -email : String
+        -type : CompanyType
+        -state : EntityState
+        -supplyOffers : List<SupplyOffer>
+        +Supplier(supplierID, name, phoneNumber, email)
+    }
+
+    enum EntityState {
+        ACTIVE
+        INACTIVE
+    }
+}
+
+package "Exception" {
+    class SupplierException {
+        +supplierAlreadyExists(supplierID) : SupplierException
+        +invalidPhoneNumber() : SupplierException
+        +invalidEmailFormat() : SupplierException
+    }
+
+    class RuntimeException
+}
+
+package "Commom" {
+    class Validator {
+        +isValidPhoneNumber(phoneNumber) : boolean
+        +isValidEmail(email) : boolean
+    }
+}
+
+
+RegisterSupplierUI ..> SupplierController
+SupplierController ..> SupplierService
+SupplierController ..> Repositories : repositories
+SupplierService ..> SupplierRepository : supplierRepository
+SupplierService ..> Supplier : supplier
+Repositories --> Repositories : instance
+Repositories "1" --> "1" SupplierRepository : supplierRepository
+SupplierRepository "1" --> "*" Supplier : categories
+Supplier "*" --> "1" EntityState : has
+SupplierService ..> SupplierException : throws
+SupplierException --|> RuntimeException
+SupplierService ..> Validator : uses
+
+@enduml

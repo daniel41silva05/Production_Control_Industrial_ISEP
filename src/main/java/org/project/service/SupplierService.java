@@ -1,7 +1,9 @@
 package org.project.service;
 
+import org.project.common.Validator;
 import org.project.data.ConnectionFactory;
 import org.project.data.DatabaseConnection;
+import org.project.exceptions.ClientException;
 import org.project.exceptions.SupplierException;
 import org.project.model.*;
 import org.project.repository.Repositories;
@@ -40,12 +42,20 @@ public class SupplierService {
         return supplier;
     }
 
-    public Supplier registerSupplier(int supplierID, String name, int phoneNumber, String email, EntityState state) {
+    public Supplier registerSupplier(int supplierID, String name, int phoneNumber, String email) {
+        if (!Validator.isValidPhoneNumber(phoneNumber)) {
+            throw SupplierException.invalidPhoneNumber();
+        }
+
+        if (!Validator.isValidEmail(email)) {
+            throw SupplierException.invalidEmailFormat();
+        }
+
         if (supplierRepository.getSupplierExists(connection, supplierID)) {
             throw SupplierException.supplierAlreadyExists(supplierID);
         }
 
-        Supplier supplier = new Supplier(supplierID, name, phoneNumber, email, state);
+        Supplier supplier = new Supplier(supplierID, name, phoneNumber, email);
         supplierRepository.save(connection, supplier);
 
         return supplier;
@@ -60,6 +70,14 @@ public class SupplierService {
     }
 
     public Supplier updateSupplier (Supplier supplier, int phoneNumber, String email) {
+        if (!Validator.isValidPhoneNumber(phoneNumber)) {
+            throw ClientException.invalidPhoneNumber();
+        }
+
+        if (!Validator.isValidEmail(email)) {
+            throw ClientException.invalidEmailFormat();
+        }
+
         supplier.setPhoneNumber(phoneNumber);
         supplier.setEmail(email);
 

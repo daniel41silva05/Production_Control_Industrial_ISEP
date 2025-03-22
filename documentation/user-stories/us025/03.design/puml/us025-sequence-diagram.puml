@@ -1,0 +1,128 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title System Sequence Diagram (SSD)
+
+autonumber
+
+actor "Administrator" as ADM
+participant ":RegisterSupplierUI" as UI
+participant ":SupplierController" as CTRL
+participant ":SupplierService" as SRV
+participant "SupplierException" as EXC
+participant "Repositories" as REPS
+participant "repositories\n:Repositories" as REP
+participant "supplierRepository:\nSupplierRepository" as supplierRepository
+participant "supplier:\nSupplier" as SUPPLIER
+participant "Validator" as VAL
+
+title Register Supplier Sequence
+
+activate ADM
+    ADM -> UI : asks to register a new supplier
+    activate UI
+
+        UI -> CTRL** : create
+
+        UI -> CTRL : getSuppliers()
+        activate CTRL
+            CTRL -> SRV : getSuppliers()
+            activate SRV
+
+                SRV -> REPS : getInstance()
+                activate REPS
+                REPS --> SRV: repositories
+                deactivate REPS
+                SRV -> REP : getSupplierRepository()
+                activate REP
+                REP --> SRV : supplierRepository
+                deactivate REP
+
+                SRV -> supplierRepository : getAll()
+                activate supplierRepository
+                supplierRepository --> SRV : suppliers
+                deactivate supplierRepository
+            SRV --> CTRL : suppliers
+            deactivate SRV
+        CTRL --> UI : suppliers
+        deactivate CTRL
+    UI --> ADM : shows the list of suppliers and requests confirmation
+    deactivate UI
+
+    ADM -> UI : confirms that he wants to register a new supplier
+    activate UI
+        UI --> ADM : requests data (i.e. Name and Contact Info (Phone Number and Email))
+    deactivate UI
+
+    ADM -> UI : types requested data
+    activate UI
+        UI -> CTRL: registerSupplier(supplierID, name, phoneNumber, email)
+        activate CTRL
+            CTRL -> SRV: registerSupplier(supplierID, name, phoneNumber, email)
+            activate SRV
+
+                SRV -> VAL: isValidData(phoneNumber, email)
+                activate VAL
+                VAL --> SRV: true/false
+                deactivate VAL
+
+                alt false
+
+                    SRV -> EXC: throw invalidData()
+                    activate EXC
+                    EXC --> SRV: Exception Thrown
+                    deactivate EXC
+                    SRV --> CTRL: show error message (Invalid data)
+
+                    CTRL --> UI: show error message (Invalid data)
+                    deactivate VAL
+                else
+
+                SRV -> REP: getSupplierRepository()
+                activate REP
+                REP --> SRV: supplierRepository
+                deactivate REP
+
+                SRV -> supplierRepository: getSupplierExists(supplierID)
+                activate supplierRepository
+                supplierRepository --> SRV: true/false
+                deactivate supplierRepository
+
+                alt true
+
+                    SRV -> EXC: throw supplierAlreadyExists(supplierID)
+                    activate EXC
+                    EXC --> SRV: Exception Thrown
+                    deactivate EXC
+                    SRV --> CTRL: show error message (Supplier already registered)
+
+                    CTRL --> UI: show error message (Supplier already registered)
+                else
+
+                    SRV -> SUPPLIER** : create(supplierID, name, phoneNumber, email)
+
+                    SRV -> supplierRepository: save(supplier)
+                    activate supplierRepository
+                    alt system error
+                        supplierRepository --> SRV: Database error
+
+                        SRV --> CTRL: show error message (Database error)
+
+                        CTRL --> UI: show error message (Database error)
+                    else
+                        supplierRepository --> SRV: supplier
+                        deactivate supplierRepository
+                        SRV --> CTRL: supplier
+                        deactivate SRV
+                        CTRL --> UI: supplier
+                        deactivate CTRL
+                    end
+                end
+            end
+    UI --> ADM: shows all data and displays operation success or error message
+    deactivate UI
+
+deactivate ADM
+@enduml

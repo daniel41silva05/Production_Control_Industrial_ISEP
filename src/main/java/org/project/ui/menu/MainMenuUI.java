@@ -1,6 +1,5 @@
 package org.project.ui.menu;
 
-import org.project.ui.*;
 import org.project.ui.utils.Utils;
 
 import java.util.ArrayList;
@@ -17,6 +16,7 @@ public class MainMenuUI implements Runnable {
         options.add(new MenuItem("Order Management", new OrderManagementMenuUI()));
         options.add(new MenuItem("Product, Component and Raw Material Management", new ProductManagementMenuUI()));
         options.add(new MenuItem("Operation and Workstation Management", new OperationWorkstationManagementMenuUI()));
+        options.add(new MenuItem("Supplier Management", new SupplierManagementMenuUI()));
 
         int option = 0;
         do {

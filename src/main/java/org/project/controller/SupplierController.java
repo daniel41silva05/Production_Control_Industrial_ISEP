@@ -22,8 +22,8 @@ public class SupplierController {
         return supplierService.getSupplierByID(id);
     }
 
-    public Supplier registerSupplier(int supplierID, String name, int phoneNumber, String email, EntityState state) {
-        return supplierService.registerSupplier(supplierID, name, phoneNumber, email, state);
+    public Supplier registerSupplier(int supplierID, String name, int phoneNumber, String email) {
+        return supplierService.registerSupplier(supplierID, name, phoneNumber, email);
     }
 
     public Supplier deleteSupplier (int id) {
