@@ -41,75 +41,73 @@ public class WorkstationService {
         return workstationRepository.getAll(connection);
     }
 
-    private WorkstationType getWorkstationTypeById(int id) throws WorkstationException {
-        if (!workstationTypeRepository.getWorkstationTypeExists(connection, id)) {
-            throw new WorkstationException("Workstation Type with ID " + id + " not exists.");
+    private WorkstationType getWorkstationTypeById(int id) {
+        WorkstationType workstationType = workstationTypeRepository.getById(connection, id);
+
+        if (workstationType == null) {
+            throw WorkstationException.workstationTypeNotFound(id);
         }
 
-        return workstationTypeRepository.getById(connection, id);
+        return workstationType;
     }
 
-    public Workstation registerWorkstation (int id, String name, int typeId) throws WorkstationException {
+    private Workstation getWorkstationById(int id) {
+        Workstation workstation = workstationRepository.getById(connection, id);
+
+        if (workstation == null) {
+            throw WorkstationException.workstationNotFound(id);
+        }
+
+        return workstation;
+    }
+
+    public Workstation registerWorkstation (int id, String name, int typeId) {
         if (workstationRepository.getWorkstationExists(connection, id)) {
-            throw new WorkstationException("Workstation with ID " + id + " already exists.");
+            throw WorkstationException.workstationAlreadyExists(id);
         }
 
         WorkstationType type = getWorkstationTypeById(typeId);
 
         Workstation workstation = new Workstation(id, name);
-        boolean success = workstationRepository.save(connection, workstation, type);
-        if (!success) {
-            return null;
-        }
+        workstationRepository.save(connection, workstation, type);
+
         return workstation;
     }
 
-    public WorkstationType registerWorkstationType (int id, String name) throws WorkstationException {
+    public WorkstationType registerWorkstationType (int id, String name) {
         if (workstationTypeRepository.getWorkstationTypeExists(connection, id)) {
-            throw new WorkstationException("Workstation Type with ID " + id + " already exists.");
+            throw WorkstationException.workstationTypeAlreadyExists(id);
         }
 
         WorkstationType workstationType = new WorkstationType(id, name);
-        boolean success = workstationTypeRepository.save(connection, workstationType);
-        if (!success) {
-            return null;
-        }
+        workstationTypeRepository.save(connection, workstationType);
+
         return workstationType;
     }
 
-    public Workstation deleteWorkstation (int id) throws WorkstationException {
-        if (!workstationRepository.getWorkstationExists(connection, id)) {
-            throw new WorkstationException("Workstation with ID " + id + " not exists.");
-        }
+    public Workstation deleteWorkstation (int id) {
+        Workstation workstation = getWorkstationById(id);
 
-        Workstation workstation = workstationRepository.getById(connection, id);
+        workstationRepository.delete(connection, workstation);
 
-        boolean success = workstationRepository.delete(connection, workstation);
-        if (!success) {
-            return null;
-        }
         return workstation;
     }
 
-    public WorkstationType deleteWorkstationType (int id) throws WorkstationException {
+    public WorkstationType deleteWorkstationType (int id) {
         WorkstationType workstationType = getWorkstationTypeById(id);
 
         if (!workstationType.getWorkstations().isEmpty()) {
-            throw new WorkstationException("Workstation Type cannot be deleted because it contains active workstations.");
+            throw WorkstationException.workstationTypeCanNotDeleted();
         }
 
-        boolean success = workstationTypeRepository.delete(connection, workstationType);
-        if (!success) {
-            return null;
-        }
+        workstationTypeRepository.delete(connection, workstationType);
+
         return workstationType;
     }
 
     public Map<OperationType, List<WorkstationType>> registerWorkstationTypesFromCSV (String filePath) {
         Map<OperationType, List<WorkstationType>> operationWorkstationsMap = new HashMap<>();
         Map<WorkstationType, Map<Integer, Integer>> workstationOperationTimeMap = CsvReader.loadWorkstationTypes(filePath);
-
-        boolean success = false;
 
         for (Map.Entry<WorkstationType, Map<Integer, Integer>> entry : workstationOperationTimeMap.entrySet()) {
             WorkstationType workstationType = entry.getKey();
@@ -128,10 +126,8 @@ public class WorkstationService {
                     OperationType operationType = operationTypeRepository.getById(connection, operationID);
                     operationType.getWorkstationSetupTime().put(workstationType, setupTime);
 
-                    success = workstationTypeRepository.saveOperationWorkstationTime(connection, operationType, workstationType);
-                    if (!success) {
-                        return null;
-                    }
+                    workstationTypeRepository.saveOperationWorkstationTime(connection, operationType, workstationType);
+
                     operationWorkstationsMap.computeIfAbsent(operationType, k -> new ArrayList<>()).add(workstationType);
                 }
 
@@ -150,16 +146,13 @@ public class WorkstationService {
                     if (operationType.getWorkstationSetupTime().containsKey(workstationType)) {
                         if (operationType.getWorkstationSetupTime().get(workstationType) != setupTime) {
                             operationType.getWorkstationSetupTime().put(workstationType, setupTime);
-                            success = workstationTypeRepository.updateOperationWorkstationTime(connection, operationType, workstationType);
+                            workstationTypeRepository.updateOperationWorkstationTime(connection, operationType, workstationType);
                         }
                     } else {
                         operationType.getWorkstationSetupTime().put(workstationType, setupTime);
-                        success = workstationTypeRepository.saveOperationWorkstationTime(connection, operationType, workstationType);
+                        workstationTypeRepository.saveOperationWorkstationTime(connection, operationType, workstationType);
                     }
 
-                    if (!success) {
-                        return null;
-                    }
                     operationWorkstationsMap.computeIfAbsent(operationType, k -> new ArrayList<>()).add(workstationType);
                 }
             }
@@ -172,7 +165,6 @@ public class WorkstationService {
     public Map<Workstation, WorkstationType> registerWorkstationFromCSV (String filePath) {
         Map<Workstation, WorkstationType> operationWorkstationsMap = new HashMap<>();
         Map<Workstation, Integer> operationWorkstationIdMap = CsvReader.loadWorkstations(filePath);
-        boolean success = false;
 
         for (Map.Entry<Workstation, Integer> entry : operationWorkstationIdMap.entrySet()) {
             Workstation workstation = entry.getKey();
@@ -185,45 +177,40 @@ public class WorkstationService {
                 }
                 workstationType = workstationTypeRepository.getById(connection, workstationTypeId);
 
-                success = workstationRepository.save(connection, workstation, workstationType);
+                workstationRepository.save(connection, workstation, workstationType);
             }
 
-            if (!success) {
-                return null;
-            }
             operationWorkstationsMap.put(workstation, workstationType);
         }
 
         return operationWorkstationsMap;
     }
 
-    public Integer changeSetupTime (int operationTypeId, int workstationTypeId, int newSetupTime) throws WorkstationException, OperationException {
+    public Integer changeSetupTime (int operationTypeId, int workstationTypeId, int newSetupTime) {
         if (!operationTypeRepository.getOperationTypeExists(connection, operationTypeId)) {
-            throw new OperationException("Operation type with ID " + operationTypeId + " not exists.");
+            throw OperationException.operationTypeNotFound(operationTypeId);
         }
 
         if (!workstationTypeRepository.getWorkstationTypeExists(connection, workstationTypeId)) {
-            throw new WorkstationException("Workstation Type with ID " + workstationTypeId + " not exists.");
+            throw WorkstationException.workstationNotFound(workstationTypeId);
         }
 
         OperationType operationType = operationTypeRepository.getById(connection, operationTypeId);
         WorkstationType workstationType = workstationTypeRepository.getById(connection, workstationTypeId);
 
         if (!operationType.getWorkstationSetupTime().containsKey(workstationType)) {
-            throw new WorkstationException("Workstation Type with ID " + workstationTypeId + " is not assigned to perform Operation Type with ID " + operationTypeId);
+            throw WorkstationException.workstationOperationNotAssigned(workstationTypeId, operationTypeId);
         }
 
         if (!operationType.getWorkstationSetupTime().get(workstationType).equals(newSetupTime)) {
-            throw new OperationException("The setup time remains the same.");
+            throw OperationException.setupTimeRemainsSame();
         }
 
         operationType.getWorkstationSetupTime().put(workstationType, newSetupTime);
 
-        boolean success = workstationTypeRepository.updateOperationWorkstationTime(connection, operationType, workstationType);
-        if (!success) {
-            return null;
-        }
+        workstationTypeRepository.updateOperationWorkstationTime(connection, operationType, workstationType);
 
         return newSetupTime;
     }
+
 }

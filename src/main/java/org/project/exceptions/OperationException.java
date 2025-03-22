@@ -2,13 +2,15 @@ package org.project.exceptions;
 
 public class OperationException extends RuntimeException {
 
-    public static final String OPERATION_ALREADY_EXISTS = "Operation Type with ID %d already exists.";
+    public static final String OPERATION_ALREADY_EXISTS = "Operation with ID %d already exists.";
     public static final String OPERATION_TYPE_ALREADY_EXISTS = "Operation Type with ID %d already exists.";
     public static final String OPERATION_NOT_FOUND = "Operation with ID %d does not exist.";
     public static final String OPERATION_TYPE_NOT_FOUND = "Operation Type with ID %d does not exist.";
     public static final String OPERATION_ERROR = "An error occurred while processing the operation.";
     public static final String OPERATION_NOT_FOUND_IN_PRODUCTION = "Operation %d not found in the production elements.";
     public static final String TIME_REMAINS_SAME = "The execution time remains the same.";
+    public static final String SETUP_TIME_REMAINS_SAME = "The setup time remains the same.";
+
 
     public OperationException(String message) {
         super(message);
@@ -40,5 +42,9 @@ public class OperationException extends RuntimeException {
 
     public static OperationException timeRemainsSame() {
         return new OperationException(String.format(TIME_REMAINS_SAME));
+    }
+
+    public static OperationException setupTimeRemainsSame() {
+        return new OperationException(String.format(SETUP_TIME_REMAINS_SAME));
     }
 }

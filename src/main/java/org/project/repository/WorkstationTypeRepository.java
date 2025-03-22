@@ -1,6 +1,7 @@
 package org.project.repository;
 
 import org.project.data.DatabaseConnection;
+import org.project.exceptions.DatabaseException;
 import org.project.model.*;
 
 import java.sql.*;
@@ -18,8 +19,7 @@ public class WorkstationTypeRepository {
             int rowsInserted = statement.executeUpdate();
             return rowsInserted > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            throw DatabaseException.databaseError();
         }
     }
 
@@ -43,12 +43,11 @@ public class WorkstationTypeRepository {
                 return rowsDeleted > 0;
             } catch (SQLException e) {
                 conn.rollback();
-                e.printStackTrace();
+                throw DatabaseException.databaseError();
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw DatabaseException.databaseError();
         }
-        return false;
     }
 
     public List<WorkstationType> getAll(DatabaseConnection connection) {
@@ -91,7 +90,7 @@ public class WorkstationTypeRepository {
 
             workstationTypes.addAll(workstationTypeMap.values());
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw DatabaseException.databaseError();
         }
 
         return workstationTypes;
@@ -132,7 +131,7 @@ public class WorkstationTypeRepository {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw DatabaseException.databaseError();
         }
 
         return workstationType;
@@ -151,7 +150,7 @@ public class WorkstationTypeRepository {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw DatabaseException.databaseError();
         }
 
         return count > 0;
@@ -168,8 +167,7 @@ public class WorkstationTypeRepository {
             int rowsInserted = statement.executeUpdate();
             return rowsInserted > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            throw DatabaseException.databaseError();
         }
     }
 
@@ -184,8 +182,7 @@ public class WorkstationTypeRepository {
             int rowsUpdated = statement.executeUpdate();
             return rowsUpdated > 0;
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            throw DatabaseException.databaseError();
         }
     }
 

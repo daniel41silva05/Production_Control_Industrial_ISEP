@@ -1,7 +1,5 @@
 package org.project.controller;
 
-import org.project.exceptions.OperationException;
-import org.project.exceptions.WorkstationException;
 import org.project.model.OperationType;
 import org.project.model.Workstation;
 import org.project.model.WorkstationType;
@@ -33,23 +31,23 @@ public class WorkstationController {
         return workstationService.getWorkstations();
     }
 
-    public Workstation registerWorkstation (int id, String name, int typeId) throws WorkstationException {
+    public Workstation registerWorkstation (int id, String name, int typeId) {
         return workstationService.registerWorkstation (id, name, typeId);
     }
 
-    public WorkstationType registerWorkstationType (int id, String name) throws WorkstationException {
+    public WorkstationType registerWorkstationType (int id, String name) {
         return workstationService.registerWorkstationType (id, name);
     }
 
-    public Workstation deleteWorkstation (int id) throws WorkstationException {
+    public Workstation deleteWorkstation (int id) {
         return workstationService.deleteWorkstation (id);
     }
 
-    public WorkstationType deleteWorkstationType (int id) throws WorkstationException {
+    public WorkstationType deleteWorkstationType (int id) {
         return workstationService.deleteWorkstationType (id);
     }
 
-    public Integer changeSetupTime (int operationTypeId, int workstationTypeId, int newSetupTime) throws WorkstationException, OperationException {
+    public Integer changeSetupTime (int operationTypeId, int workstationTypeId, int newSetupTime) {
         return workstationService.changeSetupTime (operationTypeId, workstationTypeId, newSetupTime);
     }
 

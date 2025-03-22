@@ -1,12 +1,10 @@
 package org.project.ui;
 
-import org.project.controller.OrderController;
 import org.project.controller.WorkstationController;
 import org.project.exceptions.*;
 import org.project.model.*;
 import org.project.ui.utils.Utils;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class RegisterWorkstationUI implements Runnable {
@@ -19,7 +17,7 @@ public class RegisterWorkstationUI implements Runnable {
 
     public void run() {
         try {
-            showWorkstationTypes();
+            showWorkstationTypes(controller.getWorkstationTypes());
 
             List<String> optionWorkstation = new ArrayList<>();
             optionWorkstation.add("Register the workstation in a new type.");
@@ -44,15 +42,13 @@ public class RegisterWorkstationUI implements Runnable {
                 System.out.println("\nWorkstation registered successfully.");
                 showWorkstation(workstation, typeID);
             }
-        } catch (WorkstationException e) {
+
+        } catch (WorkstationException | DatabaseException e) {
             System.out.println("\nError: " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("\nWorkstation registration failed.");
         }
     }
 
-    private void showWorkstationTypes() {
-        List<WorkstationType> types = controller.getWorkstationTypes();
+    private void showWorkstationTypes(List<WorkstationType> types) {
         System.out.println("\nWorkstation Types:");
         if (types.isEmpty()) {
             System.out.println("No workstation types registered.");
