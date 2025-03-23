@@ -57,8 +57,8 @@ public class RawMaterialController {
         return rawMaterialService.changeUnitCostRawMaterialSupplier(rawMaterial, supplier, unitCost);
     }
 
-    public List<Map.Entry<Supplier, Double>> getSuppliersByCost(RawMaterial rawMaterial) {
-        return rawMaterialService.getSuppliersByCost(rawMaterial);
+    public List<Map.Entry<Supplier, Double>> getSuppliersByCost(String rawMaterialID) {
+        return rawMaterialService.getSuppliersByCost(rawMaterialID);
     }
 
 }

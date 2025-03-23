@@ -160,7 +160,9 @@ public class RawMaterialService {
         return rawMaterial;
     }
 
-    public List<Map.Entry<Supplier, Double>> getSuppliersByCost(RawMaterial rawMaterial) {
+    public List<Map.Entry<Supplier, Double>> getSuppliersByCost(String rawMaterialID) {
+        RawMaterial rawMaterial = getRawMaterialByID(rawMaterialID);
+
         List<Map.Entry<Supplier, Double>> sortedList = new ArrayList<>(rawMaterial.getRawMaterialCost().entrySet());
         sortedList.sort(Comparator.comparingDouble(Map.Entry::getValue));
         return sortedList;
