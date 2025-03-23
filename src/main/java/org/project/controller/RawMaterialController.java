@@ -1,10 +1,9 @@
 package org.project.controller;
 
-import org.project.exceptions.ProductException;
-import org.project.exceptions.SupplierException;
 import org.project.model.RawMaterial;
 import org.project.model.Supplier;
 import org.project.service.RawMaterialService;
+import org.project.service.SupplierService;
 
 import java.util.List;
 import java.util.Map;
@@ -12,9 +11,11 @@ import java.util.Map;
 public class RawMaterialController {
 
     private RawMaterialService rawMaterialService;
+    private SupplierService supplierService;
 
     public RawMaterialController() {
         rawMaterialService = new RawMaterialService();
+        supplierService = new SupplierService();
     }
 
     public List<RawMaterial> getRawMaterials() {
@@ -41,16 +42,19 @@ public class RawMaterialController {
         return rawMaterialService.consultRawMaterialsStockAlert();
     }
 
-    public RawMaterial registerRawMaterialSupplier(String rawMaterialID, int supplierID, double unitCost) throws ProductException, SupplierException {
-        return rawMaterialService.registerRawMaterialSupplier(rawMaterialID, supplierID, unitCost);
+    public RawMaterial registerRawMaterialSupplier(RawMaterial rawMaterial, int supplierID, double unitCost) {
+        Supplier supplier = supplierService.getSupplierByID(supplierID);
+        return rawMaterialService.registerRawMaterialSupplier(rawMaterial, supplier, unitCost);
     }
 
-    public RawMaterial deleteRawMaterialSupplier(String rawMaterialID, int supplierID) throws ProductException, SupplierException {
-        return rawMaterialService.deleteRawMaterialSupplier(rawMaterialID, supplierID);
+    public RawMaterial deleteRawMaterialSupplier(RawMaterial rawMaterial, int supplierID) {
+        Supplier supplier = supplierService.getSupplierByID(supplierID);
+        return rawMaterialService.deleteRawMaterialSupplier(rawMaterial, supplier);
     }
 
-    public RawMaterial changeUnitCostRawMaterialSupplier(String rawMaterialID, int supplierID, double unitCost) throws ProductException, SupplierException {
-        return rawMaterialService.changeUnitCostRawMaterialSupplier(rawMaterialID, supplierID, unitCost);
+    public RawMaterial changeUnitCostRawMaterialSupplier(RawMaterial rawMaterial, int supplierID, double unitCost) {
+        Supplier supplier = supplierService.getSupplierByID(supplierID);
+        return rawMaterialService.changeUnitCostRawMaterialSupplier(rawMaterial, supplier, unitCost);
     }
 
     public List<Map.Entry<Supplier, Double>> getSuppliersByCost(RawMaterial rawMaterial) {

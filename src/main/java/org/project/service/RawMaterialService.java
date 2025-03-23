@@ -3,7 +3,6 @@ package org.project.service;
 import org.project.data.ConnectionFactory;
 import org.project.data.DatabaseConnection;
 import org.project.exceptions.ProductException;
-import org.project.exceptions.SupplierException;
 import org.project.io.CsvReader;
 import org.project.model.RawMaterial;
 import org.project.model.Supplier;
@@ -109,68 +108,54 @@ public class RawMaterialService {
         return rawMaterialsStockAlert;
     }
 
-    private Supplier getSupplierByID (int id) throws SupplierException {
-        if (!supplierRepository.getSupplierExists(connection, id)) {
-            throw new SupplierException("Supplier with ID " + id + " not exists.");
+    public RawMaterial registerRawMaterialSupplier(RawMaterial rawMaterial, Supplier supplier, double unitCost) {
+        if (rawMaterial == null || supplier == null) {
+            return null;
         }
 
-        return supplierRepository.getById(connection, id);
-    }
-
-    public RawMaterial registerRawMaterialSupplier(String rawMaterialID, int supplierID, double unitCost) throws ProductException, SupplierException {
-        RawMaterial rawMaterial = getRawMaterialByID(rawMaterialID);
-        Supplier supplier = getSupplierByID(supplierID);
-
         if (rawMaterial.getRawMaterialCost().containsKey(supplier)) {
-            throw new ProductException("Supplier with ID " + supplierID + " has already been registered as a supplier of raw material with ID " + rawMaterialID);
+            throw ProductException.supplierAlreadyRegistered(supplier.getId(), rawMaterial.getId());
         }
 
         rawMaterial.getRawMaterialCost().put(supplier, unitCost);
 
-        boolean success = rawMaterialRepository.saveRawMaterialSupplier(connection, supplier, rawMaterial, unitCost);
-        if (!success) {
-            return null;
-        }
+        rawMaterialRepository.saveRawMaterialSupplier(connection, supplier, rawMaterial, unitCost);
 
         return rawMaterial;
     }
 
-    public RawMaterial deleteRawMaterialSupplier(String rawMaterialID, int supplierID) throws ProductException, SupplierException {
-        RawMaterial rawMaterial = getRawMaterialByID(rawMaterialID);
-        Supplier supplier = getSupplierByID(supplierID);
+    public RawMaterial deleteRawMaterialSupplier(RawMaterial rawMaterial, Supplier supplier) {
+        if (rawMaterial == null || supplier == null) {
+            return null;
+        }
 
         if (!rawMaterial.getRawMaterialCost().containsKey(supplier)) {
-            throw new ProductException("Supplier with ID " + supplierID + " was never registered as a supplier of raw material with ID " + rawMaterialID);
+            throw ProductException.supplierNotRegistered(supplier.getId(), rawMaterial.getId());
         }
 
         rawMaterial.getRawMaterialCost().remove(supplier);
 
-        boolean success = rawMaterialRepository.deleteRawMaterialSupplier(connection, supplier, rawMaterial);
-        if (!success) {
-            return null;
-        }
+        rawMaterialRepository.deleteRawMaterialSupplier(connection, supplier, rawMaterial);
 
         return rawMaterial;
     }
 
-    public RawMaterial changeUnitCostRawMaterialSupplier(String rawMaterialID, int supplierID, double unitCost) throws ProductException, SupplierException {
-        RawMaterial rawMaterial = getRawMaterialByID(rawMaterialID);
-        Supplier supplier = getSupplierByID(supplierID);
+    public RawMaterial changeUnitCostRawMaterialSupplier(RawMaterial rawMaterial, Supplier supplier, double unitCost) {
+        if (rawMaterial == null || supplier == null) {
+            return null;
+        }
 
         if (!rawMaterial.getRawMaterialCost().containsKey(supplier)) {
-            throw new ProductException("Supplier with ID " + supplierID + " was never registered as a supplier of raw material with ID " + rawMaterialID);
+            throw ProductException.supplierNotRegistered(supplier.getId(), rawMaterial.getId());
         }
 
         if (rawMaterial.getRawMaterialCost().get(supplier).equals(unitCost)) {
-            throw new ProductException("The expected unit cost remains the same");
+            throw ProductException.expectedUnitCostRemainsSame();
         }
 
         rawMaterial.getRawMaterialCost().put(supplier, unitCost);
 
-        boolean success = rawMaterialRepository.updateRawMaterialSupplier(connection, supplier, rawMaterial, unitCost);
-        if (!success) {
-            return null;
-        }
+        rawMaterialRepository.updateRawMaterialSupplier(connection, supplier, rawMaterial, unitCost);
 
         return rawMaterial;
     }

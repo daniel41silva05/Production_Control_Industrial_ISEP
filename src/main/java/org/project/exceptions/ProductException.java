@@ -19,6 +19,9 @@ public class ProductException extends RuntimeException {
     public static final String PRODUCT_NO_PRODUCTION_TREE = "Product with ID %s does not have any production tree in the system.";
     public static final String ALL_RAW_MATERIALS_NO_PRODUCTION_TREE = "Part ID %s - All raw materials have nothing to form them in the production tree.";
     public static final String PRODUCT_NOT_IN_CSV = "Product with ID %s does not exist in csv file.";
+    public static final String SUPPLIER_ALREADY_REGISTERED = "Supplier with ID %d has already been registered as a supplier of raw material with ID %s";
+    public static final String SUPPLIER_NOT_REGISTERED = "Supplier with ID %d was never registered as a supplier of raw material with ID %s";
+    public static final String EXPECTED_UNIT_COST_REMAINS_SAME = "The expected unit cost remains the same";
 
     public ProductException(String message) {
         super(message);
@@ -90,6 +93,18 @@ public class ProductException extends RuntimeException {
 
     public static ProductException productNotInCsv(String productID) {
         return new ProductException(String.format(PRODUCT_NOT_IN_CSV, productID));
+    }
+
+    public static ProductException supplierAlreadyRegistered(int supplierID, String rawMaterialID) {
+        return new ProductException(String.format(SUPPLIER_ALREADY_REGISTERED, supplierID, rawMaterialID));
+    }
+
+    public static ProductException supplierNotRegistered(int supplierID, String rawMaterialID) {
+        return new ProductException(String.format(SUPPLIER_NOT_REGISTERED, supplierID, rawMaterialID));
+    }
+
+    public static ProductException expectedUnitCostRemainsSame() {
+        return new ProductException(EXPECTED_UNIT_COST_REMAINS_SAME);
     }
 
 }
