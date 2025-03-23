@@ -1,0 +1,79 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype polyline
+skinparam classAttributeIconSize 0
+
+package "UI" {
+    class StatusSupplierUI {
+    }
+}
+
+package "Controller" {
+    class SupplierController {
+        +updateSupplierStatus() : List<Supplier>
+    }
+}
+
+package "Service" {
+    class SupplierService {
+        +getSuppliers() : List<Supplier>
+        +updateClientStatus() : List<Supplier>
+    }
+}
+
+package "Repository" {
+    class Repositories {
+        -Repositories()
+        +getInstance() : Repositories
+        +getSupplierRepository() : SupplierRepository
+    }
+
+    class SupplierRepository {
+        +getAll() : List<Supplier>
+        +updateStatus(supplier) : boolean
+    }
+
+}
+
+package "Model" {
+    class Supplier {
+        -supplierID : int
+        -name : String
+        -phoneNumber : int
+        -email : String
+        -type : CompanyType
+        -state : EntityState
+        -supplyOffers : List<SupplyOffer>
+        +Supplier(supplierID, name, phoneNumber, email)
+    }
+
+    enum EntityState {
+        ACTIVE
+        INACTIVE
+    }
+
+    class SupplyOffer {
+        -supplyOfferID : int
+        -deliveryAddress : Address
+        -startDate : Date
+        -endDate : Date
+        -state : ProcessState
+        -rawMaterialsQuantityCost : Map<RawMaterial, Map<Integer, Double>>
+        +SupplyOffer(supplyOfferID, deliveryAddress, startDate, endDate, rawMaterialsQuantityCost)
+    }
+}
+
+
+StatusSupplierUI ..> SupplierController
+SupplierController ..> SupplierService
+SupplierService ..> Repositories : repositories
+SupplierService ..> SupplierRepository : supplierRepository
+SupplierService ..> Supplier : supplier
+Repositories --> Repositories : instance
+Repositories "1" --> "1" SupplierRepository : supplierRepository
+SupplierRepository "1" --> "*" Supplier : categories
+Supplier "1" --> "*" SupplyOffer : has
+Supplier "*" --> "1" EntityState : has
+
+@enduml

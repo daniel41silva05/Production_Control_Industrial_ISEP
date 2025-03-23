@@ -1,0 +1,28 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title System Sequence Diagram (SSD)
+
+autonumber
+
+actor "Administrator" as ADM
+participant ":System" as System
+
+activate ADM
+
+    ADM -> System : requests supplier status
+    activate System
+
+    System -> System : updates supplier status if necessary
+
+    alt system error
+        System --> ADM : shows error message (Database error)
+        deactivate System
+    else success
+        System --> ADM : shows the list of supplier including status
+        deactivate System
+    end
+
+@enduml

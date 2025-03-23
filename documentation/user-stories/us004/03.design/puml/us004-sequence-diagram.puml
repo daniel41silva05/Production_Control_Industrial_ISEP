@@ -68,7 +68,7 @@ activate ADM
                 activate CLIENT
                 CLIENT --> SRV :
                 deactivate CLIENT
-                SRV -> clientRepository : updateStatus()
+                SRV -> clientRepository : updateStatus(client)
                 activate clientRepository
                 clientRepository --> SRV :
                 deactivate clientRepository
@@ -77,7 +77,7 @@ activate ADM
                 activate CLIENT
                 CLIENT --> SRV :
                 deactivate CLIENT
-                SRV -> clientRepository : updateStatus()
+                SRV -> clientRepository : updateStatus(client)
                 activate clientRepository
                 clientRepository --> SRV :
                 deactivate clientRepository

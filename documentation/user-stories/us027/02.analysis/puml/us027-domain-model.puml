@@ -1,0 +1,46 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+skinparam classAttributeIconSize 0
+
+hide circle
+hide methods
+
+title Domain Model - US027
+
+class Administrator {
+}
+
+class Supplier {
+    id
+    name
+    phoneNumber
+    email
+}
+
+enum EntityState {
+    state
+}
+
+class SupplyOffer {
+    id
+    startDate
+    endDate
+}
+
+class Address {
+    id
+    street
+    zipCode
+    town
+    country
+}
+
+Administrator "1" -- "1..*" Supplier : consult >
+Supplier "*" -- "1" EntityState : has >
+Supplier "1" -- "*" SupplyOffer : places >
+SupplyOffer "*" -- "1" Address : has >
+
+@enduml

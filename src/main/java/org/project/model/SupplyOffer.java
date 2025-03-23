@@ -22,15 +22,6 @@ public class SupplyOffer {
         this.rawMaterialsQuantityCost = rawMaterialsQuantityCost;
     }
 
-    public SupplyOffer(int id, Address deliveryAddress, Date startDate, ProcessState state, Map<RawMaterial, Map<Integer, Double>> rawMaterialsQuantityCost) {
-        this.id = id;
-        this.deliveryAddress = deliveryAddress;
-        this.startDate = startDate;
-        this.endDate = null;
-        this.state = state;
-        this.rawMaterialsQuantityCost = rawMaterialsQuantityCost;
-    }
-
     public SupplyOffer(int id, Address deliveryAddress, Date startDate, Date endDate, ProcessState state) {
         this.id = id;
         this.deliveryAddress = deliveryAddress;

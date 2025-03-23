@@ -21,7 +21,7 @@ As an Administrator, I want to delete a supplier, so that outdated supplier reco
 
 ### 1.4. Found out Dependencies
 
-* No dependencies.
+* There is a dependency on "US025 - Register a Supplier" as the supplier must be registered before it can be deleted.
 
 ### 1.5 Input and Output Data
 

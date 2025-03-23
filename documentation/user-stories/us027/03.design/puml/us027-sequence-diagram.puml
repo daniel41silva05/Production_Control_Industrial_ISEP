@@ -1,0 +1,98 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title System Sequence Diagram (SSD)
+
+autonumber
+
+actor "Administrator" as ADM
+participant ":StatusSupplierUI" as UI
+participant ":SupplierController" as CTRL
+participant ":SupplierService" as SRV
+participant "Repositories" as REPS
+participant "repositories\n:Repositories" as REP
+participant "supplierRepository:\nSupplierRepository" as supplierRepository
+participant "supplier:\nSupplier" as SUPPLIER
+
+title Supplier Status Sequence
+
+activate ADM
+    ADM -> UI : asks to update a supplier
+    activate UI
+
+        UI -> CTRL** : create
+
+        UI -> CTRL : updateSupplierStatus()
+        activate CTRL
+            CTRL -> SRV : updateSupplierStatus()
+            activate SRV
+
+                SRV -> SRV: getSuppliers())
+                activate SRV
+
+                SRV -> REPS : getInstance()
+                activate REPS
+                REPS --> SRV: repositories
+                deactivate REPS
+                SRV -> REP : getSupplierRepository()
+                activate REP
+                REP --> SRV : supplierRepository
+                deactivate REP
+
+                SRV -> supplierRepository : getAll()
+                activate supplierRepository
+        alt system error
+                        supplierRepository --> SRV: Database error
+
+                        SRV --> CTRL: show error message (Database error)
+
+                        CTRL --> UI: show error message (Database error)
+        else
+                        supplierRepository --> SRV: suppliers
+                        deactivate supplierRepository
+            SRV --> SRV: suppliers
+            deactivate SRV
+
+            loop For each supplier in suppliers
+
+            SRV -> SUPPLIER : getSupplyOffers()
+            activate SUPPLIER
+
+            SUPPLIER --> SRV : supplyOffers
+            deactivate SUPPLIER
+
+            alt supplier inactive with active supply offers
+                SRV -> SUPPLIER : setState(ACTIVE)
+                activate SUPPLIER
+                SUPPLIER --> SRV :
+                deactivate SUPPLIER
+                SRV -> supplierRepository : updateStatus(supplier)
+                activate supplierRepository
+                supplierRepository --> SRV :
+                deactivate supplierRepository
+            else supplier active without active supply offers
+                SRV -> SUPPLIER : setState(INACTIVE)
+                activate SUPPLIER
+                SUPPLIER --> SRV :
+                deactivate SUPPLIER
+                SRV -> supplierRepository : updateStatus(supplier)
+                activate supplierRepository
+                supplierRepository --> SRV :
+                deactivate supplierRepository
+            end alt
+            end loop
+
+            SRV --> CTRL : suppliers
+            deactivate SRV
+
+        CTRL --> UI : suppliers
+        deactivate CTRL
+
+        end
+    UI --> ADM : shows the list of suppliers including status or error message
+    deactivate UI
+
+deactivate ADM
+@enduml
