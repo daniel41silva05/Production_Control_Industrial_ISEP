@@ -1,0 +1,30 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+skinparam classAttributeIconSize 0
+
+hide circle
+hide methods
+
+title Domain Model - US026
+
+class Administrator {
+}
+
+class Supplier {
+    id
+    name
+    phoneNumber
+    email
+}
+
+enum EntityState {
+    state
+}
+
+Administrator "1" -- "1..*" Supplier : delete >
+Supplier "*" -- "1" EntityState : has >
+
+@enduml

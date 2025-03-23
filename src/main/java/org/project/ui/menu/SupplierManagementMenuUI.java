@@ -14,6 +14,7 @@ public class SupplierManagementMenuUI implements Runnable {
     public void run() {
         List<MenuItem> options = new ArrayList<MenuItem>();
         options.add(new MenuItem("Register a Supplier", new RegisterSupplierUI()));
+        options.add(new MenuItem("Delete a Supplier", new DeleteSupplierUI()));
 
         int option = 0;
         do {

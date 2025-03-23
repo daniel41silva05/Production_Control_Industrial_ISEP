@@ -1,0 +1,106 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title System Sequence Diagram (SSD)
+
+autonumber
+
+actor "Administrator" as ADM
+participant ":DeleteSupplierUI" as UI
+participant ":SupplierController" as CTRL
+participant ":SupplierService" as SRV
+participant "SupplierException" as EXC
+participant "Repositories" as REPS
+participant "repositories\n:Repositories" as REP
+participant "supplierRepository:\nSupplierRepository" as supplierRepository
+
+title Delete Supplier Sequence
+
+activate ADM
+    ADM -> UI : asks to delete a supplier
+    activate UI
+
+        UI -> CTRL** : create
+
+        UI -> CTRL : getSuppliers()
+        activate CTRL
+            CTRL -> SRV : getSuppliers()
+            activate SRV
+
+                SRV -> REPS : getInstance()
+                activate REPS
+                REPS --> SRV: repositories
+                deactivate REPS
+                SRV -> REP : getSupplierRepository()
+                activate REP
+                REP --> SRV : supplierRepository
+                deactivate REP
+
+                SRV -> supplierRepository : getAll()
+                activate supplierRepository
+                supplierRepository --> SRV : suppliers
+                deactivate supplierRepository
+            SRV --> CTRL : suppliers
+            deactivate SRV
+        CTRL --> UI : suppliers
+        deactivate CTRL
+    UI --> ADM : shows the list of suppliers and requests confirmation
+    deactivate UI
+
+    ADM -> UI : confirms that he wants to delete a supplier
+    activate UI
+        UI --> ADM : requests ID
+    deactivate UI
+
+    ADM -> UI : provides requested ID
+    activate UI
+        UI -> CTRL: deleteSupplier(supplierID)
+        activate CTRL
+            CTRL -> SRV: deleteSupplier(supplierID)
+            activate SRV
+
+                SRV -> SRV : getSupplierByID(supplierID)
+                activate SRV
+
+                SRV -> supplierRepository: getById(supplierID)
+                activate supplierRepository
+                supplierRepository --> SRV: supplier
+                deactivate supplierRepository
+
+                alt supplier == null
+                    SRV -> EXC: throw supplierNotFound(supplierID)
+                    activate EXC
+                    EXC --> SRV: Exception Thrown
+                    deactivate EXC
+                    SRV --> CTRL: show error message (Supplier does not exist)
+
+                    CTRL --> UI: show error message (Supplier does not exist)
+                else
+                    SRV --> SRV: supplier
+                    deactivate SRV
+
+                    SRV -> supplierRepository: delete(supplier)
+                    activate supplierRepository
+                    alt system error
+                        supplierRepository --> SRV: Database error
+
+                        SRV --> CTRL: show error message (Database error)
+
+                        CTRL --> UI: show error message (Database error)
+                    else
+                        supplierRepository --> SRV: supplier
+                        deactivate supplierRepository
+                        SRV --> CTRL: supplier
+                        deactivate SRV
+                        CTRL --> UI: supplier
+                        deactivate CTRL
+                    end
+                end
+
+    UI --> ADM: shows all data and displays operation success or error message
+    deactivate UI
+
+deactivate ADM
+@enduml
