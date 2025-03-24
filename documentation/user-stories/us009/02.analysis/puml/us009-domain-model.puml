@@ -28,35 +28,23 @@ class Order {
     price
 }
 
-class Address {
-    id
-    street
-    zipCode
-    town
-    country
-}
-
 enum ProcessState {
     state
 }
 
-class Product {
+class RawMaterial {
     id
     name
     description
-    capacity
-    size
-    color
-    price
+    currentStock
+    minimumStock
 }
 
 
 ProductionManager "1" -- "1..*" Order : complete >
 ProductionManager "1" -- "1..*" Client : consult >
-Order "*" -- "1..*" Product : contains >
-Order "*" -- "1" Address : delivered to >
+ProductionManager "1" -- "1..*" RawMaterial : update >
 Order "*" -- "1" ProcessState : has >
-Client "*" -- "1" Address : has >
 Client "1" -- "*" Order : places >
 
 @enduml

@@ -1,0 +1,142 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype polyline
+skinparam classAttributeIconSize 0
+
+package "UI" {
+    class CompleteSupplyOfferUI {
+    }
+}
+
+package "Controller" {
+    class SupplierController {
+        +getSuppliers() : List<Supplier>
+        +getSupplierByID(supplierID) : Supplier
+    }
+
+    class SupplyOfferController {
+        +completeSupplyOffer(supplyOfferID) : SupplyOffer
+    }
+}
+
+package "Service" {
+    class SupplierService {
+        +getSuppliers() : List<Supplier>
+        +getSupplierByID(supplierID) : Supplier
+    }
+
+    class SupplyOfferService {
+        +completeSupplyOffer(supplyOfferID) : SupplyOffer
+        -getSupplyOfferByID(supplyOfferID) : SupplyOffer
+    }
+}
+
+package "Repository" {
+    class Repositories {
+        -Repositories()
+        +getInstance() : Repositories
+        +getSupplierRepository() : SupplierRepository
+        +getSupplyOfferRepository() : SupplyOfferRepository
+    }
+
+    class SupplierRepository {
+        +getAll() : List<Supplier>
+        +getById(supplierID) : Supplier
+    }
+
+    class SupplyOfferRepository {
+        +getByID(supplyOfferID) : SupplyOffer
+        +updateState(supplyOffer) : boolean
+    }
+
+    class RawMaterialRepository {
+        +updateRawMaterial(rawMaterial) : boolean
+    }
+}
+
+package "Model" {
+    class Supplier {
+        -supplierID : int
+        -name : String
+        -phoneNumber : int
+        -email : String
+        -type : CompanyType
+        -state : EntityState
+        -supplyOffers : List<SupplyOffer>
+        +Supplier(supplierID, name, phoneNumber, email)
+    }
+
+    class SupplyOffer {
+        -supplyOfferID : int
+        -deliveryAddress : Address
+        -startDate : Date
+        -endDate : Date
+        -state : ProcessState
+        -rawMaterialsQuantityCost : Map<RawMaterial, Map<Integer, Double>>
+        +SupplyOffer(supplyOfferID, deliveryAddress, startDate, endDate, rawMaterialsQuantityCost)
+    }
+
+    enum ProcessState {
+        PENDING
+        CONFIRMED
+    }
+
+    class Part {
+        -id : String
+        -name : String
+        -description : String
+        +Part(id, name, description)
+    }
+
+    class RawMaterial {
+        -category : ProductCategory
+        -capacity : int
+        -size : int
+        -color : String
+        -price : double
+        +RawMaterial(id, name, description, category, capacity, size, color, price)
+    }
+}
+
+package "Exception" {
+    class SupplierException {
+        +supplierNotFound(supplierID) : SupplierException
+    }
+
+    class SupplyOfferException {
+        +supplyOfferNotFound(supplyOfferID) : SupplyOfferException
+    }
+
+    class RuntimeException
+}
+
+
+CompleteSupplyOfferUI ..> SupplierController
+CompleteSupplyOfferUI ..> SupplyOfferController
+SupplierController ..> SupplierService
+SupplyOfferController ..> SupplyOfferService
+SupplierService ..> Repositories : repositories
+SupplyOfferService ..> Repositories : repositories
+SupplierService ..> SupplierRepository : supplierRepository
+SupplyOfferService ..> SupplyOfferRepository : supplyOfferRepository
+SupplyOfferService ..> RawMaterialRepository : rawMaterialRepository
+SupplierService ..> Supplier : supplier
+SupplyOfferService ..> SupplyOffer : supplyOffer
+SupplyOfferService ..> RawMaterial : rawMaterial
+Repositories --> Repositories : instance
+Repositories "1" --> "1" SupplierRepository : clientRepository
+Repositories "1" --> "1" SupplyOfferRepository : orderRepository
+Repositories "1" --> "1" RawMaterialRepository : rawMaterialRepository
+SupplierRepository "1" --> "*" Supplier : categories
+SupplyOfferRepository "1" --> "*" SupplyOffer : categories
+RawMaterialRepository "1" --> "*" RawMaterial : categories
+RawMaterial --|> Part
+Supplier "1" --> "*" SupplyOffer : has
+SupplyOffer "*" --> "1" ProcessState : has
+SupplierService ..> SupplierException : throws
+SupplierException --|> RuntimeException
+SupplyOfferService ..> SupplyOfferException : throws
+SupplyOfferException --|> RuntimeException
+
+@enduml

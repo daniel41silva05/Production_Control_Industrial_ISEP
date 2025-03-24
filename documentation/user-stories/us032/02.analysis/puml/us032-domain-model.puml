@@ -1,0 +1,55 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+skinparam classAttributeIconSize 0
+
+hide circle
+hide methods
+
+title Domain Model - US032
+
+class ProductionManager {
+}
+
+class Supplier {
+    id
+    name
+    phoneNumber
+    email
+}
+
+class SupplyOffer {
+    id
+    startDate
+    endDate
+}
+
+class RawMaterialSupply {
+    quantity
+    unitCost
+}
+
+enum ProcessState {
+    state
+}
+
+class RawMaterial {
+    id
+    name
+    description
+    currentStock
+    minimumStock
+}
+
+
+ProductionManager "1" -- "1..*" Supplier : consult >
+ProductionManager "1" -- "1..*" SupplyOffer : complete >
+ProductionManager "1" -- "1..*" RawMaterial : update >
+Supplier "1" -- "*" SupplyOffer : places >
+SupplyOffer "*" -- "1" ProcessState : has >
+SupplyOffer "1" -- "1..*" RawMaterialSupply : contains >
+RawMaterialSupply "1..*" -- "1" RawMaterial : associates >
+
+@enduml
