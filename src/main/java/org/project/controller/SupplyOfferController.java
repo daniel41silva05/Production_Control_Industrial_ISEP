@@ -21,6 +21,11 @@ public class SupplyOfferController {
         rawMaterialService = new RawMaterialService();
     }
 
+    public SupplyOfferController(SupplyOfferService supplyOfferService, RawMaterialService rawMaterialService) {
+        this.supplyOfferService = supplyOfferService;
+        this.rawMaterialService = rawMaterialService;
+    }
+
     public SupplyOffer getSupplyOfferByID (int id) {
         return supplyOfferService.getSupplyOfferByID (id);
     }

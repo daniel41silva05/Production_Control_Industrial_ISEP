@@ -1,0 +1,194 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype polyline
+skinparam classAttributeIconSize 0
+
+package "UI" {
+    class RegisterSupplyOfferUI {
+    }
+}
+
+package "Controller" {
+    class SupplierController {
+        +getSuppliers() : List<Supplier>
+        +getSupplierByID(supplierID) : Supplier
+    }
+
+    class SupplyOfferController {
+        +registerSupplyOffer(supplier, supplyOfferID, street, zipCode, town, country, startDate, endDate, rawMaterialsQuantityCost) : SupplyOffer
+    }
+
+    class RawMaterialController {
+        +getRawMaterials() : List<RawMaterial>
+    }
+}
+
+package "Service" {
+    class SupplierService {
+        +getSuppliers() : List<Supplier>
+        +getSupplierByID(supplierID) : Supplier
+    }
+
+    class SupplyOfferService {
+        +registerSupplyOffer(supplier, supplyOfferID, street, zipCode, town, country, startDate, endDate, rawMaterialsQuantityCost) : SupplyOffer
+    }
+
+    class RawMaterialService {
+        +getRawMaterials() : List<RawMaterial>
+        +getRawMaterialByID(rawMaterialID) : RawMaterial
+    }
+}
+
+package "Repository" {
+    class Repositories {
+        -Repositories()
+        +getInstance() : Repositories
+        +getSupplierRepository() : SupplierRepository
+        +getAddressRepository() : AddressRepository
+        +getRawMaterialRepository() : RawMaterialRepository
+        +getSupplyOfferRepository() : SupplyOfferRepository
+    }
+
+    class SupplierRepository {
+        +getAll() : List<Supplier>
+        +getById(supplierID) : Supplier
+    }
+
+    class AddressRepository {
+        +findAddress(street, zipCode, town, country) : Address
+        +getAddressCount() : int
+        +save(deliveryAddress) : boolean
+    }
+
+    class RawMaterialRepository {
+        +getAll() : List<RawMaterial>
+        +getRawMaterialByID(rawMaterialID) : RawMaterial
+    }
+
+    class SupplyOfferRepository {
+        +getSupplyOfferExists(supplyOfferID) : boolean
+        +save(supplyOffer, supplier) : boolean
+    }
+}
+
+package "Model" {
+    class Supplier {
+        -supplierID : int
+        -name : String
+        -phoneNumber : int
+        -email : String
+        -type : CompanyType
+        -state : EntityState
+        -supplyOffers : List<SupplyOffer>
+        +Supplier(supplierID, name, phoneNumber, email)
+    }
+
+    class SupplyOffer {
+        -supplyOfferID : int
+        -deliveryAddress : Address
+        -startDate : Date
+        -endDate : Date
+        -state : ProcessState
+        -rawMaterialsQuantityCost : Map<RawMaterial, Map<Integer, Double>>
+        +SupplyOffer(supplyOfferID, deliveryAddress, startDate, endDate, rawMaterialsQuantityCost)
+    }
+
+    class Address {
+        -id : int
+        -street : String
+        -zipCode : String
+        -town : String
+        -country : String
+        +Address(id, street, zipCode, town, country)
+    }
+
+    enum ProcessState {
+        PENDING
+        CONFIRMED
+    }
+
+    class Part {
+        -id : String
+        -name : String
+        -description : String
+        +Part(id, name, description)
+    }
+
+    class RawMaterial {
+        -category : ProductCategory
+        -capacity : int
+        -size : int
+        -color : String
+        -price : double
+        +RawMaterial(id, name, description, category, capacity, size, color, price)
+    }
+}
+
+package "Exception" {
+    class SupplierException {
+        +supplierNotFound(supplierID) : SupplierException
+    }
+
+    class ProductException {
+        +rawMaterialNotFound(rawMaterialID) : ProductException
+    }
+
+    class SupplyOfferException {
+        +supplyOfferAlreadyExists(supplyOfferID) : SupplyOfferException
+        +invalidStartDate() : SupplyOfferException
+        +invalidZipCode() : SupplyOfferException
+    }
+
+    class RuntimeException
+}
+
+package "Commom" {
+    class Validator {
+        +isValidZipCode(zipCode) : boolean
+    }
+}
+
+
+RegisterSupplyOfferUI ..> SupplierController
+RegisterSupplyOfferUI ..> SupplyOfferController
+RegisterSupplyOfferUI ..> RawMaterialController
+SupplierController ..> SupplierService
+SupplyOfferController ..> SupplyOfferService
+SupplyOfferController ..> RawMaterialService
+RawMaterialController ..> RawMaterialService
+SupplierService ..> Repositories : repositories
+SupplyOfferService ..> Repositories : repositories
+RawMaterialService ..> Repositories : repositories
+SupplierService ..> SupplierRepository : supplierRepository
+SupplyOfferService ..> SupplyOfferRepository : supplyOfferRepository
+SupplyOfferService ..> AddressRepository : addressRepository
+RawMaterialService ..> RawMaterialRepository : rawMaterialRepository
+SupplierService ..> Supplier : supplier
+SupplyOfferService ..> SupplyOffer : supplyOffer
+SupplyOfferService ..> Address : address
+RawMaterialService ..> RawMaterial : rawMaterial
+Repositories --> Repositories : instance
+Repositories "1" --> "1" SupplierRepository : supplierRepository
+Repositories "1" --> "1" AddressRepository : addressRepository
+Repositories "1" --> "1" SupplyOfferRepository : supplyOfferRepository
+Repositories "1" --> "1" RawMaterialRepository : rawMaterialRepository
+SupplierRepository "1" --> "*" Supplier : categories
+AddressRepository "1" --> "*" Address : categories
+SupplyOfferRepository "1" --> "*" SupplyOffer : categories
+RawMaterialRepository "1" --> "*" RawMaterial : categories
+Supplier "*" --> "1" Address : has
+Supplier "1" --> "*" SupplyOffer : has
+SupplyOffer "*" --> "1" Address : has
+SupplyOffer "*" --> "1..*" RawMaterial : has
+RawMaterial --|> Part
+SupplyOffer "*" --> "1" ProcessState : has
+SupplierService ..> SupplierException : throws
+SupplierException --|> RuntimeException
+SupplyOfferService ..> SupplyOfferException : throws
+SupplyOfferException --|> RuntimeException
+RawMaterialService ..> ProductException : throws
+ProductException --|> RuntimeException
+SupplyOfferService ..> Validator : uses
+
+@enduml

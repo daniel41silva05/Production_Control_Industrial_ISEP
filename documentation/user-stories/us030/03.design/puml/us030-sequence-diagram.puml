@@ -1,0 +1,246 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title System Sequence Diagram (SSD)
+
+autonumber
+
+actor "Production Manager" as PM
+participant ":RegisterSupplyOfferUI" as UI
+participant ":SupplierController" as supplierCTRL
+participant ":RawMaterialController" as rawMaterialCTRL
+participant ":SupplyOfferController" as suppyOfferCTRL
+participant ":SupplierService" as supplierSRV
+participant ":RawMaterialService" as rawMaterialSRV
+participant ":SupplyOfferService" as supplyOfferSRV
+participant "SupplierException" as supplierEXC
+participant "ProductException" as rawMaterialEXC
+participant "SupplyOfferException" as supplyOfferEXC
+participant "Repositories" as REPS
+participant "repositories\n:Repositories" as REP
+participant "supplierRepository:\nSupplierRepository" as supplierRepository
+participant "addressRepository:\nAddressRepository" as addressRepository
+participant "rawMaterialRepository:\nRawMaterialRepository" as rawMaterialRepository
+participant "supplyOfferRepository:\nSupplyOfferRepository" as supplyOfferRepository
+participant "supplyOffer:\nSupplyOffer" as SUPPLYOFFER
+participant "address:\nAddress" as ADDRESS
+participant "rawMaterial:\nRawMaterial" as RAWMATERIAL
+participant "Validator" as VAL
+
+title Register Supply Offer Sequence
+
+activate PM
+    PM -> UI : asks to register a new supply offer
+    activate UI
+
+        UI -> supplierCTRL** : create
+        UI -> rawMaterialCTRL** : create
+        UI -> suppyOfferCTRL** : create
+
+        UI -> supplierCTRL : getSuppliers()
+        activate supplierCTRL
+            supplierCTRL -> supplierSRV : getSuppliers()
+            activate supplierSRV
+
+                supplierSRV -> REPS : getInstance()
+                activate REPS
+                REPS --> supplierSRV: repositories
+                deactivate REPS
+                supplierSRV -> REP : getSupplierRepository()
+                activate REP
+                REP --> supplierSRV : supplierRepository
+                deactivate REP
+
+                supplierSRV -> supplierRepository : getAll()
+                activate supplierRepository
+                supplierRepository --> supplierSRV : suppliers
+                deactivate supplierRepository
+            supplierSRV --> supplierCTRL : suppliers
+            deactivate supplierSRV
+        supplierCTRL --> UI : suppliers
+        deactivate supplierCTRL
+    UI --> PM : shows the list of suppliers and requests supplier id
+    deactivate UI
+
+    PM -> UI : provides requested id
+    activate UI
+        UI -> supplierCTRL : getSupplierByID(supplierID)
+        activate supplierCTRL
+            supplierCTRL -> supplierSRV : getSupplierByID(supplierID)
+            activate supplierSRV
+
+                supplierSRV -> supplierRepository : getById(supplierID)
+                activate supplierRepository
+                supplierRepository --> supplierSRV : supplier
+                deactivate supplierRepository
+
+                    alt supplier == null
+                        supplierSRV -> supplierEXC: throw supplierNotFound(supplierID)
+                        activate supplierEXC
+                        supplierEXC --> supplierSRV: Exception Thrown
+                        deactivate supplierEXC
+                        supplierSRV --> supplierCTRL: show error message (Supplier does not exist)
+                        supplierCTRL --> UI: show error message (Supplier does not exist)
+                    else
+
+            supplierSRV --> supplierCTRL : supplier
+            deactivate supplierSRV
+        supplierCTRL --> UI : supplier
+        deactivate supplierCTRL
+        UI --> PM : shows the supplier's supply offer list and asks for confirmation
+    deactivate UI
+
+    PM -> UI : confirms that he wants to register a new supply offer
+    activate UI
+
+    UI --> PM: requests data (i.e. Start Date, End Date, Delivery Address)
+    deactivate UI
+
+    PM -> UI : types requested data
+    activate UI
+
+        UI -> rawMaterialCTRL : getRawMaterials()
+        activate rawMaterialCTRL
+            rawMaterialCTRL -> rawMaterialSRV : getRawMaterials()
+            activate rawMaterialSRV
+
+                rawMaterialSRV -> REP : getRawMaterialRepository()
+                activate REP
+                REP --> rawMaterialSRV : rawMaterialRepository
+                deactivate REP
+
+                rawMaterialSRV -> rawMaterialRepository : getAll()
+                activate rawMaterialRepository
+                rawMaterialRepository --> rawMaterialSRV : rawMaterials
+                deactivate rawMaterialRepository
+            rawMaterialSRV --> rawMaterialCTRL : rawMaterials
+            deactivate rawMaterialSRV
+        rawMaterialCTRL --> UI : rawMaterials
+        deactivate rawMaterialCTRL
+
+        UI --> PM : shows the list of raw materials and requests raw material ids, quantities and costs
+    deactivate UI
+
+    PM -> UI : provides product ids, quantities and costs
+    activate UI
+
+        UI -> suppyOfferCTRL: registerSupplyOffer(supplier, supplyOfferID, street, zipCode, town, country, startDate, endDate, rawMaterialIDsQuantityCost)
+        activate suppyOfferCTRL
+            loop For each rawMaterialId in rawMaterialIDsQuantityCost
+                            suppyOfferCTRL -> suppyOfferCTRL : Initialize rawMaterialsQuantityCost
+
+                            suppyOfferCTRL -> rawMaterialSRV : getRawMaterialByID(rawMaterialId)
+                            activate rawMaterialSRV
+
+                                rawMaterialSRV -> REP : getRawMaterialRepository()
+                                activate REP
+                                REP --> rawMaterialSRV : rawMaterialRepository
+                                deactivate REP
+
+                                rawMaterialSRV -> rawMaterialRepository : getRawMaterialByID(rawMaterialId)
+                                activate rawMaterialRepository
+                                rawMaterialRepository --> rawMaterialSRV : rawMaterial
+                                deactivate rawMaterialRepository
+                                alt rawMaterial == null
+                                    rawMaterialSRV -> rawMaterialEXC: throw rawMaterialNotFound(rawMaterialId)
+                                    activate rawMaterialEXC
+                                    rawMaterialEXC --> rawMaterialSRV: Exception Thrown
+                                    deactivate rawMaterialEXC
+                                    rawMaterialSRV --> suppyOfferCTRL: show error message (Raw Material does not exist)
+                                    suppyOfferCTRL --> UI: show error message (Raw Material does not exist)
+                                else
+
+                            rawMaterialSRV --> suppyOfferCTRL : rawMaterial
+                            deactivate rawMaterialSRV
+
+                            suppyOfferCTRL -> suppyOfferCTRL : Add rawMaterial to rawMaterialsQuantityCost
+            end loop
+
+            suppyOfferCTRL -> supplyOfferSRV: registerSupplyOffer(supplier, supplyOfferID, street, zipCode, town, country, startDate, endDate, rawMaterialsQuantityCost)
+            activate supplyOfferSRV
+
+                supplyOfferSRV -> VAL: isValidData(startDate, endDate, zipCode)
+                activate VAL
+                VAL --> supplyOfferSRV: true/false
+                deactivate VAL
+
+                alt false
+
+                    supplyOfferSRV -> supplyOfferEXC: throw invalidData()
+                    activate supplyOfferEXC
+                    supplyOfferEXC --> supplyOfferSRV: Exception Thrown
+                    deactivate supplyOfferEXC
+                    supplyOfferSRV --> suppyOfferCTRL: show error message (Invalid data)
+
+                    suppyOfferCTRL --> UI: show error message (Invalid data)
+                    deactivate VAL
+                else
+
+                supplyOfferSRV -> REP: getSupplyOfferRepository()
+                activate REP
+                REP --> supplyOfferSRV: supplyOfferRepository
+                deactivate REP
+
+                supplyOfferSRV -> supplyOfferRepository: getSupplyOfferExists(supplyOfferID)
+                activate supplyOfferRepository
+                supplyOfferRepository --> supplyOfferSRV: true/false
+                deactivate supplyOfferRepository
+
+                alt true
+
+                    supplyOfferSRV -> supplyOfferEXC: throw supplyOfferAlreadyExists(supplyOfferID)
+                    activate supplyOfferEXC
+                    supplyOfferEXC --> supplyOfferSRV: Exception Thrown
+                    deactivate supplyOfferEXC
+                    supplyOfferSRV --> suppyOfferCTRL: show error message (Supply Offer already registered)
+
+                    suppyOfferCTRL --> UI: show error message (Supply Offer already registered)
+                else
+
+                    supplyOfferSRV -> REP: getAddressRepository()
+                    activate REP
+                    REP --> supplyOfferSRV: addressRepository
+                    deactivate REP
+
+                    supplyOfferSRV -> addressRepository: findAddress(street, zipCode, town, country)
+                    activate addressRepository
+                    addressRepository --> supplyOfferSRV: deliveryAddress
+                    deactivate addressRepository
+                    alt address == null
+                        supplyOfferSRV -> ADDRESS** : create(address)
+                        supplyOfferSRV -> addressRepository: save(address)
+                        activate addressRepository
+                        addressRepository --> supplyOfferSRV: deliveryAddress
+                        deactivate addressRepository
+                    end
+
+                    supplyOfferSRV -> SUPPLYOFFER** : create(supplyOfferID, deliveryAddress, startDate, endDate, rawMaterialsQuantityCost)
+
+                    supplyOfferSRV -> supplyOfferRepository: save(supplyOffer, supplier)
+                    activate supplyOfferRepository
+                    alt system error
+                        supplyOfferRepository --> supplyOfferSRV: Database error
+
+                        supplyOfferSRV --> suppyOfferCTRL: show error message (Database error)
+
+                        supplyOfferSRV --> UI: show error message (Database error)
+                    else
+                        supplyOfferRepository --> supplyOfferSRV: supplyOffer
+                        deactivate supplyOfferRepository
+                        supplyOfferSRV --> suppyOfferCTRL: supplyOffer
+                        deactivate supplyOfferSRV
+                        suppyOfferCTRL --> UI: supplyOffer
+                        deactivate suppyOfferCTRL
+                    end
+                end
+            end
+            end
+            end
+
+        UI --> PM : shows all data and displays operation success or error message
+    deactivate UI
+
+deactivate PM
+@enduml

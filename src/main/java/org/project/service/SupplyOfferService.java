@@ -24,6 +24,13 @@ public class SupplyOfferService {
         rawMaterialRepository = repositories.getRawMaterialRepository();
     }
 
+    public SupplyOfferService (DatabaseConnection connection, SupplyOfferRepository supplyOfferRepository, AddressRepository addressRepository, RawMaterialRepository rawMaterialRepository) {
+        this.connection = connection;
+        this.supplyOfferRepository = supplyOfferRepository;
+        this.addressRepository = addressRepository;
+        this.rawMaterialRepository = rawMaterialRepository;
+    }
+
     public SupplyOffer getSupplyOfferByID (int id)  {
         SupplyOffer supplyOffer = supplyOfferRepository.getByID(connection, id);
 
@@ -48,7 +55,7 @@ public class SupplyOfferService {
         }
 
         if (!Validator.isValidZipCode(deliveryZipCode)) {
-            throw OrderException.invalidZipCode();
+            throw SupplyOfferException.invalidZipCode();
         }
 
         Address address = addressRepository.findAddress(connection, deliveryStreet, deliveryZipCode, deliveryTown, deliveryCountry);

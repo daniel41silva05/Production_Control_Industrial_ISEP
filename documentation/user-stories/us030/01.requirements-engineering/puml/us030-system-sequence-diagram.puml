@@ -1,0 +1,63 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title System Sequence Diagram (SSD)
+
+autonumber
+
+actor "Production Manager" as PM
+participant ":System" as System
+
+activate PM
+
+    PM -> System : asks to register a new supply offer
+    activate System
+
+        System --> PM : shows the list of suppliers and requests supplier id
+    deactivate System
+
+    PM -> System : provides requested id
+    activate System
+
+    System -> System : checks if supplier already exists
+        alt supplier does not exist
+                System --> PM : shows error message (Supplier does not exist)
+            deactivate System
+        else supplier exists
+
+        System --> PM : shows the supplier's supply offer list and asks for confirmation
+    deactivate System
+
+    PM -> System : confirms that he wants to register a new supply offer
+    activate System
+
+        System --> PM : requests data (i.e. Start Date, End Date, Delivery Address)
+    deactivate System
+
+    PM -> System : types requested data
+    activate System
+
+        System --> PM : shows the list of raw materials and requests raw material ids, quantities and costs
+    deactivate System
+
+    PM -> System : provides raw material ids, quantities and costs
+    activate System
+
+        System -> System : validates the data
+        alt invalid data
+            System --> PM : shows error message (Invalid data)
+            deactivate System
+        else valid data
+                System -> System : saves supply offer data
+                alt system error
+                    System --> PM : shows error message (Database error)
+                    deactivate System
+                else success
+                    System --> PM : shows all data and displays operation success
+                    deactivate System
+                end
+            end
+        end
+@enduml
