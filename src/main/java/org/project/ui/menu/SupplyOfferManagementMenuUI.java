@@ -14,10 +14,10 @@ public class SupplyOfferManagementMenuUI implements Runnable {
     public void run() {
         List<MenuItem> options = new ArrayList<MenuItem>();
         options.add(new MenuItem("Register a Supply Offer", new RegisterSupplyOfferUI()));
-        options.add(new MenuItem("Cancel an Order", new CancelOrderUI()));
-        options.add(new MenuItem("Update an Order", new UpdateOrderUI()));
-        options.add(new MenuItem("Confirm completion of an Order", new CompleteOrderUI()));
-        options.add(new MenuItem("Consult Active Orders", new ConsultActiveOrdersUI()));
+        options.add(new MenuItem("Cancel a Supply Offer", new CancelSupplyOfferUI()));
+        options.add(new MenuItem("Update a Supply Offer", new UpdateSupplyOfferUI()));
+        options.add(new MenuItem("Confirm completion of a Supply Offer", new CompleteSupplyOfferUI()));
+        options.add(new MenuItem("Consult Active Supply Offers", new ConsultActiveSupplyOffersUI()));
 
         int option = 0;
         do {
