@@ -17,6 +17,9 @@ public class SupplierManagementMenuUI implements Runnable {
         options.add(new MenuItem("Delete a Supplier", new DeleteSupplierUI()));
         options.add(new MenuItem("Update a Supplier", new UpdateSupplierUI()));
         options.add(new MenuItem("Consult Supplier Status", new StatusSupplierUI()));
+        options.add(new MenuItem("Assign a Supplier to a Raw Material", new RegisterSupplierRawMaterialUI()));
+        options.add(new MenuItem("Delete a Supplier to a Raw Material", new DeleteSupplierRawMaterialUI()));
+        options.add(new MenuItem("Change a supplier's unit cost for a raw material", new ChangeCostSupplierRawMaterialUI()));
 
         int option = 0;
         do {

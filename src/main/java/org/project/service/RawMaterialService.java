@@ -8,7 +8,6 @@ import org.project.model.RawMaterial;
 import org.project.model.Supplier;
 import org.project.repository.RawMaterialRepository;
 import org.project.repository.Repositories;
-import org.project.repository.SupplierRepository;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -19,19 +18,16 @@ public class RawMaterialService {
 
     private DatabaseConnection connection;
     private RawMaterialRepository rawMaterialRepository;
-    private SupplierRepository supplierRepository;
 
     public RawMaterialService() {
         connection = ConnectionFactory.getInstance().getDatabaseConnection();
         Repositories repositories = Repositories.getInstance();
         rawMaterialRepository = repositories.getRawMaterialRepository();
-        supplierRepository  = repositories.getSupplierRepository();
     }
 
-    public RawMaterialService(DatabaseConnection connection, RawMaterialRepository rawMaterialRepository, SupplierRepository supplierRepository) {
+    public RawMaterialService(DatabaseConnection connection, RawMaterialRepository rawMaterialRepository) {
         this.connection = connection;
         this.rawMaterialRepository = rawMaterialRepository;
-        this.supplierRepository = supplierRepository;
     }
 
     public List<RawMaterial> getRawMaterials() { return rawMaterialRepository.getAllRawMaterials(connection); }

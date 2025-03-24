@@ -1,0 +1,118 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype polyline
+skinparam classAttributeIconSize 0
+
+package "UI" {
+    class RegisterSupplierRawMaterialUI {
+    }
+}
+
+package "Controller" {
+    class SupplierController {
+        +getSuppliers() : List<Supplier>
+    }
+
+    class RawMaterialController {
+        +getRawMaterials() : List<RawMaterial>
+        +registerRawMaterialSupplier(rawMaterial, supplierID, cost) : RawMaterial
+    }
+}
+
+package "Service" {
+    class SupplierService {
+        +getSuppliers() : List<Supplier>
+        +getSupplierByID(supplierID) : Supplier
+    }
+
+    class RawMaterialService {
+        +getRawMaterials() : List<RawMaterial>
+        +getRawMaterialByID(rawMaterialID) : RawMaterial
+        +registerRawMaterialSupplier(rawMaterial, supplier, unitCost) : RawMaterial
+    }
+}
+
+package "Repository" {
+    class Repositories {
+        -Repositories()
+        +getInstance() : Repositories
+        +getSupplierRepository() : SupplierRepository
+        +getRawMaterialRepository() : RawMaterialRepository
+    }
+
+    class SupplierRepository {
+        +getAll() : List<Supplier>
+        +getSupplierByID(supplierID) : Supplier
+    }
+
+    class RawMaterialRepository {
+        +getAll() : List<RawMaterial>
+        +getRawMaterialByID(rawMaterialID) : RawMaterial
+        +saveRawMaterialSupplier(rawMaterial, supplier, unitCost) : boolean
+    }
+}
+
+package "Model" {
+    class Supplier {
+        -supplierID : int
+        -name : String
+        -phoneNumber : int
+        -email : String
+        -type : CompanyType
+        -state : EntityState
+        -supplyOffers : List<SupplyOffer>
+        +Supplier(supplierID, name, phoneNumber, email)
+    }
+
+    class Part {
+        -id : String
+        -name : String
+        -description : String
+        +Part(id, name, description)
+    }
+
+    class RawMaterial {
+        -currentStock : int
+        -minimumStock : int
+        +RawMaterial(id, name, description)
+    }
+}
+
+package "Exception" {
+    class SupplierException {
+        +supplierNotFound(supplierID) : SupplierException
+    }
+
+    class ProductException {
+        +rawMaterialNotFound(rawMaterialID) : ProductException
+        +supplierAlreadyRegistered(supplierID, rawMaterialID) : ProductException
+    }
+
+    class RuntimeException
+}
+
+RegisterSupplierRawMaterialUI ..> SupplierController
+RegisterSupplierRawMaterialUI ..> RawMaterialController
+SupplierController ..> SupplierService
+RawMaterialController ..> RawMaterialService
+RawMaterialController ..> SupplierService
+SupplierService ..> Repositories : repositories
+SupplierService ..> SupplierRepository : supplierRepository
+SupplierService ..> Supplier : supplier
+RawMaterialService ..> Repositories : repositories
+RawMaterialService ..> RawMaterialRepository : rawMaterialRepository
+RawMaterialService ..> RawMaterial : rawMaterial
+Repositories --> Repositories : instance
+Repositories "1" --> "1" SupplierRepository : supplierRepository
+SupplierRepository "1" --> "*" Supplier : categories
+Repositories "1" --> "1" RawMaterialRepository : rawMaterialRepository
+RawMaterialRepository "1" --> "*" RawMaterial : categories
+RawMaterial --|> Part
+Supplier "*" --> "*" RawMaterial
+SupplierService ..> SupplierException : throws
+SupplierException --|> RuntimeException
+RawMaterialService ..> ProductException : throws
+ProductException --|> RuntimeException
+
+@enduml

@@ -101,7 +101,7 @@ public class RawMaterialRepository {
                             rs.getString("SupplierName"),
                             rs.getInt("PhoneNumber"),
                             rs.getString("EmailAddress"),
-                            EntityState.valueOf(rs.getString("State"))
+                            EntityState.valueOf(rs.getString("State").toUpperCase())
                     );
                     rawMaterial.getRawMaterialCost().put(supplier, rs.getDouble("ExpectedUnitCost"));
                 }
@@ -152,7 +152,7 @@ public class RawMaterialRepository {
                             rs.getString("SupplierName"),
                             rs.getInt("PhoneNumber"),
                             rs.getString("EmailAddress"),
-                            EntityState.valueOf(rs.getString("State"))
+                            EntityState.valueOf(rs.getString("State").toUpperCase())
                     );
                     rawMaterialCostMap.put(supplier, rs.getDouble("ExpectedUnitCost"));
                 }

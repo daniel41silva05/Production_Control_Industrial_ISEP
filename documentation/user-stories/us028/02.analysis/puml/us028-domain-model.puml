@@ -1,0 +1,39 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+skinparam classAttributeIconSize 0
+
+hide circle
+hide methods
+
+title Domain Model - US028
+
+class ProductionManager {
+}
+
+class Supplier {
+    id
+    name
+    phoneNumber
+    email
+}
+
+class RawMaterial {
+    id
+    name
+    description
+    currentStock
+    minimumStock
+}
+
+class RawMaterialSupplier {
+    expectedUnitCost
+}
+
+ProductionManager "1" -- "1..*" RawMaterialSupplier : register >
+RawMaterial "1" -- "*" RawMaterialSupplier : supplied >
+RawMaterialSupplier "*" -- "1" Supplier : associates >
+
+@enduml

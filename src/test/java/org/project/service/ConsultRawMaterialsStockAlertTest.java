@@ -29,7 +29,7 @@ public class ConsultRawMaterialsStockAlertTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        rawMaterialService = new RawMaterialService(connection, rawMaterialRepository, null);
+        rawMaterialService = new RawMaterialService(connection, rawMaterialRepository);
     }
 
     @Test

@@ -1,0 +1,156 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title Sequence Diagram (SD)
+
+autonumber
+
+actor "Production Manager" as PM
+participant ":RegisterSupplierRawMaterialUI" as UI
+participant ":SupplierController" as supCTRL
+participant ":RawMaterialController" as rawCTRL
+participant ":SupplierService" as supSRV
+participant ":RawMaterialService" as rawSRV
+participant "SupplierException" as supEXC
+participant "ProductException" as rawEXC
+participant "Repositories" as REPS
+participant "repositories\n:Repositories" as REP
+participant "supplierRepository:\nSupplierRepository" as supplierRepository
+participant "rawMaterialRepository:\nRawMaterialRepository" as rawMaterialRepository
+
+activate PM
+    PM -> UI : asks to assign a supplier to a raw material
+    activate UI
+
+        UI -> supCTRL** : create
+
+        UI -> rawCTRL** : create
+
+        UI -> rawCTRL : getRawMaterials()
+        activate rawCTRL
+            rawCTRL -> rawSRV : getRawMaterials()
+            activate rawSRV
+
+                rawSRV -> REPS : getInstance()
+                activate REPS
+                REPS --> rawSRV: repositories
+                deactivate REPS
+                rawSRV -> REP : getRawMaterialRepository()
+                activate REP
+                REP --> rawSRV : rawMaterialRepository
+                deactivate REP
+
+                rawSRV -> rawMaterialRepository : getAll()
+                activate rawMaterialRepository
+                rawMaterialRepository --> rawSRV : rawMaterials
+                deactivate rawMaterialRepository
+            rawSRV --> rawCTRL : rawMaterials
+            deactivate rawSRV
+        rawCTRL --> UI : rawMaterials
+        deactivate rawCTRL
+
+        UI -> supCTRL : getSuppliers()
+        activate supCTRL
+            supCTRL -> supSRV : getSuppliers()
+            activate supSRV
+
+                supSRV -> REPS : getInstance()
+                activate REPS
+                REPS --> supSRV: repositories
+                deactivate REPS
+                supSRV -> REP : getSupplierRepository()
+                activate REP
+                REP --> supSRV : supplierRepository
+                deactivate REP
+
+                supSRV -> supplierRepository : getAll()
+                activate supplierRepository
+                supplierRepository --> supSRV : suppliers
+                deactivate supplierRepository
+            supSRV --> supCTRL : suppliers
+            deactivate supSRV
+        supCTRL --> UI : suppliers
+        deactivate supCTRL
+
+    UI --> PM : shows the list of suppliers and raw materials and requests confirmation
+    deactivate UI
+
+    PM -> UI : confirms that he wants to assign a supplier to a raw material
+    activate UI
+        UI --> PM : requests data (i.e. Supplier ID, Raw Material ID and Unit Cost)
+    deactivate UI
+
+    PM -> UI : types requested data
+    activate UI
+        UI -> rawCTRL: registerRawMaterialSupplier(rawMaterialID, supplierID, cost)
+        activate rawCTRL
+            rawCTRL -> supSRV: getSupplierByID(supplierID)
+            activate supSRV
+
+                supSRV -> supplierRepository: getById(supplierID)
+                activate supplierRepository
+                supplierRepository --> supSRV: supplier
+                deactivate supplierRepository
+
+                alt supplier == null
+                    supSRV -> supEXC: throw supplierNotFound(supplierID)
+                    activate supEXC
+                    supEXC --> supSRV: Exception Thrown
+                    deactivate supEXC
+                    supSRV --> rawCTRL: show error message (Supplier does not exist)
+
+                    rawCTRL --> UI: show error message (Supplier does not exist)
+                end
+
+            supSRV --> rawCTRL: supplier
+            deactivate supSRV
+
+            rawCTRL -> rawSRV: registerRawMaterialSupplier(rawMaterialID, supplier, unitCost)
+            activate rawSRV
+
+                rawSRV -> rawSRV : getRawMaterialByID(rawMaterialID)
+                activate rawSRV
+
+                rawSRV -> rawMaterialRepository: getById(rawMaterialID)
+                activate rawMaterialRepository
+                rawMaterialRepository --> rawSRV: rawMaterial
+                deactivate rawMaterialRepository
+
+                alt rawMaterial == null
+                    rawSRV -> rawEXC: throw rawMaterialNotFound(rawMaterialID)
+                    activate rawEXC
+                    rawEXC --> rawSRV: Exception Thrown
+                    deactivate rawEXC
+                    rawSRV --> rawCTRL: show error message (Raw Material does not exist)
+
+                    rawCTRL --> UI: show error message (Raw Material does not exist)
+                end
+
+                rawSRV --> rawSRV : rawMaterial
+                deactivate rawSRV
+
+                    rawSRV -> rawMaterialRepository: saveRawMaterialSupplier(supplier, rawMaterial)
+                    activate rawMaterialRepository
+                    alt system error
+                        rawMaterialRepository --> rawSRV: Database error
+
+                        rawSRV --> rawCTRL: show error message (Database error)
+
+                        rawCTRL --> UI: show error message (Database error)
+                    else
+                        rawMaterialRepository --> rawSRV: rawMaterial
+                        deactivate rawMaterialRepository
+                        rawSRV --> rawCTRL: rawMaterial
+                        deactivate rawSRV
+                        rawCTRL --> UI: rawMaterial
+                        deactivate rawCTRL
+                    end
+
+
+    UI --> PM: shows all data and displays operation success or error message
+    deactivate UI
+
+deactivate PM
+@enduml

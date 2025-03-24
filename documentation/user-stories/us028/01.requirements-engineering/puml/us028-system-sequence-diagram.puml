@@ -1,0 +1,51 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title System Sequence Diagram (SSD)
+
+autonumber
+
+actor "Production Manager" as PM
+participant ":System" as System
+
+activate PM
+
+    PM -> System : asks to assign a supplier to a raw material
+    activate System
+
+        System --> PM : shows the list of suppliers and raw materials and requests confirmation
+    deactivate System
+
+    PM -> System : confirms that he wants to assign a supplier to a raw material
+    activate System
+
+        System --> PM : requests data (i.e. Supplier ID, Raw Material ID and Unit Cost)
+    deactivate System
+
+    PM -> System : types requested data
+    activate System
+
+            System -> System : checks if raw material exists
+            alt raw material does not exists
+                System --> PM : shows error message (Raw Material does not exist)
+                deactivate System
+            end
+
+            System -> System : checks if supplier exists
+            alt supplier does not exists
+                System --> PM : shows error message (Supplier does not exist)
+                deactivate System
+            end
+
+            System -> System : saves supplier assignment
+            alt system error
+                System --> PM : shows error message (Database error)
+                deactivate System
+            else success
+                System --> PM : shows all data and displays operation success
+                deactivate System
+            end
+
+@enduml

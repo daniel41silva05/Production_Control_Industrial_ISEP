@@ -22,6 +22,7 @@ public class ProductManagementMenuUI implements Runnable {
         options.add(new MenuItem("Change Minimum Raw Material Stock", new ChangeMinimumRawMaterialStockUI()));
         options.add(new MenuItem("Consult Stock of Raw Materials", new ConsultRawMaterialsStockUI()));
         options.add(new MenuItem("Consult Raw Materials in Stock Alert", new ConsultRawMaterialsStockAlertUI()));
+        options.add(new MenuItem("Consult prices of suppliers for a raw material", new ConsultSuppliersRawMaterialUI()));
 
         int option = 0;
         do {
