@@ -1,0 +1,84 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype polyline
+skinparam classAttributeIconSize 0
+
+package "UI" {
+    class ConsultSuppliersRawMaterialUI {
+    }
+}
+
+package "Controller" {
+    class RawMaterialController {
+        +getSuppliersByCost(rawMaterialID) : List<Map.Entry<Supplier, Double>>
+    }
+}
+
+package "Service" {
+    class RawMaterialService {
+        -getRawMaterialByID(rawMaterialID) : RawMaterial
+        +getSuppliersByCost(rawMaterialID) : List<Map.Entry<Supplier, Double>>
+    }
+}
+
+package "Repository" {
+    class Repositories {
+        -Repositories()
+        +getInstance() : Repositories
+        +getRawMaterialRepository() : RawMaterialRepository
+    }
+
+    class RawMaterialRepository {
+        +getRawMaterialByID(rawMaterialID) : RawMaterial
+    }
+}
+
+package "Model" {
+    class Supplier {
+        -supplierID : int
+        -name : String
+        -phoneNumber : int
+        -email : String
+        -type : CompanyType
+        -state : EntityState
+        -supplyOffers : List<SupplyOffer>
+        +Supplier(supplierID, name, phoneNumber, email)
+    }
+
+    class Part {
+        -id : String
+        -name : String
+        -description : String
+        +Part(id, name, description)
+    }
+
+    class RawMaterial {
+        -currentStock : int
+        -minimumStock : int
+        +RawMaterial(id, name, description)
+    }
+}
+
+package "Exception" {
+    class ProductException {
+        +rawMaterialNotFound(rawMaterialID) : ProductException
+    }
+
+    class RuntimeException
+}
+
+ConsultSuppliersRawMaterialUI ..> RawMaterialController
+RawMaterialController ..> RawMaterialService
+RawMaterialService ..> Repositories : repositories
+RawMaterialService ..> RawMaterialRepository : rawMaterialRepository
+RawMaterialService ..> RawMaterial : rawMaterial
+Repositories --> Repositories : instance
+Repositories "1" --> "1" RawMaterialRepository : rawMaterialRepository
+RawMaterialRepository "1" --> "*" RawMaterial : categories
+RawMaterial --|> Part
+Supplier "*" --> "*" RawMaterial
+RawMaterialService ..> ProductException : throws
+ProductException --|> RuntimeException
+
+@enduml

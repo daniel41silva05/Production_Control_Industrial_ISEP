@@ -1,0 +1,34 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title System Sequence Diagram (SSD)
+
+autonumber
+
+actor "Production Manager" as PM
+participant ":System" as System
+
+activate PM
+
+    PM -> System : asks to consult the list of suppliers for a raw material
+    activate System
+
+        System --> PM : shows the list of raw materials and requests ID
+        deactivate System
+
+    PM -> System : provides requested ID
+    activate System
+
+        System -> System : retrieves and sorts the list of suppliers
+
+    alt system error
+        System --> PM : shows error message (Raw Material does not exist)
+        deactivate System
+    else success
+        System --> PM : shows the list of suppliers
+        deactivate System
+    end
+
+@enduml

@@ -1,0 +1,103 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title Sequence Diagram (SD)
+
+autonumber
+
+actor "Production Manager" as PM
+participant ":ConsultSuppliersRawMaterialUI" as UI
+participant ":RawMaterialController" as rawCTRL
+participant ":RawMaterialService" as rawSRV
+participant "ProductException" as rawEXC
+participant "Repositories" as REPS
+participant "repositories\n:Repositories" as REP
+participant "rawMaterialRepository:\nRawMaterialRepository" as rawMaterialRepository
+participant "rawMaterial:\nRawMaterial" as rawMaterial
+participant "rawMaterialCost:\nRawMaterialCost" as rawMaterialCost
+
+activate PM
+    PM -> UI : asks to consult the list of suppliers for a raw material
+    activate UI
+
+        UI -> rawCTRL** : create
+
+        UI -> rawCTRL : getRawMaterials()
+        activate rawCTRL
+            rawCTRL -> rawSRV : getRawMaterials()
+            activate rawSRV
+
+                rawSRV -> REPS : getInstance()
+                activate REPS
+                REPS --> rawSRV: repositories
+                deactivate REPS
+                rawSRV -> REP : getRawMaterialRepository()
+                activate REP
+                REP --> rawSRV : rawMaterialRepository
+                deactivate REP
+
+                rawSRV -> rawMaterialRepository : getAll()
+                activate rawMaterialRepository
+                rawMaterialRepository --> rawSRV : rawMaterials
+                deactivate rawMaterialRepository
+            rawSRV --> rawCTRL : rawMaterials
+            deactivate rawSRV
+        rawCTRL --> UI : rawMaterials
+        deactivate rawCTRL
+
+    UI --> PM : shows the list of raw materials and requests ID
+    deactivate UI
+
+    PM -> UI : provides requested ID
+    activate UI
+
+        UI -> rawCTRL: getSuppliersByCost(rawMaterialID)
+        activate rawCTRL
+
+            rawCTRL -> rawSRV: getSuppliersByCost(rawMaterialID)
+            activate rawSRV
+
+                rawSRV -> rawSRV : getRawMaterialByID(rawMaterialID)
+                activate rawSRV
+
+                rawSRV -> rawMaterialRepository: getById(rawMaterialID)
+                activate rawMaterialRepository
+                rawMaterialRepository --> rawSRV: rawMaterial
+                deactivate rawMaterialRepository
+
+                alt rawMaterial == null
+                    rawSRV -> rawEXC: throw rawMaterialNotFound(rawMaterialID)
+                    activate rawEXC
+                    rawEXC --> rawSRV: Exception Thrown
+                    deactivate rawEXC
+                    rawSRV --> rawCTRL: show error message (Raw Material does not exist)
+
+                    rawCTRL --> UI: show error message (Raw Material does not exist)
+                end
+
+                rawSRV --> rawSRV : rawMaterial
+                deactivate rawSRV
+
+                    rawSRV -> rawMaterial: getRawMaterialCost()
+                    activate rawMaterial
+                    rawMaterial --> rawSRV: rawMaterialCost
+                    deactivate rawMaterial
+
+                    rawSRV -> rawMaterialCost: sort()
+                    activate rawMaterialCost
+                    rawMaterialCost --> rawSRV: rawMaterialCost
+                    deactivate rawMaterialCost
+
+            rawSRV --> rawCTRL: rawMaterial
+            deactivate rawSRV
+        rawCTRL --> UI: rawMaterial
+        deactivate rawCTRL
+
+
+    UI --> PM: shows the list of suppliers or error message
+    deactivate UI
+
+deactivate PM
+@enduml
