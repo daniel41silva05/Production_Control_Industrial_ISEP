@@ -28,6 +28,10 @@ public class OrderService {
         this.addressRepository = addressRepository;
     }
 
+    public List<Order> getOrders () {
+        return orderRepository.getAll(connection);
+    }
+
     public Order getOrderByID (int orderID) {
         Order order = orderRepository.getByID(connection, orderID);
 

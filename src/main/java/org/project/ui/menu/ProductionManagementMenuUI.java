@@ -15,6 +15,8 @@ public class ProductionManagementMenuUI implements Runnable {
         List<MenuItem> options = new ArrayList<MenuItem>();
         options.add(new MenuItem("Upload Production Tree from CSV file", new LoadProductionTreeCsvUI()));
         options.add(new MenuItem("Consult Production Tree", new ConsultProductionTreeUI()));
+        options.add(new MenuItem("Check Has Sufficient Stock for Order", new CheckHasSufficientStockOrderUI()));
+        options.add(new MenuItem("Check Has Sufficient Stock for Product", new CheckHasSufficientStockProductUI()));
 
         int option = 0;
         do {

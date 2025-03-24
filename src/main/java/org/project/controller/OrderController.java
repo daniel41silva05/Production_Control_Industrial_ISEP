@@ -30,6 +30,10 @@ public class OrderController {
         this.productionTreeService = productionTreeService;
     }
 
+    public List<Order> getOrders () {
+        return orderService.getOrders();
+    }
+
     public Order getOrderByID (int orderID) {
         return orderService.getOrderByID(orderID);
     }

@@ -96,7 +96,7 @@ public class ProductionTreeService {
 
     }
 
-    public HashMap<ProductionElement, Integer> buildTree(String productID, HashMap<ProductionElement, List<Integer>> elementNextOperations) {
+    private HashMap<ProductionElement, Integer> buildTree(String productID, HashMap<ProductionElement, List<Integer>> elementNextOperations) {
 
         HashMap<ProductionElement, Integer> elementParentOperationMap = new HashMap<>();
 
@@ -170,7 +170,7 @@ public class ProductionTreeService {
         }
     }
 
-    public LinkedHashMap<ProductionElement, List<ProductionElement>> invertParentChildRelationships(
+    private LinkedHashMap<ProductionElement, List<ProductionElement>> invertParentChildRelationships(
             HashMap<ProductionElement, Integer> elementParentOperationMap
     ) {
         LinkedHashMap<ProductionElement, List<ProductionElement>> parentToChildren = new LinkedHashMap<>();
@@ -215,7 +215,7 @@ public class ProductionTreeService {
 
     }
 
-    public void applyStockDeduction(NaryTreeNode<ProductionElement> node, int quantity) {
+    private void applyStockDeduction(NaryTreeNode<ProductionElement> node, int quantity) {
         if (node == null) {
             return;
         }
@@ -233,6 +233,55 @@ public class ProductionTreeService {
 
         for (NaryTreeNode<ProductionElement> child : node.getChildren()) {
             applyStockDeduction(child, quantity);
+        }
+    }
+
+    public List<RawMaterial> getInsufficientRawMaterialStockOrder(Order order) {
+        List<RawMaterial> insufficientStock = new ArrayList<>();
+
+        for (Map.Entry<Product, Integer> productEntry : order.getProductQuantity().entrySet()) {
+            Product product = productEntry.getKey();
+            int quantity = productEntry.getValue();
+
+            if (!productionTreeRepository.getProductionTreeExists(connection, product.getId())) {
+                throw ProductException.productionTreeNotFound(product.getId());
+            }
+            NaryTree<ProductionElement> tree = getProductionTree(product.getId());
+
+            checkStock(tree.getRoot(), quantity, insufficientStock);
+        }
+        return insufficientStock;
+    }
+
+    public List<RawMaterial> getInsufficientRawMaterialStockForProduct(Product product) {
+        List<RawMaterial> insufficientStock = new ArrayList<>();
+
+        if (!productionTreeRepository.getProductionTreeExists(connection, product.getId())) {
+            throw ProductException.productionTreeNotFound(product.getId());
+        }
+
+        NaryTree<ProductionElement> tree = getProductionTree(product.getId());
+        checkStock(tree.getRoot(), 1, insufficientStock);
+
+        return insufficientStock;
+    }
+
+    private void checkStock(NaryTreeNode<ProductionElement> node, int quantity, List<RawMaterial> insufficientStock) {
+        if (node == null) {
+            return;
+        }
+
+        Part part = node.getElement().getPart();
+        if (part instanceof RawMaterial) {
+            int currentStock = ((RawMaterial) part).getCurrentStock();
+            int requiredStock = (int) (node.getElement().getQuantity() * quantity);
+            if (currentStock < requiredStock) {
+                insufficientStock.add((RawMaterial) part);
+            }
+        }
+
+        for (NaryTreeNode<ProductionElement> child : node.getChildren()) {
+            checkStock(child, quantity, insufficientStock);
         }
     }
 
