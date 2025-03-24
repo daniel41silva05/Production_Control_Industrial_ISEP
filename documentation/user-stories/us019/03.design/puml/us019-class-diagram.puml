@@ -5,28 +5,28 @@ skinparam linetype polyline
 skinparam classAttributeIconSize 0
 
 package "UI" {
-    class CheckHasSufficientStockProductUI {
+    class CheckHasSufficientStockOrderUI {
     }
 }
 
 package "Controller" {
-    class ProductController {
-        +getProducts() : List<Product>
+    class OrderController {
+        +getOrders() : List<Order>
     }
 
     class ProductionController {
-        +getInsufficientRawMaterialStockForProduct(productID) : List<RawMaterial>
+        +getInsufficientRawMaterialStockForOrder(orderID) : List<RawMaterial>
     }
 }
 
 package "Service" {
-    class ProductService {
-        +getProducts() : List<Product>
-        +getProductByID(productID) : Product
+    class OrderService {
+        +getOrders() : List<Order>
+        +getOrderByID(orderID) : Order
     }
 
     class ProductionService {
-        +getInsufficientRawMaterialStockForProduct(productID) : List<RawMaterial>
+        +getInsufficientRawMaterialStockForOrder(orderID) : List<RawMaterial>
     }
 }
 
@@ -34,12 +34,13 @@ package "Repository" {
     class Repositories {
         -Repositories()
         +getInstance() : Repositories
-        +getProductRepository() : ProductRepository
+        +getOrderRepository() : OrderRepository
         +getProductionTree() : ProductionTreeRepository
     }
 
-    class ProductRepository {
-        +getAll() : List<Product>
+    class OrderRepository {
+        +getAll() : List<Order>
+        +getByID(orderID) : Order
     }
 
     class ProductionTreeRepository {
@@ -84,33 +85,48 @@ package "Model" {
         -executionTime : int
         +Operation(id, type, name, executionTime)
     }
+
+    class Order {
+        -orderID : int
+        -deliveryAddress : Address
+        -orderDate : Date
+        -deliveryDate : Date
+        -price : double
+        -state : ProcessState
+        -productQuantity : Map<Product, Integer>
+        +Order(orderID, deliveryAddress, orderDate, deliveryDate, price, productQuantity)
+    }
 }
 
 package "Exception" {
     class ProductException {
         +productionTreeNotFound(productID) : ProductException
-        +productNotFound(productID) : ProductException
+    }
+
+    class OrderException {
+        +orderNotFound(orderID) : OrderException
     }
 
     class RuntimeException
 }
 
-CheckHasSufficientStockProductUI ..> ProductController
-CheckHasSufficientStockProductUI ..> ProductionController
-ProductController ..> ProductService
+CheckHasSufficientStockOrderUI ..> OrderController
+CheckHasSufficientStockOrderUI ..> ProductionController
+OrderController ..> OrderService
 ProductionController ..> ProductionService
-ProductService ..> Repositories : repositories
-ProductService ..> ProductRepository : productRepository
-ProductService ..> Product : product
+ProductionController ..> OrderService
+OrderService ..> Repositories : repositories
+OrderService ..> OrderRepository : orderRepository
+OrderService ..> Order : order
 ProductionService ..> Repositories : repositories
 ProductionService ..> ProductionTreeRepository : productionTreeRepository
 ProductionService ..> Product : product
 ProductionService ..> ProductionElement : productionElement
 ProductionService ..> RawMaterial : rawMaterial
 Repositories --> Repositories : instance
-Repositories "1" --> "1" ProductRepository : productRepository
+Repositories "1" --> "1" OrderRepository : orderRepository
 Repositories "1" --> "1" ProductionTreeRepository : productionTreeRepository
-ProductRepository "1" --> "*" Product : categories
+OrderRepository "1" --> "*" Order : categories
 ProductionTreeRepository "1" --> "*" ProductionElement : categories
 Product --|> Part
 RawMaterial --|> Part
@@ -118,5 +134,7 @@ ProductionElement --> Part : has
 ProductionElement --> Operation : has
 ProductionService ..> ProductException : throws
 ProductException --|> RuntimeException
+OrderService ..> OrderException : throws
+OrderException --|> RuntimeException
 
 @enduml

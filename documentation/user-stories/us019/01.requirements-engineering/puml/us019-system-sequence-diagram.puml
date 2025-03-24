@@ -1,0 +1,40 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title System Sequence Diagram (SSD)
+
+autonumber
+
+actor "Production Manager" as PM
+participant ":System" as System
+
+activate PM
+
+    PM -> System : asks to check stock for a order
+    activate System
+
+        System --> PM : show list of orders and requests data (i.e. Order ID)
+    deactivate System
+
+    PM -> System : types requested data (Order ID)
+    activate System
+
+        System -> System : checks if order exists
+            alt order does not exist
+                System --> PM : shows error message (Order does not exist)
+            deactivate System
+            end
+
+        System -> System : get production tree and check stock availability
+
+            alt insufficient stock
+                System --> PM : insufficient stock for raw materials
+                deactivate System
+            else sufficient stock
+                System --> PM : confirms sufficient stock
+                deactivate System
+            end
+
+@enduml
