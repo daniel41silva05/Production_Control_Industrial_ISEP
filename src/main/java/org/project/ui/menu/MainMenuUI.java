@@ -17,6 +17,7 @@ public class MainMenuUI implements Runnable {
         options.add(new MenuItem("Product, Component and Raw Material Management", new ProductManagementMenuUI()));
         options.add(new MenuItem("Operation and Workstation Management", new OperationWorkstationManagementMenuUI()));
         options.add(new MenuItem("Supplier Management", new SupplierManagementMenuUI()));
+        options.add(new MenuItem("Supply Offer Management", new SupplyOfferManagementMenuUI()));
 
         int option = 0;
         do {

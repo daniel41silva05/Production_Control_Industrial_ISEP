@@ -1,6 +1,5 @@
 package org.project.controller;
 
-import org.project.model.ProcessState;
 import org.project.model.RawMaterial;
 import org.project.model.Supplier;
 import org.project.model.SupplyOffer;
@@ -26,7 +25,7 @@ public class SupplyOfferController {
         return supplyOfferService.getSupplyOfferByID (id);
     }
 
-    public SupplyOffer registerSupplyOffer(Supplier supplier, int supplyOfferID, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date startDate, Date endDate, ProcessState state, Map<String, Map<Integer, Double>> rawMaterialIDsQuantityCost) {
+    public SupplyOffer registerSupplyOffer(Supplier supplier, int supplyOfferID, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date startDate, Date endDate, Map<String, Map<Integer, Double>> rawMaterialIDsQuantityCost) {
         Map<RawMaterial, Map<Integer, Double>> rawMaterialsQuantityCost = new HashMap<>();
         for (Map.Entry<String, Map<Integer, Double>> rawMaterialIdQuantityCost : rawMaterialIDsQuantityCost.entrySet()) {
             RawMaterial rawMaterial = rawMaterialService.getRawMaterialByID(rawMaterialIdQuantityCost.getKey());
@@ -37,7 +36,7 @@ public class SupplyOfferController {
             }
         }
 
-        return supplyOfferService.registerSupplyOffer(supplier, supplyOfferID, deliveryStreet, deliveryZipCode, deliveryTown, deliveryCountry, startDate, endDate, state, rawMaterialsQuantityCost);
+        return supplyOfferService.registerSupplyOffer(supplier, supplyOfferID, deliveryStreet, deliveryZipCode, deliveryTown, deliveryCountry, startDate, endDate, rawMaterialsQuantityCost);
     }
 
     public SupplyOffer deleteSupplyOffer (int id) {

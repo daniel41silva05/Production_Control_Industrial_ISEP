@@ -1,5 +1,6 @@
 package org.project.service;
 
+import org.project.common.Validator;
 import org.project.data.ConnectionFactory;
 import org.project.data.DatabaseConnection;
 import org.project.exceptions.*;
@@ -33,17 +34,21 @@ public class SupplyOfferService {
         return supplyOffer;
     }
 
-    public SupplyOffer registerSupplyOffer(Supplier supplier, int supplyOfferID, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date startDate, Date endDate, ProcessState state, Map<RawMaterial, Map<Integer, Double>> rawMaterialsQuantityCost) {
+    public SupplyOffer registerSupplyOffer(Supplier supplier, int supplyOfferID, String deliveryStreet, String deliveryZipCode, String deliveryTown, String deliveryCountry, Date startDate, Date endDate, Map<RawMaterial, Map<Integer, Double>> rawMaterialsQuantityCost) {
         if (endDate.before(startDate)) {
             throw SupplyOfferException.invalidDateRange();
+        }
+
+        if (supplier == null) {
+            return null;
         }
 
         if (supplyOfferRepository.getSupplyOfferExists(connection, supplyOfferID)) {
             throw SupplyOfferException.supplyOfferAlreadyExists(supplyOfferID);
         }
 
-        if (supplier == null) {
-            return null;
+        if (!Validator.isValidZipCode(deliveryZipCode)) {
+            throw OrderException.invalidZipCode();
         }
 
         Address address = addressRepository.findAddress(connection, deliveryStreet, deliveryZipCode, deliveryTown, deliveryCountry);
@@ -53,7 +58,7 @@ public class SupplyOfferService {
             addressRepository.save(connection, address);
         }
 
-        SupplyOffer supplyOffer = new SupplyOffer(supplyOfferID, address, startDate, endDate, state, rawMaterialsQuantityCost);
+        SupplyOffer supplyOffer = new SupplyOffer(supplyOfferID, address, startDate, endDate, rawMaterialsQuantityCost);
 
         supplyOfferRepository.save(connection, supplyOffer, supplier);
 
