@@ -95,6 +95,9 @@ public class OperationService {
 
             Operation operation;
             OperationType type = operationTypeRepository.getById(connection, dto.getTypeId());
+            if (type == null) {
+                return null;
+            }
 
             if (!operationRepository.getOperationExists(connection, dto.getId())) {
 

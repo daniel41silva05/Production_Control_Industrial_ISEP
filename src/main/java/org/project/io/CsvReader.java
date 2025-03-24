@@ -209,7 +209,7 @@ public class CsvReader {
             while ((line = br.readLine()) != null) {
                 String[] values = line.split(";");
 
-                if (values.length < 4) {
+                if (values.length < 3) {
                     continue;
                 }
 

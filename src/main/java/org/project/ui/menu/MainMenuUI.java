@@ -1,5 +1,6 @@
 package org.project.ui.menu;
 
+import org.project.ui.LoadProductionTreeCsvUI;
 import org.project.ui.utils.Utils;
 
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ public class MainMenuUI implements Runnable {
         options.add(new MenuItem("Operation and Workstation Management", new OperationWorkstationManagementMenuUI()));
         options.add(new MenuItem("Supplier Management", new SupplierManagementMenuUI()));
         options.add(new MenuItem("Supply Offer Management", new SupplyOfferManagementMenuUI()));
+        options.add(new MenuItem("Production Management", new ProductionManagementMenuUI()));
 
         int option = 0;
         do {

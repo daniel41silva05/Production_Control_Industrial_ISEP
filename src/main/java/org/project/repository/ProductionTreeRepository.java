@@ -7,7 +7,6 @@ import org.project.model.*;
 import java.sql.*;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class ProductionTreeRepository {
@@ -16,7 +15,7 @@ public class ProductionTreeRepository {
         String insertSQL = """
         INSERT INTO ProductionTree (ProductID, OperationID, PartID, ParentOperationID, Quantity)
         VALUES (?, ?, ?, ?, ?)
-    """;
+        """;
 
         try (Connection conn = connection.getConnection()) {
             conn.setAutoCommit(false);
@@ -58,64 +57,31 @@ public class ProductionTreeRepository {
         }
     }
 
-    public LinkedHashMap<ProductionElement, Integer> getProductionHierarchy(DatabaseConnection connection, String productId) {
-        LinkedHashMap<ProductionElement, Integer> hierarchy = new LinkedHashMap<>();
+    public HashMap<ProductionElement, Integer> getProductionHierarchy(DatabaseConnection connection, String productId) {
+        HashMap<ProductionElement, Integer> hierarchy = new HashMap<>();
         String sql = """
-        WITH RECURSIVE ProductionHierarchy AS (
-            SELECT 
-                pt.ProductID,
-                pt.OperationID,
-                o.Name AS OperationName,
-                o.ExecutionTime,
-                o.OperationTypeID,
-                ot.Name AS OperationTypeName,
-                COALESCE(p.ProductID, c.ComponentID, r.RawMaterialID) AS PartID,
-                COALESCE(p.Name, c.Name, r.Name) AS PartName,
-                COALESCE(p.Description, c.Description, r.Description) AS PartDescription,
-                pt.ParentOperationID,
-                pt.Quantity,
-                CASE 
-                    WHEN p.ProductID IS NOT NULL THEN 'Product'
-                    WHEN c.ComponentID IS NOT NULL THEN 'Component'
-                    WHEN r.RawMaterialID IS NOT NULL THEN 'RawMaterial'
-                END AS PartType
-            FROM ProductionTree pt
-            JOIN Operation o ON pt.OperationID = o.OperationID
-            JOIN OperationType ot ON o.OperationTypeID = ot.OperationTypeID
-            LEFT JOIN Product p ON pt.PartID = p.ProductID
-            LEFT JOIN Component c ON pt.PartID = c.ComponentID
-            LEFT JOIN RawMaterial r ON pt.PartID = r.RawMaterialID
-            WHERE pt.ProductID = ?
-
-            UNION ALL
-
-            SELECT 
-                pt.ProductID,
-                pt.OperationID,
-                o.Name AS OperationName,
-                o.ExecutionTime,
-                o.OperationTypeID,
-                ot.Name AS OperationTypeName,
-                COALESCE(p.ProductID, c.ComponentID, r.RawMaterialID) AS PartID,
-                COALESCE(p.Name, c.Name, r.Name) AS PartName,
-                COALESCE(p.Description, c.Description, r.Description) AS PartDescription,
-                pt.ParentOperationID,
-                pt.Quantity,
-                CASE 
-                    WHEN p.ProductID IS NOT NULL THEN 'Product'
-                    WHEN c.ComponentID IS NOT NULL THEN 'Component'
-                    WHEN r.RawMaterialID IS NOT NULL THEN 'RawMaterial'
-                END AS PartType
-            FROM ProductionTree pt
-            JOIN Operation o ON pt.OperationID = o.OperationID
-            JOIN OperationType ot ON o.OperationTypeID = ot.OperationTypeID
-            LEFT JOIN Product p ON pt.PartID = p.ProductID
-            LEFT JOIN Component c ON pt.PartID = c.ComponentID
-            LEFT JOIN RawMaterial r ON pt.PartID = r.RawMaterialID
-            JOIN ProductionHierarchy ph ON pt.ParentOperationID = ph.OperationID
-        )
-        SELECT * FROM ProductionHierarchy;
-    """;
+        SELECT 
+            pt.OperationID,
+            o.Name AS OperationName,
+            o.ExecutionTime,
+            o.OperationTypeID,
+            ot.Name AS OperationTypeName,
+            pt.PartID,
+            p.Name AS PartName,
+            p.Description AS PartDescription,
+            pt.ParentOperationID,
+            pt.Quantity,
+            CASE 
+                WHEN EXISTS (SELECT 1 FROM Product WHERE ProductID = pt.PartID) THEN 'Product'
+                WHEN EXISTS (SELECT 1 FROM Component WHERE ComponentID = pt.PartID) THEN 'Component'
+                WHEN EXISTS (SELECT 1 FROM RawMaterial WHERE RawMaterialID = pt.PartID) THEN 'RawMaterial'
+            END AS PartType
+        FROM ProductionTree pt
+        JOIN Operation o ON pt.OperationID = o.OperationID
+        JOIN OperationType ot ON o.OperationTypeID = ot.OperationTypeID
+        JOIN Part p ON pt.PartID = p.PartID
+        WHERE pt.ProductID = ?
+        """;
 
         try (PreparedStatement stmt = connection.getConnection().prepareStatement(sql)) {
             stmt.setString(1, productId);
@@ -156,7 +122,7 @@ public class ProductionTreeRepository {
                             part = new RawMaterial(partId, partName, partDescription);
                             break;
                         default:
-                            throw new IllegalStateException("Tipo de parte desconhecido: " + partType);
+                            throw new IllegalStateException("Unknown part type: " + partType);
                     }
 
                     ProductionElement element = new ProductionElement(part, operation, rs.getDouble("Quantity"));
@@ -188,5 +154,4 @@ public class ProductionTreeRepository {
 
         return count > 0;
     }
-
 }

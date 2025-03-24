@@ -1,1 +1,7 @@
 op_id;part_id;quantity;op1;op2;op3;opN
+33;produtoo;1;40;41
+40;comp1;1;30;31
+41;comp2;1;35;
+30;raw1;1;
+31;raw4;2;
+35;raw2;1;

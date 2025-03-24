@@ -1,4 +1,7 @@
 op_id;op_name;op_time;op_type_id
 30;corte madeira;10;1000
 31;corte plastico;7;1000
-32;desenhar cadeira;15;1001
+35;corte vidro;9;1000
+33;montarProduto;15;1002
+40;montarMadeira;10;1002
+41;montarVidro;20;1002

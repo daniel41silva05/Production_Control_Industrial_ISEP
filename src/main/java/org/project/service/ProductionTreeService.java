@@ -35,6 +35,10 @@ public class ProductionTreeService {
     public void createProductionTree (String productID, String filePath) {
         HashMap<ProductionElementDTO, List<Integer>> elementNextOperationsDto = CsvReader.loadBOO(filePath);
 
+        if (productionTreeRepository.getProductionTreeExists(connection, productID)) {
+            throw ProductException.productionTreeAlreadyExists(productID);
+        }
+
         if (!productRepository.getProductExists(connection, productID)) {
             throw ProductException.productNotFound(productID);
         }
@@ -48,10 +52,10 @@ public class ProductionTreeService {
             int operationID = productionElementDTO.getOperationId();
             double quantity = productionElementDTO.getQuantity();
 
-            if (!operationRepository.getOperationExists(connection, operationID)) {
+            Operation operation = operationRepository.getById(connection, operationID);
+            if (operation == null) {
                 throw OperationException.operationNotFound(operationID);
             }
-            Operation operation = operationRepository.getById(connection, operationID);
 
             if (!productRepository.getPartExists(connection, partID)) {
                 throw ProductException.partNotFound(partID);
@@ -117,74 +121,78 @@ public class ProductionTreeService {
     }
 
     private ProductionElement findElementByOperation(Integer operation, Set<ProductionElement> elements) {
+        if (operation == null) {
+            return null;
+        }
+
         for (ProductionElement element : elements) {
             if (element.getOperation().getId() == operation) {
                 return element;
             }
         }
+
         return null;
     }
 
-    public NaryTree<ProductionElement> getProductionTree (String productID) {
+    public NaryTree<ProductionElement> getProductionTree(String productID) {
         if (!productRepository.getProductExists(connection, productID)) {
             throw ProductException.productNotFound(productID);
         }
 
-        LinkedHashMap<ProductionElement, Integer> elementParentOperationMap = productionTreeRepository.getProductionHierarchy(connection, productID);
+        HashMap<ProductionElement, Integer> elementParentOperationMap =
+                productionTreeRepository.getProductionHierarchy(connection, productID);
 
-        LinkedHashMap<ProductionElement, List<Integer>> map = invertParentChildRelationships(elementParentOperationMap);
+        LinkedHashMap<ProductionElement, List<ProductionElement>> parentToChildren =
+                invertParentChildRelationships(elementParentOperationMap);
 
-        ProductionElement elementRoot = null;
-        for (ProductionElement element : map.keySet()) {
-            if (element.getPart().getId().equals(productID)) {
-                elementRoot = element;
+        ProductionElement rootElement = null;
+        for (ProductionElement element : elementParentOperationMap.keySet()) {
+            if (elementParentOperationMap.get(element) == null && element.getPart().getId().equals(productID)) {
+                rootElement = element;
                 break;
             }
         }
-        NaryTree<ProductionElement> tree = new NaryTree<>(elementRoot);
 
-        Map<Integer, ProductionElement> operationElementMap = new HashMap<>();
-        for (Map.Entry<ProductionElement, List<Integer>> entry : map.entrySet()) {
-            ProductionElement element = entry.getKey();
-            List<Integer> operations = entry.getValue();
-            for (Integer operationId : operations) {
-                operationElementMap.put(operationId, element);
-            }
-        }
-
-        constructSubTree(map, operationElementMap, tree.getRoot());
-
+        NaryTree<ProductionElement> tree = new NaryTree<>(rootElement);
+        constructSubTree(parentToChildren, tree.getRoot());
         return tree;
     }
 
-    private void constructSubTree(HashMap<ProductionElement, List<Integer>> map, Map<Integer, ProductionElement> operationElementMap, NaryTreeNode<ProductionElement> node) {
-        ProductionElement element = node.getElement();
-        List<Integer> children = map.get(element);
+    private void constructSubTree(Map<ProductionElement, List<ProductionElement>> parentToChildren, NaryTreeNode<ProductionElement> node) {
+        ProductionElement currentElement = node.getElement();
+        List<ProductionElement> children = parentToChildren.get(currentElement);
 
         if (children != null) {
-            for (Integer childOperation : children) {
-                ProductionElement childElement = operationElementMap.get(childOperation);
+            for (ProductionElement childElement : children) {
                 NaryTreeNode<ProductionElement> childNode = node.addChild(childElement);
-                constructSubTree(map, operationElementMap, childNode);
+                constructSubTree(parentToChildren, childNode);
             }
         }
     }
 
-    public LinkedHashMap<ProductionElement, List<Integer>> invertParentChildRelationships(LinkedHashMap<ProductionElement, Integer> elementParentOperationMap) {
-        LinkedHashMap<ProductionElement, List<Integer>> elementNextOperations = new LinkedHashMap<>();
+    public LinkedHashMap<ProductionElement, List<ProductionElement>> invertParentChildRelationships(
+            HashMap<ProductionElement, Integer> elementParentOperationMap
+    ) {
+        LinkedHashMap<ProductionElement, List<ProductionElement>> parentToChildren = new LinkedHashMap<>();
+
+        Map<Integer, ProductionElement> operationToElement = new HashMap<>();
+        for (ProductionElement element : elementParentOperationMap.keySet()) {
+            operationToElement.put(element.getOperation().getId(), element);
+        }
 
         for (Map.Entry<ProductionElement, Integer> entry : elementParentOperationMap.entrySet()) {
             ProductionElement childElement = entry.getKey();
-            Integer parentOperationID = entry.getValue();
+            Integer parentOperationId = entry.getValue();
 
-            ProductionElement parentElement = findElementByOperation(parentOperationID, elementParentOperationMap.keySet());
-
-            if (parentElement != null) {
-                elementNextOperations.computeIfAbsent(parentElement, k -> new ArrayList<>()).add(childElement.getOperation().getId());
+            if (parentOperationId != null) {
+                ProductionElement parentElement = operationToElement.get(parentOperationId);
+                if (parentElement != null) {
+                    parentToChildren.computeIfAbsent(parentElement, k -> new ArrayList<>()).add(childElement);
+                }
             }
         }
 
-        return elementNextOperations;
+        return parentToChildren;
     }
 
     public void discountRawMaterialStock (Order order) {

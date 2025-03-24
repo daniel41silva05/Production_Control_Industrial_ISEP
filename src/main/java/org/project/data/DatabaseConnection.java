@@ -7,7 +7,8 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class DatabaseConnection {
+public class DatabaseConnection implements AutoCloseable {
+
     private PGSimpleDataSource dataSource;
     private Connection connection;
     private SQLException error;
@@ -44,5 +45,20 @@ public class DatabaseConnection {
         SQLException lastError = this.error;
         registerError(null);
         return lastError;
+    }
+
+    @Override
+    public void close() {
+        if (connection != null) {
+            try {
+                if (!connection.getAutoCommit()) {
+                    connection.rollback();
+                }
+                connection.close();
+            } catch (SQLException e) {
+                Logger.getLogger(DatabaseConnection.class.getName())
+                        .log(Level.SEVERE, "Erro ao fechar conexão", e);
+            }
+        }
     }
 }

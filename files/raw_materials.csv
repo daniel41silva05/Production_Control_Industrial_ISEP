@@ -1,2 +1,6 @@
 raw_material_id;name;description;current_stock;minimum_stock
-materiallll0;madeira;descricao;1;4
+raw1;madeira;descricao;1;4
+raw2;vidro;descricao;2;2
+raw3;parafuso;descricao;3;5
+raw4;madeira2;descricao;5;2
+raw5;sla;descricao;5;2

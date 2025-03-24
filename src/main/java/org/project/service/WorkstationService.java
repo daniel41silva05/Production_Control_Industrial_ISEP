@@ -176,14 +176,13 @@ public class WorkstationService {
         for (Map.Entry<Workstation, Integer> entry : operationWorkstationIdMap.entrySet()) {
             Workstation workstation = entry.getKey();
             Integer workstationTypeId = entry.getValue();
-            WorkstationType workstationType = null;
+
+            WorkstationType workstationType = workstationTypeRepository.getById(connection, workstationTypeId);
+            if (workstationType == null) {
+                return null;
+            }
 
             if (!workstationRepository.getWorkstationExists(connection, workstation.getId())) {
-                if (!workstationTypeRepository.getWorkstationTypeExists(connection, workstationTypeId)) {
-                    return null;
-                }
-                workstationType = workstationTypeRepository.getById(connection, workstationTypeId);
-
                 workstationRepository.save(connection, workstation, workstationType);
             }
 
