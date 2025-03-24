@@ -108,7 +108,6 @@ public class UpdateSupplyOfferUI implements Runnable {
                                 + " | Cost: " + quantityCost.getValue() + "$");
                     }
                 }
-
             }
         }
     }

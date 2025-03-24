@@ -127,11 +127,7 @@ public class SupplyOfferService {
 
             for (Map.Entry<Integer, Double> entry : getRawMaterialQuantityCost.getValue().entrySet()) {
                 Integer quantity = entry.getKey();
-                int newCurrentStock = rawMaterial.getCurrentStock() - quantity;
-
-                if (newCurrentStock < 0) {
-                    throw SupplyOfferException.insufficientStock(rawMaterial.getId());
-                }
+                int newCurrentStock = rawMaterial.getCurrentStock() + quantity;
 
                 rawMaterial.setCurrentStock(newCurrentStock);
 

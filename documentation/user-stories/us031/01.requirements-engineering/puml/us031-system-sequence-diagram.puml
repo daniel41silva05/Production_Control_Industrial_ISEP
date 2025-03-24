@@ -1,0 +1,28 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title System Sequence Diagram (SSD)
+
+autonumber
+
+actor "Production Manager" as PM
+participant ":System" as System
+
+activate PM
+
+    PM -> System : requests active supply offers
+    activate System
+
+    System -> System : retrieves supply offers with a end date after the start date
+
+    alt system error
+        System --> PM : shows error message (Database error)
+        deactivate System
+    else success
+        System --> PM : shows the list of active supply offers
+        deactivate System
+    end
+
+@enduml

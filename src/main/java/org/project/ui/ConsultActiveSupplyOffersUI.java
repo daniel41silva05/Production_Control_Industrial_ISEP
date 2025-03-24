@@ -2,6 +2,8 @@ package org.project.ui;
 
 import org.project.controller.SupplyOfferController;
 import org.project.exceptions.DatabaseException;
+import org.project.exceptions.SupplierException;
+import org.project.exceptions.SupplyOfferException;
 import org.project.model.*;
 
 import java.util.List;
@@ -29,7 +31,7 @@ public class ConsultActiveSupplyOffersUI implements Runnable {
                 }
             }
 
-        } catch (DatabaseException e) {
+        } catch (SupplierException | SupplyOfferException | DatabaseException e) {
             System.out.println("\nError: " + e.getMessage());
         }
     }

@@ -1,6 +1,7 @@
 package org.project.model;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -37,7 +38,7 @@ public class SupplyOffer {
         this.startDate = startDate;
         this.endDate = endDate;
         this.state = state;
-        this.rawMaterialsQuantityCost = null;
+        this.rawMaterialsQuantityCost = new HashMap<>();
     }
 
     public int getId() {

@@ -5,7 +5,6 @@ public class SupplyOfferException extends RuntimeException {
     public static final String SUPPLY_OFFER_ALREADY_EXISTS = "Supply Offer with ID %d already exists.";
     public static final String SUPPLY_OFFER_NOT_FOUND = "Supply Offer with ID %d does not exist.";
     public static final String INVALID_DATE_RANGE = "End date cannot be before Start date.";
-    public static final String INSUFFICIENT_STOCK = "There is not enough stock of the raw material id: %s";
     public static final String INVALID_ZIP_CODE = "Invalid zip code. It must follow the format xxxx-xxx.";
 
     public SupplyOfferException(String message) {
@@ -22,10 +21,6 @@ public class SupplyOfferException extends RuntimeException {
 
     public static SupplyOfferException invalidDateRange() {
         return new SupplyOfferException(INVALID_DATE_RANGE);
-    }
-
-    public static SupplyOfferException insufficientStock(String rawMaterialId) {
-        return new SupplyOfferException(String.format(INSUFFICIENT_STOCK, rawMaterialId));
     }
 
     public static SupplyOfferException invalidZipCode() {

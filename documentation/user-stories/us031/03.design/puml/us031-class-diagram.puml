@@ -1,0 +1,59 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype polyline
+skinparam classAttributeIconSize 0
+
+package "UI" {
+    class ConsultActiveSupplyOffersUI {
+    }
+}
+
+package "Controller" {
+    class SupplyOfferController {
+        +activeSupplyOffers() : List<SupplyOffer>
+    }
+}
+
+package "Service" {
+    class SupplyOfferService {
+        +activeSupplyOffers() : List<SupplyOffer>
+    }
+}
+
+package "Repository" {
+    class Repositories {
+        -Repositories()
+        +getInstance() : Repositories
+        +getSupplyOfferRepository() : SupplyOfferRepository
+    }
+
+    class SupplyOfferRepository {
+        +getAll() : List<SupplyOffer>
+    }
+
+}
+
+package "Model" {
+    class SupplyOffer {
+        -supplyOfferID : int
+        -deliveryAddress : Address
+        -startDate : Date
+        -endDate : Date
+        -state : ProcessState
+        -rawMaterialsQuantityCost : Map<RawMaterial, Map<Integer, Double>>
+        +SupplyOffer(supplyOfferID, deliveryAddress, startDate, endDate, rawMaterialsQuantityCost)
+    }
+}
+
+
+ConsultActiveSupplyOffersUI ..> SupplyOfferController
+SupplyOfferController ..> SupplyOfferService
+SupplyOfferService ..> Repositories : repositories
+SupplyOfferService ..> SupplyOfferRepository : supplyOfferRepository
+SupplyOfferService ..> SupplyOffer : supplyOffer
+Repositories --> Repositories : instance
+Repositories "1" --> "1" SupplyOfferRepository : supplyOfferRepository
+SupplyOfferRepository "1" --> "*" SupplyOffer : categories
+
+@enduml

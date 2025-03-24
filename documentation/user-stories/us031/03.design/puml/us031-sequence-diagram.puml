@@ -1,0 +1,82 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title System Sequence Diagram (SSD)
+
+autonumber
+
+actor "Production Manager" as PM
+participant ":ConsultActiveSupplyOffersUI" as UI
+participant ":SupplyOfferController" as CTRL
+participant ":SupplyOfferService" as SRV
+participant "Repositories" as REPS
+participant "repositories\n:Repositories" as REP
+participant "supplyOfferRepository:\nSupplyOfferRepository" as supplyOfferRepository
+participant "supplyOffer:\nSupplyOffer" as OFFER
+participant "activeSupplyOffers:\nList<SupplyOffer>" as activeSupplyOffers
+
+title Active Orders Sequence
+
+activate PM
+    PM -> UI : requests active supply offers
+    activate UI
+
+        UI -> CTRL** : create
+
+        UI -> CTRL : consultActiveOrders()
+        activate CTRL
+            CTRL -> SRV : activeSupplyOffers()
+            activate SRV
+
+                SRV -> REPS : getInstance()
+                activate REPS
+                REPS --> SRV: repositories
+                deactivate REPS
+                SRV -> REP : getSupplyOfferRepository()
+                activate REP
+                REP --> SRV : supplyOfferRepository
+                deactivate REP
+
+                SRV -> supplyOfferRepository : getAll()
+                activate supplyOfferRepository
+            alt system error
+                        supplyOfferRepository --> SRV: Database error
+
+                        SRV --> CTRL: show error message (Database error)
+
+                        CTRL --> UI: show error message (Database error)
+            else
+                        supplyOfferRepository --> SRV: supplyOffers
+                        deactivate supplyOfferRepository
+
+            SRV -> activeSupplyOffers** : create
+
+            loop For each supplyOffer in supplyOffers
+
+                        SRV -> OFFER : getEndDate()
+                        activate OFFER
+                        OFFER --> SRV : endDate
+                        deactivate OFFER
+
+                        alt end date after current date
+                            SRV -> activeSupplyOffers : add(supplyOffer)
+                            activate activeSupplyOffers
+                            activeSupplyOffers --> SRV :
+                            deactivate activeSupplyOffers
+                        end alt
+                    end loop
+
+                    SRV --> CTRL : activeSupplyOffers
+                end alt
+                deactivate SRV
+
+            CTRL --> UI : activeSupplyOffers
+            deactivate CTRL
+
+        UI --> PM : shows the list of active supply offers or error message
+        deactivate UI
+
+deactivate PM
+@enduml
