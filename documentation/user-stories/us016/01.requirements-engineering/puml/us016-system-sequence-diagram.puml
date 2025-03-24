@@ -1,0 +1,40 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title System Sequence Diagram (SSD)
+
+autonumber
+
+actor "Production Manager" as PM
+participant ":System" as System
+
+activate PM
+
+    PM -> System : asks to add a production tree for a product
+    activate System
+
+        System --> PM : show list of products and requests data (i.e. Product ID, file path (.csv))
+    deactivate System
+
+    PM -> System : types requested data
+    activate System
+
+        System -> System : checks if product already exists
+            alt product does not exist
+                    System --> PM : shows error message (Product does not exist)
+                deactivate System
+            end
+
+        System -> System : save production tree
+
+                alt error
+                    System --> PM : shows error message
+                    deactivate System
+                else success
+                    System --> PM : shows all data and displays operation success
+                    deactivate System
+                end
+
+@enduml
