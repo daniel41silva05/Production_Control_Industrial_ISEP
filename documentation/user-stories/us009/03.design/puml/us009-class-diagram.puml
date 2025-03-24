@@ -1,0 +1,155 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype polyline
+skinparam classAttributeIconSize 0
+
+package "UI" {
+    class CompleteOrderUI {
+    }
+}
+
+package "Controller" {
+    class ClientController {
+        +getAllClients() : List<Client>
+        +getClientById(clientID) : Client
+    }
+
+    class OrderController {
+        +completeOrder(orderID) : Order
+    }
+}
+
+package "Service" {
+    class ClientService {
+        +getClients() : List<Client>
+        +getClientById(clientID) : Client
+    }
+
+    class OrderService {
+        +completeOrder(orderID)
+        -getOrderByID(orderID) : Order
+    }
+
+    class ProductionTreeService {
+        +discountRawMaterialStock(order) : void
+    }
+}
+
+package "Repository" {
+    class Repositories {
+        -Repositories()
+        +getInstance() : Repositories
+        +getClientRepository() : ClientRepository
+        +getOrderRepository() : OrderRepository
+        +getRawMaterialRepository() : RawMaterialRepository
+    }
+
+    class ClientRepository {
+        +getAll() : List<Client>
+        +getById(clientID) : Client
+    }
+
+    class OrderRepository {
+        +getByID(orderID) : Order
+        +updateState(order) : boolean
+    }
+
+    class RawMaterialRepository {
+        +updateRawMaterial(rawMaterial) : boolean
+    }
+}
+
+package "Model" {
+    class Client {
+        -clientID : int
+        -address : Address
+        -name : String
+        -vatin : String
+        -phoneNumber : int
+        -email : String
+        -type : CompanyType
+        -state : EntityState
+        -orders : List<Order>
+        +Client(clientID, name, address, vatin, phoneNumber, email, type)
+    }
+
+    class Order {
+        -orderID : int
+        -deliveryAddress : Address
+        -orderDate : Date
+        -deliveryDate : Date
+        -price : double
+        -state : ProcessState
+        -productQuantity : Map<Product, Integer>
+        +Order(orderID, deliveryAddress, orderDate, deliveryDate, price, productQuantity)
+    }
+
+    enum ProcessState {
+        PENDING
+        CONFIRMED
+    }
+
+    class Part {
+        -id : String
+        -name : String
+        -description : String
+        +Part(id, name, description)
+    }
+
+    class RawMaterial {
+        -currentStock : int
+        -minimumStock : int
+        +RawMaterial(id, name, description)
+    }
+
+}
+
+package "Exception" {
+    class ClientException {
+        +clientNotFound(clientID) : ClientException
+    }
+
+    class OrderException {
+        +orderNotFound(orderID) : OrderException
+    }
+
+    class ProductException {
+        +notEnoughStock() : ProductException
+    }
+
+    class RuntimeException
+}
+
+
+CompleteOrderUI ..> ClientController
+CompleteOrderUI ..> OrderController
+ClientController ..> ClientService
+OrderController ..> OrderService
+OrderController ..> ProductionTreeService
+ClientService ..> Repositories : repositories
+OrderService ..> Repositories : repositories
+ClientService ..> ClientRepository : clientRepository
+OrderService ..> OrderRepository : orderRepository
+ProductionTreeService ..> RawMaterialRepository : rawMaterialRepository
+ClientService ..> Client : client
+OrderService ..> Order : order
+ProductionTreeService ..> RawMaterial : rawMaterial
+Repositories --> Repositories : instance
+Repositories "1" --> "1" ClientRepository : clientRepository
+Repositories "1" --> "1" OrderRepository : orderRepository
+Repositories "1" --> "1" RawMaterialRepository : rawMaterialRepository
+ClientRepository "1" --> "*" Client : categories
+OrderRepository "1" --> "*" Order : categories
+RawMaterialRepository "1" --> "*" RawMaterial : categories
+RawMaterial --|> Part
+Client "1" --> "*" Order : has
+Order "*" --> "1" ProcessState : has
+ClientService ..> ClientException : throws
+ClientException --|> RuntimeException
+OrderService ..> OrderException : throws
+OrderException --|> RuntimeException
+ProductionTreeService ..> ProductException : throws
+ProductException --|> RuntimeException
+
+@enduml

@@ -1,0 +1,62 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+skinparam classAttributeIconSize 0
+
+hide circle
+hide methods
+
+title Domain Model - US009
+
+class ProductionManager {
+}
+
+class Client {
+    id
+    name
+    vatin
+    phoneNumber
+    email
+}
+
+class Order {
+    id
+    orderDate
+    deliveryDate
+    price
+}
+
+class Address {
+    id
+    street
+    zipCode
+    town
+    country
+}
+
+enum ProcessState {
+    state
+}
+
+class Product {
+    id
+    name
+    description
+    capacity
+    size
+    color
+    price
+}
+
+
+ProductionManager "1" -- "1..*" Order : complete >
+ProductionManager "1" -- "1..*" Client : consult >
+Order "*" -- "1..*" Product : contains >
+Order "*" -- "1" Address : delivered to >
+Order "*" -- "1" ProcessState : has >
+Client "*" -- "1" Address : has >
+Client "1" -- "*" Order : places >
+
+@enduml
