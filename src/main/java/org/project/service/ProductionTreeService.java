@@ -139,6 +139,10 @@ public class ProductionTreeService {
             throw ProductException.productNotFound(productID);
         }
 
+        if (!productionTreeRepository.getProductionTreeExists(connection, productID)) {
+            throw ProductException.productionTreeNotFound(productID);
+        }
+
         HashMap<ProductionElement, Integer> elementParentOperationMap =
                 productionTreeRepository.getProductionHierarchy(connection, productID);
 

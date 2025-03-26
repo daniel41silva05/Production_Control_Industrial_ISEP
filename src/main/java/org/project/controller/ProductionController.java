@@ -5,10 +5,9 @@ import org.project.model.Order;
 import org.project.model.Product;
 import org.project.model.ProductionElement;
 import org.project.model.RawMaterial;
-import org.project.service.OrderService;
-import org.project.service.ProductService;
-import org.project.service.ProductionTreeService;
+import org.project.service.*;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public class ProductionController {
@@ -29,6 +28,12 @@ public class ProductionController {
 
     public void createProductionTree(String productID, String filePath) {
         productionTreeService.createProductionTree(productID, filePath);
+    }
+
+    public LinkedList<Event> simulator (String productID) {
+        NaryTree<ProductionElement> tree = productionTreeService.getProductionTree(productID);
+        SimulatorService simulator = new SimulatorService(tree);
+        return simulator.simulator();
     }
 
     public List<RawMaterial> getInsufficientRawMaterialStockOrder(int orderID) {

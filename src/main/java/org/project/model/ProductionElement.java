@@ -7,11 +7,13 @@ public class ProductionElement {
     private Part part;
     private Operation operation;
     private double quantity;
+    private boolean processed;
 
     public ProductionElement(Part part, Operation operation, double quantity) {
         this.part = part;
         this.operation = operation;
         this.quantity = quantity;
+        this.processed = false;
     }
 
     public Part getPart() {
@@ -36,6 +38,14 @@ public class ProductionElement {
 
     public void setQuantity(double quantity) {
         this.quantity = quantity;
+    }
+
+    public boolean isProcessed() {
+        return processed;
+    }
+
+    public void setProcessed(boolean processed) {
+        this.processed = processed;
     }
 
     @Override

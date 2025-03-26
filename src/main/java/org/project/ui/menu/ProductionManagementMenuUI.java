@@ -17,6 +17,7 @@ public class ProductionManagementMenuUI implements Runnable {
         options.add(new MenuItem("Consult Production Tree", new ConsultProductionTreeUI()));
         options.add(new MenuItem("Check Has Sufficient Stock for Order", new CheckHasSufficientStockOrderUI()));
         options.add(new MenuItem("Check Has Sufficient Stock for Product", new CheckHasSufficientStockProductUI()));
+        options.add(new MenuItem("Simulate the Production of a Product", new SimulatorProductionProductUI()));
 
         int option = 0;
         do {

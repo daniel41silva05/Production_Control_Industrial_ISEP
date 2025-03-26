@@ -6,10 +6,12 @@ public class Workstation {
 
     private int id;
     private String name;
+    private boolean available;
 
     public Workstation(int id, String name) {
         this.id = id;
         this.name = name;
+        this.available = true;
     }
 
     public int getId() {
@@ -26,6 +28,14 @@ public class Workstation {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public boolean isAvailable() {
+        return available;
+    }
+
+    public void setAvailable(boolean available) {
+        this.available = available;
     }
 
     @Override
