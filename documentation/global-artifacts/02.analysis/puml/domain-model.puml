@@ -9,6 +9,15 @@ hide methods
 
 title Domain Model
 
+class Organization {
+}
+
+class Administrator {}
+
+class ProductionManager {}
+
+class PlantFloorManager {}
+
 class Client {
     id
     name
@@ -26,13 +35,11 @@ class Address {
 }
 
 enum CompanyType {
-    individual
-    company
+    type
 }
 
 class State {
-    active
-    inactive
+    type
 }
 
 class Order {
@@ -59,12 +66,6 @@ class Product {
 class ProductCategory {
     id
     name
-}
-
-class Unit {
-    id
-    name
-    symbol
 }
 
 class Part {
@@ -109,11 +110,7 @@ class RawMaterialSupply {
     unitCost
 }
 
-class BOO {
-    operationNumber
-}
-
-class BOOInput {
+class ProductElement {
     quantity
 }
 
@@ -140,8 +137,19 @@ class WorkstationType {
 class Workstation {
     id
     name
+    available
 }
 
+Organization "1" -- "1..*" Administrator : has
+Organization "1" -- "1..*" PlantFloorManager : has
+Organization "1" -- "1..*" ProductionManager : has
+Administrator "1..*" -- "*" Client : manages
+Administrator "1..*" -- "*" Supplier : manages
+ProductionManager "1..*" -- "*" Order : manages
+ProductionManager "1..*" -- "*" SupplyOffer : manages
+ProductionManager "1..*" -- "*" SupplyOffer : Part
+PlantFloorManager "1..*" -- "*" Workstation : manages
+PlantFloorManager "1..*" -- "*" Operation : manages
 Client "*" -- "1" Address : has >
 Client "*" -- "1" CompanyType : has >
 Client "*" -- "1" State : has >
@@ -152,20 +160,17 @@ ProductOrder "1..*" -- "1" Product : produces >
 Part "1" -- "0..1" Product : can be >
 Part "1" -- "0..1" Component : can be >
 Part "1" -- "0..1" RawMaterial : can be >
-Part "*" -- "1" Unit : has >
 Product "*" -- "1" ProductCategory : belongs to >
 RawMaterial "1" -- "*" RawMaterialSupplier : supplied >
 RawMaterialSupplier "*" -- "1" Supplier : associates >
 Supplier "*" -- "1" State : has >
 Supplier "1" -- "*" SupplyOffer : places >
 SupplyOffer "*" -- "1" Address : has >
-SupplyOffer "*" -- "1" Unit : has >
 SupplyOffer "1" -- "1..*" RawMaterialSupply : contains >
 RawMaterialSupply "1..*" -- "1" RawMaterial : associates >
-Product "1" -- "1" BOO : has >
-BOO "1" -- "1..*" BOOInput : composed of >
-BOOInput "*" -- "1" Operation : requires >
-BOOInput "*" -- "1" RawMaterial : requires >
+Product "1" -- "1..*" ProductElement : composed of >
+ProductElement "*" -- "1" Operation : requires >
+ProductElement "*" -- "1" Part : requires >
 Operation "*" -- "1" OperationType : belongs to >
 OperationType "1" -- "*" CanBeDoneAt : attributed to >
 CanBeDoneAt "*" -- "1" WorkstationType : requires >
