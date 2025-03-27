@@ -1,7 +1,6 @@
 @startuml
 skinparam packageStyle rectangle
-
-skinparam rectangle{
+skinparam rectangle {
     BorderColor yellow
 }
 
@@ -10,11 +9,83 @@ title Use Case Diagram
 left to right direction
 
 rectangle "System Actors" as actors {
-
+    actor Administrator
+    actor "Production\nManager" as PM
+    actor "Plant\NFloor\nManager" as PFM
 }
 
-rectangle "Use Cases" as usecases{
+rectangle "Use Cases" as usecases {
+    usecase "UC01 - Register Client" as UC01
+    Administrator --> UC01
+    usecase "UC02 - Delete Client" as UC02
+    Administrator --> UC02
+    usecase "UC03 - Update Client Data" as UC03
+    Administrator --> UC03
+    usecase "UC04 - Consult Client Status" as UC04
+    Administrator --> UC04
 
+    usecase "UC05 - Register Order" as UC05
+    PM --> UC05
+    usecase "UC06 - Cancel Order" as UC06
+    PM --> UC06
+    usecase "UC07 - Update Order Data" as UC07
+    PM --> UC07
+    usecase "UC08 - Consult Active Orders" as UC08
+    PM --> UC08
+    usecase "UC09 - Mark Order as Completed" as UC09
+    PM --> UC09
+
+    usecase "UC10 - Register Product" as UC10
+    PM --> UC10
+    usecase "UC11 - Change Product Category" as UC11
+    PM --> UC11
+    usecase "UC12 - Consult Products by Category" as UC12
+    PM --> UC12
+
+    usecase "UC13 - Register Component" as UC13
+    PM --> UC13
+    usecase "UC14 - Register Raw Material" as UC14
+    PM --> UC14
+    usecase "UC15 - View Low Stock Raw Materials" as UC15
+    PM --> UC15
+
+    usecase "UC16 - Add Production Tree for Product" as UC16
+    PM --> UC16
+    usecase "UC17 - Consult Production Tree" as UC17
+    PM --> UC17
+    usecase "UC18 - Consult Available Stock for Product" as UC18
+    PM --> UC18
+    usecase "UC19 - Consult Available Stock for Order" as UC19
+    PM --> UC19
+    usecase "UC20 - Simulate Production" as UC20
+    PM --> UC20
+
+    usecase "UC21 - Register Operation" as UC21
+    PFM --> UC21
+
+    usecase "UC22 - Register Workstation" as UC22
+    PFM --> UC22
+    usecase "UC23 - Change Workstation Setup Time" as UC23
+    PFM --> UC23
+
+    usecase "UC24 - Register Supplier" as UC24
+    Administrator --> UC24
+    usecase "UC25 - Delete Supplier" as UC25
+    Administrator --> UC25
+    usecase "UC26 - Check Supplier Status" as UC26
+    Administrator --> UC26
+
+    usecase "UC27 - Assign Supplier to Raw Material" as UC27
+    PM --> UC27
+    usecase "UC28 - View Supplier Prices for Raw Material" as UC28
+    PM --> UC28
+
+    usecase "UC29 - Register Supply Offer" as UC29
+    PM --> UC29
+    usecase "UC30 - View Active Supply Offers" as UC30
+    PM --> UC30
+    usecase "UC31 - Mark Supply Offer as Completed" as UC31
+    PM --> UC31
 }
 
 @enduml
