@@ -1,0 +1,132 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam linetype polyline
+skinparam classAttributeIconSize 0
+
+package "UI" {
+    class SimulatorProductionProductUI {
+    }
+}
+
+package "Controller" {
+    class ProductController {
+        +getProducts() : List<Product>
+    }
+
+    class ProductionController {
+        +simulator(productID) : List<Event>
+    }
+}
+
+package "Service" {
+    class ProductService {
+        +getProducts() : List<Product>
+    }
+
+    class ProductionService {
+        -getProductionTree(productID) : NaryTree<ProductionElement>
+        +simulator(tree) : List<Event>
+    }
+}
+
+package "Repository" {
+    class Repositories {
+        -Repositories()
+        +getInstance() : Repositories
+        +getProductRepository() : ProductRepository
+        +getProductionTree() : ProductionTreeRepository
+    }
+
+    class ProductRepository {
+        +getAll() : List<Product>
+    }
+
+    class ProductionTreeRepository {
+        +getProductionHierarchy(productID) : HashMap<ProductionElement, Integer>
+    }
+}
+
+package "Model" {
+    class Part {
+        -id : String
+        -name : String
+        -description : String
+        +Part(id, name, description)
+    }
+
+    class Product {
+        -category : ProductCategory
+        -capacity : int
+        -size : int
+        -color : String
+        -price : double
+        +Product(id, name, description, category, capacity, size, color, price)
+    }
+
+    class ProductionElement {
+        -part : Part
+        -operation : Operation
+        -quantity : Double
+        +ProductionElement(part, operation, quantity)
+    }
+
+    class Operation {
+        -id : int
+        -type : OperationType
+        -name : String
+        -executionTime : int
+        +Operation(id, type, name, executionTime)
+    }
+
+    class Workstation {
+        -id : int
+        -name : String
+        -available : boolean
+        +Workstation(id, name)
+    }
+
+    class Event {
+        -workstation : Workstation
+        -productionElement : ProductionElement
+        -startTime : int
+        -endTime : int
+    }
+}
+
+package "Exception" {
+    class ProductException {
+        +productionTreeNotFound(productID) : ProductException
+        +productNotFound(productID) : ProductException
+    }
+
+    class RuntimeException
+}
+
+SimulatorProductionProductUI ..> ProductController
+SimulatorProductionProductUI ..> ProductionController
+ProductController ..> ProductService
+ProductController ..> ProductionService
+ProductService ..> Repositories : repositories
+ProductService ..> ProductRepository : productRepository
+ProductService ..> Product : product
+ProductionService ..> Repositories : repositories
+ProductionService ..> ProductionTreeRepository : productionTreeRepository
+ProductionService ..> Product : product
+ProductionService ..> ProductionElement : productionElement
+ProductionService ..> Workstation : workstation
+ProductionService ..> Event : event
+Repositories --> Repositories : instance
+Repositories "1" --> "1" ProductRepository : productRepository
+Repositories "1" --> "1" ProductionTreeRepository : productionTreeRepository
+ProductRepository "1" --> "*" Product : categories
+ProductionTreeRepository "1" --> "*" ProductionElement : categories
+Product --|> Part
+Event --> ProductionElement : has
+Event --> Workstation : has
+ProductionElement --> Part : has
+ProductionElement --> Operation : has
+ProductionService ..> ProductException : throws
+ProductException --|> RuntimeException
+
+@enduml

@@ -1,7 +1,4 @@
-package org.project.service;
-
-import org.project.model.ProductionElement;
-import org.project.model.Workstation;
+package org.project.model;
 
 import java.util.Objects;
 

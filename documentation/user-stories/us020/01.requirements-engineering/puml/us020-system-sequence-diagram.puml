@@ -1,0 +1,36 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title System Sequence Diagram (SSD)
+
+autonumber
+
+actor "Production Manager" as PM
+participant ":System" as System
+
+activate PM
+
+    PM -> System : asks to simulate production for a product
+    activate System
+
+        System --> PM : show list of products and requests data (i.e. Product ID)
+    deactivate System
+
+    PM -> System : types requested data (Product ID)
+    activate System
+
+        System -> System : checks if product exists
+            alt product does not exist
+                System --> PM : shows error message (Product does not exist)
+            deactivate System
+            end
+
+        System -> System : fetch production tree and validate production hierarchy
+        System -> System : create events for production simulation
+
+    System --> PM : show events details (item, operation, workstation, start time, end time)
+    deactivate System
+
+@enduml

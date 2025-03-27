@@ -6,7 +6,7 @@ import org.project.exceptions.DatabaseException;
 import org.project.exceptions.OperationException;
 import org.project.exceptions.ProductException;
 import org.project.model.Product;
-import org.project.service.Event;
+import org.project.model.Event;
 import org.project.ui.utils.Utils;
 
 import java.util.LinkedList;

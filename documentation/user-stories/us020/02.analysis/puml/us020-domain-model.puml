@@ -1,0 +1,76 @@
+@startuml
+skinparam monochrome true
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+skinparam classAttributeIconSize 0
+
+hide circle
+hide methods
+
+title Domain Model - US020
+
+class ProductionManager {
+}
+
+class Event {
+    startTime
+    endTime
+}
+
+class Product {
+    id
+    name
+    description
+    capacity
+    size
+    color
+    price
+}
+
+class ProductElement {
+    quantity
+}
+
+class Part {
+    id
+    name
+    description
+}
+
+class Component {
+    id
+    name
+    description
+}
+
+class RawMaterial {
+    id
+    name
+    description
+    currentStock
+    minimumStock
+}
+
+class Operation {
+    id
+    name
+    executionTime
+}
+
+class Workstation {
+    id
+    name
+    available
+}
+
+ProductionManager "1" -- "1..*" Event : consult >
+Event "1" -- "1" ProductElement : composed of >
+Event "0..*" -- "1" Workstation : composed of >
+ProductElement "*" -- "1" Operation : requires >
+ProductElement "*" -- "1" Part : requires >
+Part "1" -- "0..1" Product : can be >
+Part "1" -- "0..1" Component : can be >
+Part "1" -- "0..1" RawMaterial : can be >
+
+@enduml
