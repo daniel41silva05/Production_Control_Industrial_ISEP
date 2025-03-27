@@ -1,6 +1,7 @@
 package org.project.data;
 
 import org.postgresql.ds.PGSimpleDataSource;
+import org.project.exceptions.DatabaseException;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -23,10 +24,7 @@ public class DatabaseConnection implements AutoCloseable {
             connection = dataSource.getConnection();
 
         } catch (SQLException e) {
-            Logger.getLogger(DatabaseConnection.class.getName())
-                    .log(Level.SEVERE, null, e);
-            System.err.format("SQL State: %s\n%s", e.getSQLState(),
-                    e.getMessage());
+            DatabaseException.databaseError();
         }
     }
 
